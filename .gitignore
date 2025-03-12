@@ -1,0 +1,59 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg
+
+# Virtual environment
+venv/
+*.env  # If you use .env files for environment variables (consider security implications for sensitive data!)
+
+# Django-specific
+*.log
+*.pot
+*.mo
+*.orig
+local_settings.py  # If you have local settings (database passwords, etc.) - NEVER commit sensitive settings!
+db.sqlite3  # If you are using SQLite and don't want to track the database file in Git (usually okay for development, but reconsider for production if needed)
+*.sqlite3-journal # SQLite journal files
+
+# Media files (if you are not versioning them and they are generated/user-uploaded)
+media/
+
+# Static files collected by 'collectstatic' command (if you don't version them)
+static/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+# Editor/IDE specific files
+*.swp
+*.swo
+*.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Packages and distribution
+*.egg-info
+dist/
+build/
+wheels/
+develop-eggs/
+sdist/
+*.zip
+*.tar.gz
+*.whl
+
+# Temp files
+*.tmp
+tmp/
