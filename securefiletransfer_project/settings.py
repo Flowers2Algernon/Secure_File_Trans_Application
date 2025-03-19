@@ -123,4 +123,5 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-ACCESS_CODE_EXPIRY_MINUTES = 15 # Set the expiry time for the access code to 15 minutes
+# Set the expiry time for the access code in minutes
+ACCESS_CODE_EXPIRE_MINUTES = 15

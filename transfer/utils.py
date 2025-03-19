@@ -10,7 +10,7 @@ def generate_code(length=6):
     return code
 
 def hash_access_code(code):
-    return hashlib.sha256(code.encode('utf-8').hexdigest())
+    return hashlib.sha256(code.encode('utf-8')).hexdigest()  # Corrected to call .hexdigest() on the hash object
 
 def verify_access_code(entered_code, hashed_code):
     return hashlib.sha256(entered_code.encode('utf-8')).hexdigest()

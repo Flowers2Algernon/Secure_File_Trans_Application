@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse,JsonResponse
-from .utils import generate_code,hash_access_code, get_code_expiry
+from .utils import generate_code,hash_access_code, get_code_expire_time
 from .models import EncrptedFile
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, views, parsers
@@ -28,7 +28,7 @@ class FileUploadView(views.APIView):
         # Generate a 6-digit code
         access_code = generate_code()
         hashed_code = hash_access_code(access_code)
-        expiry_time = get_code_expiry()
+        expiry_time = get_code_expire_time()
 
         # store unencrypted file and access code hash and matedata
         encrypted_file_instance = EncrptedFile.objects.create(
@@ -46,3 +46,6 @@ class FileUploadView(views.APIView):
         }
 
         return Response(response_data, status=status.HTTP_201_CREATED)
+
+def upload_page(request):
+    return render(request, "front_end/upload.html")
