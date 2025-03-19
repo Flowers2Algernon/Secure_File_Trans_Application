@@ -17,5 +17,5 @@ def verify_access_code(entered_code, hashed_code):
     # get hash code for the user entered code not compare now.
 
 def get_code_expire_time():
-    return datetime.utcnow() + timedelta(minutes=settings.ACCESS_CODE_EXPIRE_MINUTES)
+    return datetime.now() + timedelta(minutes=settings.ACCESS_CODE_EXPIRE_MINUTES)
     # get the expire time for the code
