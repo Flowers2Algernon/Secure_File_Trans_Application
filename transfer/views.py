@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse,JsonResponse
 from .utils import generate_code
-from .models import FileShare
+from .models import EncrptedFile
 from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt # Disable CSRF protection for this view
