@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,8 +77,12 @@ WSGI_APPLICATION = "securefiletransfer_project.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": config('ENGINE_NAME',"django.db.backends.sqlite3"),
+        "NAME": config('DATABASE_NAME',default=BASE_DIR / "db.sqlite3"),
+        'USER': config('DATABASE_USER',default=''),
+        'PASSWORD': config('DATABASE_PASSWORD',default=''),
+        'HOST': config('DATABASE_HOST',default=''),
+        'PORT': config('DATABASE_PORT',default=''),
     }
 }
 
@@ -122,6 +127,7 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 
 # Set the expiry time for the access code in minutes
 ACCESS_CODE_EXPIRE_MINUTES = 15
