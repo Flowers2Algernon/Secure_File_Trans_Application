@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Page</title>
+    <!-- Bootstrap 4 CSS
+    <link rel="stylesheet" href="css/style.css">
+    -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- 用户信息和顶部导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="#">File Upload System</a>
+    <div class="ml-auto">
+        <span class="text-white">Welcome, User!</span>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- 左侧导航栏 -->
+        <ul class="col-md-1 sidebar nav nav-pills nav-stacked">
+            <h4>Navigation</h4>
+
+            <li class="nav-item"><a href="#">上传文件</a></li>
+            <li class="nav-item"><a href="#">已上传文件</a></li>
+            <li class="nav-item"><a href="#">下载文件</a></li>
+        </ul>
+
+        <!-- 右侧内容区域 -->
+        <div class="col-md-9 content">
+            <h3>文件上传</h3>
+            <div class="file-upload-container">
+                <h4>请选择文件上传</h4>
+                <form action="#" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <input type="file" class="form-control-file" id="fileUpload">
+                    </div>
+                    <button type="submit" class="btn btn-primary">上传文件</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 4 JS和依赖 -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
