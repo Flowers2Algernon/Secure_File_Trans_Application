@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "transfer", # Add the transfer app to the list of installed apps
+    "rest_framework",  # Django REST framework
 ]
 
 MIDDLEWARE = [
@@ -75,17 +76,23 @@ WSGI_APPLICATION = "securefiletransfer_project.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": config('ENGINE_NAME',"django.db.backends.sqlite3"),
+#         "NAME": config('DATABASE_NAME',default=BASE_DIR / "db.sqlite3"),
+#         'USER': config('DATABASE_USER',default=''),
+#         'PASSWORD': config('DATABASE_PASSWORD',default=''),
+#         'HOST': config('DATABASE_HOST',default=''),
+#         'PORT': config('DATABASE_PORT',default=''),
+#     }
+# }
+
 DATABASES = {
-    "default": {
-        "ENGINE": config('ENGINE_NAME',"django.db.backends.sqlite3"),
-        "NAME": config('DATABASE_NAME',default=BASE_DIR / "db.sqlite3"),
-        'USER': config('DATABASE_USER',default=''),
-        'PASSWORD': config('DATABASE_PASSWORD',default=''),
-        'HOST': config('DATABASE_HOST',default=''),
-        'PORT': config('DATABASE_PORT',default=''),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -131,3 +138,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Set the expiry time for the access code in minutes
 ACCESS_CODE_EXPIRE_MINUTES = 15
+
+# Media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

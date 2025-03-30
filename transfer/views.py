@@ -36,10 +36,11 @@ class FileUploadView(views.APIView):
         # store unencrypted file and access code hash and matedata
         encrypted_file_instance = EncrptedFile.objects.create(
             # attention: alrough here is named as encrypted file, but we don't implement encryption yet TODO: implement encryption
-            uploaded_file=uploaded_file,# store the unencrypted file for now TODO: after encrption implement, change this model.
+            uploaded_file=uploaded_file,
+            original_filename=uploaded_file.name,  # Add the filename
+            file_size=uploaded_file.size,  # Add the file size
             code_hash=hashed_code,
-            code_expire=expiry_time
-
+            code_expire=expiry_time,
         )
 
         # prepare response

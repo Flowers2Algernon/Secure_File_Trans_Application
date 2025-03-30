@@ -71,12 +71,16 @@
                 }
 
                 const responseData = await response.json();
+                uploadForm.reset(); // Clear the form
+                
+                // Display success message
+                successMessageDiv.textContent = "File uploaded successfully!";
+                successMessageDiv.style.display = 'block';
+                
+                // Show file details
                 fileIdDisplay.textContent = responseData.file_id;
                 accessCodeDisplay.textContent = responseData.access_code;
                 uploadResponseDiv.style.display = 'block';
-                successMessageDiv.textContent = "File uploaded successfully!";
-                successMessageDiv.style.display = 'block';
-                uploadForm.reset(); // Clear the form
             } catch (error) {
                 console.error("Upload error:", error);
                 errorMessageDiv.textContent = `Upload failed: ${error.message || 'Unknown error'}`;
