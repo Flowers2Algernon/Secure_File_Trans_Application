@@ -14,6 +14,9 @@ def generate_code_api(request):
         return JsonResponse({'code': code}) # Return the code as a JSON response
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405) # Respond with 405 Method Not Allowed for GET or other methods
+
+def index(request):
+    return render(request,'index.html',{'index':index})
     
 
 class FileUploadView(views.APIView):
