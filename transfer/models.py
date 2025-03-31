@@ -5,7 +5,7 @@ import uuid
 class EncrptedFile(models.Model):
     # TODO: current don't implement encrption
     file_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    original_filename = models.FileField(max_length=255)
+    original_filename = models.CharField(max_length=100)
     # The FileField itself stores the path to the file in the database table (as a VARCHAR or TEXT type column). It does not store the file content directly in the database.
     uploaded_file = models.FileField(
         upload_to='uploaded_files/')  # store the unencrypted file for now TODO: after encrption implement, change this model.

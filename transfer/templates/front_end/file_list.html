@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Files</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h3>All Uploaded Files</h3>
+
+    <!-- 搜索框 -->
+    <div class="mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search files..." onkeyup="filterFiles()">
+    </div>
+
+    <!-- 文件列表 -->
+    <table class="table table-bordered" id="fileTable">
+        <thead class="thead-dark">
+        <tr>
+            <th><input type="checkbox" id="selectAll" onclick="toggleAllCheckboxes()"> Select All</th>
+            <th>File Name</th>
+            <th>Upload Time</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- 示例文件数据 -->
+        <tr>
+            <td><input type="checkbox" class="file-checkbox"></td>
+            <td>file1.pdf</td>
+            <td>2025-04-01 12:30</td>
+            <td><button class="btn btn-danger" onclick="deleteFile(this)">Delete</button></td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" class="file-checkbox"></td>
+            <td>file2.jpg</td>
+            <td>2025-04-02 10:00</td>
+            <td><button class="btn btn-danger" onclick="deleteFile(this)">Delete</button></td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" class="file-checkbox"></td>
+            <td>file3.txt</td>
+            <td>2025-04-03 09:20</td>
+            <td><button class="btn btn-danger" onclick="deleteFile(this)">Delete</button></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 删除选中的文件按钮 -->
+    <button class="btn btn-danger" onclick="deleteSelectedFiles()">Delete Selected Files</button>
+</div>
+
+<!-- 引入 Bootstrap 和自定义脚本 -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    // 查找文件
+    function filterFiles() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let rows = document.getElementById('fileTable').getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) {
+            let fileName = rows[i].cells[1].textContent.toLowerCase();
+            if (fileName.includes(input)) {
+                rows[i].style.display = "";
+            } else {
+                rows[i].style.display = "none";
+            }
+        }
+    }
+
+    // 删除单个文件
+    function deleteFile(button) {
+        if (confirm("Are you sure you want to delete this file?")) {
+            let row = button.closest('tr');
+            row.remove();
+        }
+    }
+
+    // 删除选中的文件
+    function deleteSelectedFiles() {
+        if (confirm("Are you sure you want to delete selected files?")) {
+            let checkboxes = document.querySelectorAll('.file-checkbox:checked');
+            checkboxes.forEach(checkbox => {
+                let row = checkbox.closest('tr');
+                row.remove();
+            });
+        }
+    }
+
+    // 选择/取消全选
+    function toggleAllCheckboxes() {
+        let checkboxes = document.querySelectorAll('.file-checkbox');
+        let selectAllCheckbox = document.getElementById('selectAll');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+    }
+</script>
+
+</body>
+</html>
