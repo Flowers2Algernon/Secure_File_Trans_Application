@@ -1,8 +1,9 @@
 import secrets
 import string
 import hashlib
-from datetime import datetime,timedelta
+from datetime import timedelta
 from django.conf import settings
+from django.utils import timezone
 
 def generate_code(length=6):
     alphabet = string.ascii_letters + string.digits
@@ -12,10 +13,9 @@ def generate_code(length=6):
 def hash_access_code(code):
     return hashlib.sha256(code.encode('utf-8')).hexdigest()  # Corrected to call .hexdigest() on the hash object
 
-def verify_access_code(entered_code, hashed_code):
-    return hashlib.sha256(entered_code.encode('utf-8')).hexdigest()
-    # get hash code for the user entered code not compare now.
+def verify_access_code(stored_hash, entered_hash):
+    """Verify if the entered access code hash matches the stored hash."""
+    return stored_hash == entered_hash
 
 def get_code_expire_time():
-    return datetime.now() + timedelta(minutes=settings.ACCESS_CODE_EXPIRE_MINUTES)
-    # get the expire time for the code
+    return timezone.now() + timedelta(minutes=settings.ACCESS_CODE_EXPIRE_MINUTES)

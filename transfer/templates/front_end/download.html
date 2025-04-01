@@ -46,14 +46,21 @@
             const response = await fetch('/get_encrypted_file_api/', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json' // Add this line
                 },
                 body: JSON.stringify(downloadData),
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                errorMessageDiv.textContent = `Download failed: ${errorData.error || response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    errorMessageDiv.textContent = `Download failed: ${errorData.error || response.statusText}`;
+                } catch (parseError) {
+                    // If the error response isn't valid JSON (it's HTML), show a generic message
+                    errorMessageDiv.textContent = `Download failed: Server returned an unexpected response. Status: ${response.status}`;
+                    console.error("Error parsing response:", parseError);
+                }
                 errorMessageDiv.style.display = 'block';
                 return;
             }

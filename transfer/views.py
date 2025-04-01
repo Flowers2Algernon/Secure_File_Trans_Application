@@ -7,10 +7,12 @@ from django.http import HttpResponse, JsonResponse
 from .utils import generate_code, hash_access_code, get_code_expire_time, verify_access_code
 from .models import EncrptedFile
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
 from celery import shared_task
 import random
+from django.utils import timezone
 
 
 @csrf_exempt  # Disable CSRF protection for this view
@@ -105,11 +107,12 @@ def file_list(request):
 def ai_monitor_access_code_request(request_data):
     # This function is a placeholder for AI monitoring of access code requests.
     # for now, simulate a random response
-    if random.random< 0.05: # 5% chance of being suspicious
+    if random.random() < 0.05:  # 5% chance of suspicious activity
         return "suspicious", "AI detected suspicious activity in access code request."
     else:
         return "normal", "AI detected normal activity in access code request."
     
+@method_decorator(csrf_exempt, name='dispatch')
 class GetEncryptedFileView(views.APIView):
     def post(self, request,*args, **kwargs):
         access_code = request.data.get('access_code')
@@ -141,7 +144,7 @@ class GetEncryptedFileView(views.APIView):
 
                 if file_instance is None:
                     return Response({'error': 'Invalid access code'}, status=status.HTTP_404_NOT_FOUND)
-                if file_instance.code_expire < datetime.now():
+                if file_instance.code_expire < timezone.now():
                     return Response({'error': 'Access code expired'}, status=status.HTTP_410_GONE)
                 
                 # Access code is valid and not expired, serve the ENCRYPTED file
@@ -155,7 +158,8 @@ class GetEncryptedFileView(views.APIView):
                 except Exception as e:
                     return Response({'error': 'Error reading the file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
-                return Response({'error': 'Error processing download request.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                print(f"Download error: {str(e)}")  # Log the actual error
+                return Response({'error': f'Error processing download request: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else: # unknown decision for ai
             return Response({'error': 'Error processing download request due to AI monitoring - unknown decision.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
