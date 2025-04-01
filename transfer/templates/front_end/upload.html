@@ -1,92 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure File Upload</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body { padding-top: 20px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Secure File Upload</h1>
+{% extends "front_end/base.html" %}
 
-        <div id="error-message" class="alert alert-danger" style="display:none;"></div>
-        <div id="success-message" class="alert alert-success" style="display:none;"></div>
+{% block title %}Secure File Upload{% endblock %}
 
-        <form id="upload-form">
-            <div class="form-group">
-                <label for="fileInput">Select File</label>
-                <input type="file" class="form-control-file" id="fileInput" name="file">
+{% block content %}
+<h1>Secure File Upload</h1>
+
+<div id="error-message" class="alert alert-danger" style="display:none;"></div>
+<div id="success-message" class="alert alert-success" style="display:none;"></div>
+
+<form id="upload-form">
+    <div class="form-group">
+        <label for="fileInput">Select File</label>
+        <input type="file" class="form-control-file" id="fileInput" name="file">
+    </div>
+    <button type="submit" class="btn btn-primary">Upload File</button>
+</form>
+
+<div id="upload-response" style="display:none; margin-top: 20px;">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            File Uploaded Successfully
+        </div>
+        <div class="card-body">
+            <h5>File ID:</h5>
+            <p id="file-id" class="card-text"></p>
+            <h5>Access Code:</h5>
+            <p id="access-code" class="card-text"><span class="badge badge-primary"></span></p>
+            <div class="alert alert-warning">
+                Please save this access code! You'll need it to download your file.
             </div>
-            <button type="submit" class="btn btn-primary">Upload File</button>
-        </form>
-
-        <div id="upload-response" style="margin-top: 20px; display:none;">
-            <h2>Upload Details</h2>
-            <p><strong>File ID:</strong> <span id="file-id-display"></span></p>
-            <p><strong>Access Code:</strong> <span id="access-code-display"></span> (Share this securely)</p>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <script>
-        const uploadForm = document.getElementById('upload-form');
-        const fileInput = document.getElementById('fileInput');
-        const errorMessageDiv = document.getElementById('error-message');
-        const successMessageDiv = document.getElementById('success-message');
-        const uploadResponseDiv = document.getElementById('upload-response');
-        const fileIdDisplay = document.getElementById('file-id-display');
-        const accessCodeDisplay = document.getElementById('access-code-display');
+{% block scripts %}
+<script>
+    const uploadForm = document.getElementById('upload-form');
+    const fileInput = document.getElementById('fileInput');
+    const errorMessageDiv = document.getElementById('error-message');
+    const successMessageDiv = document.getElementById('success-message');
+    const uploadResponseDiv = document.getElementById('upload-response');
+    const fileIdDisplay = document.getElementById('file-id');
+    const accessCodeDisplay = document.querySelector('#access-code span');
 
-        uploadForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent default form submission
+    uploadForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-            errorMessageDiv.style.display = 'none'; // Hide previous errors
-            successMessageDiv.style.display = 'none'; // Hide previous success
-            uploadResponseDiv.style.display = 'none'; // Hide previous response
+        errorMessageDiv.style.display = 'none';
+        successMessageDiv.style.display = 'none';
+        uploadResponseDiv.style.display = 'none';
 
-            const file = fileInput.files[0];
-            if (!file) {
-                errorMessageDiv.textContent = "Please select a file.";
+        const file = fileInput.files[0];
+        if (!file) {
+            errorMessageDiv.textContent = "Please select a file.";
+            errorMessageDiv.style.display = 'block';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/upload_api/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                errorMessageDiv.textContent = `Upload failed: ${errorData.error || response.statusText}`;
                 errorMessageDiv.style.display = 'block';
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('file', file);
-
-            try {
-                const response = await fetch('/upload_api/', { // Corrected URL for Django upload API
-                    method: 'POST',
-                    body: formData,
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json(); // Try to parse JSON error response
-                    errorMessageDiv.textContent = `Upload failed: ${errorData.error || response.statusText}`;
-                    errorMessageDiv.style.display = 'block';
-                    return;
-                }
-
-                const responseData = await response.json();
-                uploadForm.reset(); // Clear the form
-                
-                // Display success message
-                successMessageDiv.textContent = "File uploaded successfully!";
-                successMessageDiv.style.display = 'block';
-                
-                // Show file details
-                fileIdDisplay.textContent = responseData.file_id;
-                accessCodeDisplay.textContent = responseData.access_code;
-                uploadResponseDiv.style.display = 'block';
-            } catch (error) {
-                console.error("Upload error:", error);
-                errorMessageDiv.textContent = `Upload failed: ${error.message || 'Unknown error'}`;
-                errorMessageDiv.style.display = 'block';
-            }
-        });
-    </script>
-</body>
-</html>
+            const responseData = await response.json();
+            uploadForm.reset();
+            
+            fileIdDisplay.textContent = responseData.file_id;
+            accessCodeDisplay.textContent = responseData.access_code;
+            uploadResponseDiv.style.display = 'block';
+            
+            successMessageDiv.textContent = "File uploaded successfully!";
+            successMessageDiv.style.display = 'block';
+        } catch (error) {
+            errorMessageDiv.textContent = `Upload failed: ${error.message}`;
+            errorMessageDiv.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

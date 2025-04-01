@@ -1,99 +1,91 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download Encrypted File</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body { padding-top: 20px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Download Encrypted File</h1>
+{% extends "front_end/base.html" %}
 
-        <div id="error-message" class="alert alert-danger" style="display:none;"></div>
-        <div id="success-message" class="alert alert-success" style="display:none;"></div>
+{% block title %}Download Encrypted File{% endblock %}
 
-        <form id="download-form">
-            <div class="form-group">
-                <label for="accessCodeInput">Access Code</label>
-                <input type="text" class="form-control" id="accessCodeInput" name="accessCode" placeholder="Enter 6-Digit Access Code">
-            </div>
-            <button type="submit" class="btn btn-success">Download Encrypted File</button>
-        </form>
+{% block content %}
+<h1>Download Encrypted File</h1>
+
+<div id="error-message" class="alert alert-danger" style="display:none;"></div>
+<div id="success-message" class="alert alert-success" style="display:none;"></div>
+
+<form id="download-form">
+    <div class="form-group">
+        <label for="accessCodeInput">Access Code</label>
+        <input type="text" class="form-control" id="accessCodeInput" name="accessCode" placeholder="Enter 6-Digit Access Code">
     </div>
+    <button type="submit" class="btn btn-success">Download Encrypted File</button>
+</form>
+{% endblock %}
 
-    <script>
-        const downloadForm = document.getElementById('download-form');
-        const accessCodeInput = document.getElementById('accessCodeInput');
-        const errorMessageDiv = document.getElementById('error-message');
-        const successMessageDiv = document.getElementById('success-message');
+{% block scripts %}
+<script>
+    const downloadForm = document.getElementById('download-form');
+    const accessCodeInput = document.getElementById('accessCodeInput');
+    const errorMessageDiv = document.getElementById('error-message');
+    const successMessageDiv = document.getElementById('success-message');
 
-        downloadForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
+    downloadForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-            errorMessageDiv.style.display = 'none';
-            successMessageDiv.style.display = 'none';
+        errorMessageDiv.style.display = 'none';
+        successMessageDiv.style.display = 'none';
 
-            const accessCode = accessCodeInput.value;
+        const accessCode = accessCodeInput.value;
 
-            if (!accessCode) {
-                errorMessageDiv.textContent = "Access Code is required.";
+        if (!accessCode) {
+            errorMessageDiv.textContent = "Access Code is required.";
+            errorMessageDiv.style.display = 'block';
+            return;
+        }
+
+        const downloadData = {
+            access_code: accessCode  
+        };
+
+        try {
+            const response = await fetch('/get_encrypted_file_api/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(downloadData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                errorMessageDiv.textContent = `Download failed: ${errorData.error || response.statusText}`;
                 errorMessageDiv.style.display = 'block';
                 return;
             }
 
-            const downloadData = {
-                access_code: accessCode  
-            };
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
 
-            try {
-                const response = await fetch('/get_encrypted_file_api/', { // Use this URL instead
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(downloadData),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    errorMessageDiv.textContent = `Download failed: ${errorData.error || response.statusText}`;
-                    errorMessageDiv.style.display = 'block';
-                    return;
+            const contentDisposition = response.headers.get('content-disposition');
+            let filename = 'encrypted_file.enc'; // Default encrypted file name
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+                if (filenameMatch && filenameMatch[1]) {
+                    filename = filenameMatch[1];
                 }
-
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-
-                const contentDisposition = response.headers.get('content-disposition');
-                let filename = 'encrypted_file.enc'; // Default encrypted file name
-                if (contentDisposition) {
-                    const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
-                    if (filenameMatch && filenameMatch[1]) {
-                        filename = filenameMatch[1];
-                    }
-                }
-                link.setAttribute('download', filename);
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-                window.URL.revokeObjectURL(url);
-
-                successMessageDiv.textContent = `Encrypted file downloaded successfully as ${filename}!`; // **Updated message**
-                successMessageDiv.style.display = 'block';
-                downloadForm.reset();
-
-            } catch (error) {
-                console.error("Download error:", error);
-                errorMessageDiv.textContent = `Download failed: ${error.message || 'Unknown error'}`;
-                errorMessageDiv.style.display = 'block';
             }
-        });
-    </script>
-</body>
-</html>
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
+            successMessageDiv.textContent = `Encrypted file downloaded successfully as ${filename}!`;
+            successMessageDiv.style.display = 'block';
+            downloadForm.reset();
+
+        } catch (error) {
+            console.error("Download error:", error);
+            errorMessageDiv.textContent = `Download failed: ${error.message || 'Unknown error'}`;
+            errorMessageDiv.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

@@ -4,7 +4,7 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from .utils import generate_code, hash_access_code, get_code_expire_time
+from .utils import generate_code, hash_access_code, get_code_expire_time, verify_access_code
 from .models import EncrptedFile
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, views, parsers
@@ -25,7 +25,7 @@ def generate_code_api(request):
 
 
 def index(request):
-    return render(request, 'index.html', {'index': index})
+    return render(request, 'front_end/index.html')
 
 
 class FileUploadView(views.APIView):
