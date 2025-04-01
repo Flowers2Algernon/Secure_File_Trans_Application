@@ -150,7 +150,7 @@ class GetEncryptedFileView(views.APIView):
                         encrypted_file_content = f.read()
 
                     response = HttpResponse(encrypted_file_content, content_type='application/octet-stream')
-                    response['Content-Disposition'] = f'attachment; filename="{file_instance.uploaded_file.name.split('/')[-1]}"'# Suggest filename (encrypted file name)
+                    response['Content-Disposition'] = f"attachment; filename=\"{file_instance.uploaded_file.name.split('/')[-1]}\""
                     return response
                 except Exception as e:
                     return Response({'error': 'Error reading the file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -158,3 +158,6 @@ class GetEncryptedFileView(views.APIView):
                 return Response({'error': 'Error processing download request.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else: # unknown decision for ai
             return Response({'error': 'Error processing download request due to AI monitoring - unknown decision.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def download_page(request):
+    return render(request, "front_end/download.html")
