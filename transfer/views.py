@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
 from celery import shared_task
+import random
 
 
 @csrf_exempt  # Disable CSRF protection for this view
@@ -100,3 +101,60 @@ def delete_expired_file(request):
 def file_list(request):
     Files = EncrptedFile.objects.all()
     return render(request, "front_end/file_list.html", {'files': Files})
+
+def ai_monitor_access_code_request(request_data):
+    # This function is a placeholder for AI monitoring of access code requests.
+    # for now, simulate a random response
+    if random.random< 0.05: # 5% chance of being suspicious
+        return "suspicious", "AI detected suspicious activity in access code request."
+    else:
+        return "normal", "AI detected normal activity in access code request."
+    
+class GetEncryptedFileView(views.APIView):
+    def post(self, request,*args, **kwargs):
+        access_code = request.data.get('access_code')
+
+        if not access_code:
+            return Response({'error': 'Access code is required'}, status=status.HTTP_400_BAD_REQUEST)
+        # prepare data for AI
+        request_data_for_ai = {
+            "timestamp":datetime.now(),
+            "ipaddress":request.META.get('REMOTE_ADDR'),
+            "access_code":access_code,
+            "user_agent":request.META.get('HTTP_USER_AGENT'),
+        }
+
+        ai_decision, ai_reason = ai_monitor_access_code_request(request_data_for_ai)
+
+        if ai_decision == "suspicious":
+            print(f"AI detected suspicious activity: {ai_reason}")
+            return Response({'error': 'Suspicious activity detected. Access denied.'}, status=status.HTTP_403_FORBIDDEN)
+        elif ai_decision == "normal":
+            hashed_code = hash_access_code(access_code) # hash the access code
+            try:
+                # search for the file using the hashed code in database
+                file_instance = None
+                for enc_file in EncrptedFile.objects.all():
+                    if verify_access_code(enc_file.code_hash, hashed_code):#compare the hashed code with the stored hash
+                        file_instance = enc_file
+                        break
+
+                if file_instance is None:
+                    return Response({'error': 'Invalid access code'}, status=status.HTTP_404_NOT_FOUND)
+                if file_instance.code_expire < datetime.now():
+                    return Response({'error': 'Access code expired'}, status=status.HTTP_410_GONE)
+                
+                # Access code is valid and not expired, serve the ENCRYPTED file
+                try:
+                    with file_instance.uploaded_file.open('rb') as f:
+                        encrypted_file_content = f.read()
+
+                    response = HttpResponse(encrypted_file_content, content_type='application/octet-stream')
+                    response['Content-Disposition'] = f'attachment; filename="{file_instance.uploaded_file.name.split('/')[-1]}"'# Suggest filename (encrypted file name)
+                    return response
+                except Exception as e:
+                    return Response({'error': 'Error reading the file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except Exception as e:
+                return Response({'error': 'Error processing download request.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else: # unknown decision for ai
+            return Response({'error': 'Error processing download request due to AI monitoring - unknown decision.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
