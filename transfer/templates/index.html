@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Page</title>
+    <!-- Bootstrap 4 CSS -->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body style="background: url('{% static 'images/back2.jpg' %}') no-repeat center center fixed; background-size: cover;">
+
+<!-- 用户信息和顶部导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="#">File Upload System</a>
+    <div class="ml-auto">
+        <span class="text-white">Welcome, User!</span>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- 左侧导航栏 -->
+        <ul class="col-md-3 sidebar nav flex-column">
+            <h4>Navigation</h4>
+            <li class="nav-item">
+                <a class='bi bi-cloud-upload-fill' href="#" onclick="showUploadPage()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-cloud-upload-fill" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                              d="M8 0a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 4.095 0 5.555 0 7.318 0 9.366 1.708 11 3.781 11H7.5V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11h4.188C14.502 11 16 9.57 16 7.773c0-1.636-1.242-2.969-2.834-3.194C12.923 1.999 10.69 0 8 0m-.5 14.5V11h1v3.5a.5.5 0 0 1-1 0"/>
+                    </svg>
+                    Upload File
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" onclick="showDownloadPage()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-cloud-download-fill" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                              d="M8 0a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 4.095 0 5.555 0 7.318 0 9.366 1.708 11 3.781 11H7.5V5.5a.5.5 0 0 1 1 0V11h4.188C14.502 11 16 9.57 16 7.773c0-1.636-1.242-2.969-2.834-3.194C12.923 1.999 10.69 0 8 0m-.354 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V11h-1v3.293l-2.146-2.147a.5.5 0 0 0-.708.708z"/>
+                    </svg>
+                    Download File</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" onclick="showUploadedFiles()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-cloud-arrow-up-fill" viewBox="0 0 16 16">
+                        <path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/>
+                    </svg>
+                    Uploaded Files</a>
+            </li>
+        </ul>
+
+        <!-- 右侧内容区域 -->
+        <div class="col-md-9 content" id="content-area">
+            <h3>Welcome to use File Transfer System</h3>
+            <p>Please select options from left navigation bar</p>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 4 JS和依赖 -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="../static/js/scripts.js"></script>
+
+<script>
+    function showUploadPage() {
+        document.getElementById('content-area').innerHTML = `
+            <h3>File Upload</h3>
+            <div class="file-upload-container">
+                <h4>Please select File upload</h4>
+                <form action="#" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <input type="file" class="form-control-file" id="fileUpload">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload File</button>
+                </form>
+            </div>
+        `;
+    }
+
+    function loadPageContent(pageUrl) {
+        fetch(pageUrl)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('content-area').innerHTML = data;
+            })
+            .catch(error => {
+                console.error('Error loading page:', error);
+            });
+    }
+    function showUploadedFiles() {
+        loadPageContent('file_list');
+
+    }
+
+    function showDownloadPage() {
+        document.getElementById('content-area').innerHTML = `
+            <form action="#" method="post">
+                <div class="form-group">
+                    <label for="downloadCode">Please enter the download code:</label>
+                    <input type="text" class="form-control" id="downloadCode" placeholder="Enter the code to download">
+                </div>
+                <button type="submit" class="btn btn-primary">Download File</button>
+            </form>
+        `;
+    }
+</script>
+
+</body>
+</html>
