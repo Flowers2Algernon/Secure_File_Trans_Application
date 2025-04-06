@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Download Encrypted File</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#17c3b2',secondary:'#227c9d'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+input[type="number"] {
+-moz-appearance: textfield;
+}
+.access-code-input {
+display: flex;
+gap: 0.5rem;
+}
+.access-code-input input {
+width: 3rem;
+height: 3.5rem;
+font-size: 1.5rem;
+text-align: center;
+border: 1px solid #e5e7eb;
+border-radius: 8px;
+}
+.access-code-input input:focus {
+border-color: #17c3b2;
+outline: none;
+box-shadow: 0 0 0 2px rgba(23, 195, 178, 0.2);
+}
+</style>
+</head>
+<body class="min-h-screen bg-[#fef9ef]">
+<div class="min-h-screen flex flex-col">
+<!-- Header -->
+<header class="bg-white shadow-sm py-4" style="background: linear-gradient(to right, #ffffff, #fef9ef); box-shadow: 0 4px 12px rgba(23, 195, 178, 0.08);">
+<div class="container mx-auto px-4 flex items-center justify-between">
+<div class="flex items-center">
+<h1 class="text-2xl font-['Pacifico'] text-primary mr-8">logo</h1>
+<nav class="hidden md:flex space-x-6">
+<a href="#" class="flex items-center text-gray-700 hover:text-primary">
+<div class="w-5 h-5 flex items-center justify-center mr-1">
+<i class="ri-file-upload-line"></i>
+</div>
+<span>Send File</span>
+</a>
+<a href="#" class="flex items-center text-primary font-medium border-b-2 border-primary">
+<div class="w-5 h-5 flex items-center justify-center mr-1">
+<i class="ri-file-download-line"></i>
+</div>
+<span>Download File</span>
+</a>
+<a href="#" class="flex items-center text-gray-700 hover:text-primary">
+<div class="w-5 h-5 flex items-center justify-center mr-1">
+<i class="ri-send-plane-line"></i>
+</div>
+<span>Request File</span>
+</a>
+</nav>
+</div>
+<div class="flex items-center space-x-4">
+<div class="flex items-center text-primary">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-lock-line"></i>
+</div>
+<span class="ml-1 text-sm">Secure Connection</span>
+</div>
+<div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-user-line"></i>
+</div>
+</div>
+</div>
+</div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-grow container mx-auto px-4 py-8">
+<div class="max-w-3xl mx-auto">
+<!-- Page Title -->
+<div class="mb-8 text-center">
+<h2 class="text-3xl font-bold text-gray-800">Download Encrypted File</h2>
+<p class="text-gray-600 mt-2">Enter your access code to download the encrypted file</p>
+</div>
+
+<!-- Main Form -->
+<div class="bg-white rounded shadow-md p-8 mb-8" style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
+<form id="download-form">
+<div class="mb-8">
+<label class="block text-gray-700 font-medium mb-4 text-center">Enter 6-Digit Access Code</label>
+<div class="access-code-input justify-center mb-2">
+<input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit" autofocus>
+<input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+<input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+<input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+<input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+<input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+</div>
+<p class="text-center text-sm text-gray-500">The access code was provided by the sender</p>
+</div>
+
+<!-- Security Information -->
+<div class="p-4 rounded mb-8" style="background-color: rgba(23, 195, 178, 0.1); border: 1px solid rgba(23, 195, 178, 0.2);">
+<div class="flex items-start">
+<div class="w-6 h-6 flex items-center justify-center text-primary mt-0.5">
+<i class="ri-shield-check-line"></i>
+</div>
+<div class="ml-2">
+<h4 class="font-medium text-gray-800">End-to-End Encryption</h4>
+<p class="text-sm text-gray-600">This file is encrypted with your public key. Only you can decrypt it using your private key.</p>
+</div>
+</div>
+</div>
+
+<!-- Loading State -->
+<div id="loading-state" class="hidden mb-6">
+<div class="w-full bg-gray-200 rounded-full h-2.5">
+<div class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+</div>
+<p class="text-sm text-gray-600 mt-2 text-center">Downloading encrypted file... <span id="download-percentage">0%</span></p>
+</div>
+
+<!-- Success Message -->
+<div id="download-success" class="hidden mb-6 p-4 rounded-md bg-green-50 border border-green-200">
+<div class="flex items-start">
+<div class="w-6 h-6 flex items-center justify-center text-green-500 mt-0.5">
+<i class="ri-check-line"></i>
+</div>
+<div class="ml-2">
+<h4 class="font-medium text-green-800">File Downloaded Successfully!</h4>
+<p class="text-sm text-green-700">Your encrypted file has been downloaded. Use your private key to decrypt it.</p>
+</div>
+</div>
+</div>
+
+<!-- Error Message -->
+<div id="download-error" class="hidden mb-6 p-4 rounded-md bg-red-50 border border-red-200">
+<div class="flex items-start">
+<div class="w-6 h-6 flex items-center justify-center text-red-500 mt-0.5">
+<i class="ri-error-warning-line"></i>
+</div>
+<div class="ml-2">
+<h4 class="font-medium text-red-800">Download Failed</h4>
+<p class="text-sm text-red-700" id="error-message">Invalid access code. Please check and try again.</p>
+</div>
+</div>
+</div>
+
+<div class="flex justify-center">
+<button type="submit" id="download-btn" class="px-6 py-3 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button whitespace-nowrap flex items-center justify-center">
+<div class="w-5 h-5 flex items-center justify-center mr-2">
+<i class="ri-download-2-line"></i>
+</div>
+Download Encrypted File
+</button>
+</div>
+</form>
+</div>
+
+<!-- FAQ Section -->
+<div class="bg-white rounded shadow-md p-6" style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
+<h3 class="text-lg font-semibold text-gray-800 mb-4">Frequently Asked Questions</h3>
+<div class="space-y-4">
+<div class="border rounded !rounded-button overflow-hidden" style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
+<button class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
+<span>What is an access code?</span>
+<div class="w-5 h-5 flex items-center justify-center text-gray-500">
+<i class="ri-arrow-down-s-line faq-icon"></i>
+</div>
+</button>
+<div class="faq-content hidden px-4 pb-4 pt-0">
+<p class="text-gray-600 text-sm">The access code is a unique 6-digit number provided by the sender that allows you to download the encrypted file. This code adds an extra layer of security to ensure only the intended recipient can access the file.</p>
+</div>
+</div>
+<div class="border rounded !rounded-button overflow-hidden" style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
+<button class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
+<span>How do I decrypt the file after downloading?</span>
+<div class="w-5 h-5 flex items-center justify-center text-gray-500">
+<i class="ri-arrow-down-s-line faq-icon"></i>
+</div>
+</button>
+<div class="faq-content hidden px-4 pb-4 pt-0">
+<p class="text-gray-600 text-sm">After downloading, you'll need to use your private key to decrypt the file. If you received the file through a file request, your browser has stored your private key. The file will be automatically decrypted when you open it through our system.</p>
+</div>
+</div>
+<div class="border rounded !rounded-button overflow-hidden" style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
+<button class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
+<span>What if I don't have the access code?</span>
+<div class="w-5 h-5 flex items-center justify-center text-gray-500">
+<i class="ri-arrow-down-s-line faq-icon"></i>
+</div>
+</button>
+<div class="faq-content hidden px-4 pb-4 pt-0">
+<p class="text-gray-600 text-sm">If you don't have the access code, you'll need to contact the sender and ask them to provide it to you. For security reasons, we cannot bypass this requirement or recover access codes.</p>
+</div>
+</div>
+<div class="border rounded !rounded-button overflow-hidden" style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
+<button class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
+<span>How long is the access code valid?</span>
+<div class="w-5 h-5 flex items-center justify-center text-gray-500">
+<i class="ri-arrow-down-s-line faq-icon"></i>
+</div>
+</button>
+<div class="faq-content hidden px-4 pb-4 pt-0">
+<p class="text-gray-600 text-sm">Access codes are valid for 7 days from the time the file was uploaded. After this period, the file and access code will expire, and you'll need to request a new file transfer from the sender.</p>
+</div>
+</div>
+</div>
+<div class="mt-6 flex justify-center">
+<a href="#" class="text-primary flex items-center hover:underline">
+<div class="w-5 h-5 flex items-center justify-center mr-1">
+<i class="ri-customer-service-2-line"></i>
+</div>
+Need more help? Contact our support team
+</a>
+</div>
+</div>
+</div>
+</main>
+
+<!-- Footer -->
+<footer class="py-6" style="background: linear-gradient(to right, #ffffff, #fef9ef); border-top: 1px solid rgba(255, 203, 119, 0.3);">
+<div class="container mx-auto px-4">
+<div class="flex flex-col md:flex-row justify-between items-center">
+<div class="mb-4 md:mb-0">
+<p class="text-gray-600 text-sm">© 2025 Secure File Transfer. All rights reserved.</p>
+</div>
+<div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
+<div class="flex space-x-6">
+<a href="#" class="flex items-center text-gray-600 hover:text-primary">
+<div class="w-5 h-5 flex items-center justify-center mr-1">
+<i class="ri-file-upload-line"></i>
+</div>
+<span class="text-sm">Send File</span>
+</a>
+<a href="#" class="flex items-center text-primary">
+<div class="w-5 h-5 flex items-center justify-center mr-1">
+<i class="ri-file-download-line"></i>
+</div>
+<span class="text-sm">Download File</span>
+</a>
+<a href="#" class="flex items-center text-gray-600 hover:text-primary">
+<div class="w-5 h-5 flex items-center justify-center mr-1">
+<i class="ri-send-plane-line"></i>
+</div>
+<span class="text-sm">Request File</span>
+</a>
+</div>
+<div class="flex space-x-6">
+<a href="#" class="text-gray-500 hover:text-gray-700">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-shield-keyhole-line"></i>
+</div>
+</a>
+<a href="#" class="text-gray-500 hover:text-gray-700">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-file-list-3-line"></i>
+</div>
+</a>
+<a href="#" class="text-gray-500 hover:text-gray-700">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-question-line"></i>
+</div>
+</a>
+</div>
+</div>
+</div>
+</div>
+</footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Access code input handling
+  const codeDigits = document.querySelectorAll('.code-digit');
+  const downloadForm = document.getElementById('download-form');
+  const downloadBtn = document.getElementById('download-btn');
+  const loadingState = document.getElementById('loading-state');
+  const downloadSuccess = document.getElementById('download-success');
+  const downloadError = document.getElementById('download-error');
+  const errorMessage = document.getElementById('error-message');
+  const progressBar = document.querySelector('.bg-primary.h-2\\.5');
+  const downloadPercentage = document.getElementById('download-percentage');
+  const faqToggles = document.querySelectorAll('.faq-toggle');
+  
+  // Auto-focus next input when a digit is entered
+  codeDigits.forEach((digit, index) => {
+    digit.addEventListener('input', function(e) {
+      if (this.value.length === 1) {
+        // Move to next input
+        if (index < codeDigits.length - 1) {
+          codeDigits[index + 1].focus();
+        }
+      }
+    });
+    
+    // Handle backspace
+    digit.addEventListener('keydown', function(e) {
+      if (e.key === 'Backspace' && this.value === '' && index > 0) {
+        codeDigits[index - 1].focus();
+      }
+    });
+    
+    // Ensure only numbers are entered
+    digit.addEventListener('keypress', function(e) {
+      if (!/^\d$/.test(e.key)) {
+        e.preventDefault();
+      }
+    });
+    
+    // Handle paste event for the entire code
+    digit.addEventListener('paste', function(e) {
+      e.preventDefault();
+      const pastedData = e.clipboardData.getData('text');
+      if (/^\d+$/.test(pastedData)) {
+        for (let i = 0; i < Math.min(pastedData.length, codeDigits.length); i++) {
+          codeDigits[i].value = pastedData[i];
+          if (i < codeDigits.length - 1) {
+            codeDigits[i + 1].focus();
+          }
+        }
+      }
+    });
+  });
+  
+  // Form submission
+  downloadForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Get access code
+    let accessCode = '';
+    codeDigits.forEach(digit => {
+      accessCode += digit.value;
+    });
+    
+    // Validate access code
+    if (accessCode.length !== 6 || !/^\d+$/.test(accessCode)) {
+      downloadError.classList.remove('hidden');
+      errorMessage.textContent = 'Please enter a valid 6-digit access code.';
+      return;
+    }
+    
+    // Hide any previous error
+    downloadError.classList.add('hidden');
+    
+    // Show loading state
+    loadingState.classList.remove('hidden');
+    
+    // Disable download button
+    downloadBtn.disabled = true;
+    downloadBtn.innerHTML = `
+      <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Downloading...
+    `;
+    
+    // Make API request to get encrypted file
+    fetch('/api/files/get_encrypted_file_api/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ accessCode: accessCode })
+    })
+    .then(response => {
+      if (!response.ok) {
+        // Handle different error responses
+        if (response.status === 404) {
+          throw new Error('Invalid access code. Please check and try again.');
+        } else if (response.status === 403) {
+          throw new Error('Access blocked. Too many failed attempts.');
+        } else if (response.status === 410) {
+          throw new Error('This file has expired and is no longer available.');
+        } else {
+          throw new Error('An error occurred. Please try again later.');
+        }
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Simulate download progress
+      let progress = 0;
+      const interval = setInterval(function() {
+        progress += 5;
+        if (progress > 100) {
+          clearInterval(interval);
+          return;
+        }
+        
+        progressBar.style.width = `${progress}%`;
+        downloadPercentage.textContent = `${progress}%`;
+        
+        if (progress === 100) {
+          clearInterval(interval);
+          
+          // Hide loading state
+          setTimeout(function() {
+            loadingState.classList.add('hidden');
+            downloadSuccess.classList.remove('hidden');
+            
+            // Create and trigger download
+            const downloadLink = document.createElement('a');
+            downloadLink.href = data.fileUrl;
+            downloadLink.download = data.fileName;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            // Reset download button
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = `
+              <div class="w-5 h-5 flex items-center justify-center mr-2">
+                <i class="ri-download-2-line"></i>
+              </div>
+              Download Encrypted File
+            `;
+          }, 500);
+        }
+      }, 100);
+    })
+    .catch(error => {
+      // Handle errors
+      loadingState.classList.add('hidden');
+      downloadError.classList.remove('hidden');
+      errorMessage.textContent = error.message;
+      
+      // Reset download button
+      downloadBtn.disabled = false;
+      downloadBtn.innerHTML = `
+        <div class="w-5 h-5 flex items-center justify-center mr-2">
+          <i class="ri-download-2-line"></i>
+        </div>
+        Download Encrypted File
+      `;
+    });
+  });
+  
+  // FAQ accordion functionality
+  faqToggles.forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      const content = this.nextElementSibling;
+      const icon = this.querySelector('.faq-icon');
+      
+      // Close all other FAQs
+      faqToggles.forEach(otherToggle => {
+        if (otherToggle !== toggle) {
+          otherToggle.nextElementSibling.classList.add('hidden');
+          otherToggle.querySelector('.faq-icon').classList.remove('ri-arrow-up-s-line');
+          otherToggle.querySelector('.faq-icon').classList.add('ri-arrow-down-s-line');
+        }
+      });
+      
+      // Toggle current FAQ
+      content.classList.toggle('hidden');
+      if (content.classList.contains('hidden')) {
+        icon.classList.remove('ri-arrow-up-s-line');
+        icon.classList.add('ri-arrow-down-s-line');
+      } else {
+        icon.classList.remove('ri-arrow-down-s-line');
+        icon.classList.add('ri-arrow-up-s-line');
+      }
+    });
+  });
+  
+  // Open first FAQ by default
+  if (faqToggles.length > 0) {
+    faqToggles[0].click();
+  }
+});
+</script>
+</body>
+</html>
