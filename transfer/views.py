@@ -10,7 +10,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
-from celery import shared_task
 import random
 from django.utils import timezone
 
@@ -27,7 +26,7 @@ def generate_code_api(request):
 
 
 def index(request):
-    return render(request, 'front_end/index.html')
+    return render(request, 'front_end/download_file.html')
 
 
 class FileUploadView(views.APIView):
@@ -64,7 +63,7 @@ class FileUploadView(views.APIView):
 
 
 def upload_page(request):
-    return render(request, "front_end/upload.html")
+    return render(request, "front_end/send_file.html")
 
 
 # @shared_task #定时任务 Scheduled task
@@ -164,4 +163,7 @@ class GetEncryptedFileView(views.APIView):
             return Response({'error': 'Error processing download request due to AI monitoring - unknown decision.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 def download_page(request):
-    return render(request, "front_end/download.html")
+    return render(request, "front_end/download_file.html")
+
+def request_send_page(request):
+    return render(request, "front_end/requestSend.html")
