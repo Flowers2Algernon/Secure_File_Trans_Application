@@ -26,7 +26,7 @@ def generate_code_api(request):
 
 
 def index(request):
-    return render(request, 'front_end/download_file.html')
+    return render(request, 'front_end/index.html')
 
 
 class FileUploadView(views.APIView):
