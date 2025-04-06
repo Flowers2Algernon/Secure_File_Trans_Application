@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure File Sharing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#17c3b2',secondary:'#227c9d'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+.hero-bg {
+    background-image: url('https://public.readdy.ai/ai/img_res/c32fd85f293cae1af2f5e9cdb470060d.jpg');
+    background-size: cover;
+    background-position: center right;
+}
+.feature-card {
+    transition: all 0.3s ease;
+}
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(34, 124, 157, 0.15);
+}
+.action-card {
+    transition: all 0.3s ease;
+}
+.action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(34, 124, 157, 0.15);
+}
+</style>
+</head>
+<body class="min-h-screen bg-[#fef9ef]">
+<div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-sm py-4" style="background: linear-gradient(to right, #ffffff, #fef9ef); box-shadow: 0 4px 12px rgba(23, 195, 178, 0.08);">
+        <div class="container mx-auto px-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-['Pacifico'] text-primary mr-8">logo</h1>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="/upload/" class="flex items-center text-gray-700 hover:text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center mr-1">
+                            <i class="ri-file-upload-line"></i>
+                        </div>
+                        <span>Send File</span>
+                    </a>
+                    <a href="/download" class="flex items-center text-gray-700 hover:text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center mr-1">
+                            <i class="ri-file-download-line"></i>
+                        </div>
+                        <span>Download File</span>
+                    </a>
+                    <a href="/request_send" class="flex items-center text-gray-700 hover:text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center mr-1">
+                            <i class="ri-send-plane-line"></i>
+                        </div>
+                        <span>Request File</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center text-primary">
+                    <div class="w-6 h-6 flex items-center justify-center">
+                        <i class="ri-lock-line"></i>
+                    </div>
+                    <span class="ml-1 text-sm">Secure Connection</span>
+                </div>
+                <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                    <div class="w-6 h-6 flex items-center justify-center">
+                        <i class="ri-user-line"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="hero-bg w-full py-20">
+            <div class="container mx-auto px-4">
+                <div class="max-w-2xl">
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Securely Share Your Files</h1>
+                    <p class="text-xl text-gray-600 mb-8">Confidential file sharing with advanced security. Your files are encrypted and protected with AI monitoring and RSA key distribution for ultimate privacy.</p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#" class="px-6 py-3 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button whitespace-nowrap flex items-center justify-center">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-shield-check-line"></i>
+                            </div>
+                            Get Started
+                        </a>
+                        <a href="#" class="px-6 py-3 border border-gray-300 bg-white/80 rounded text-gray-700 font-medium hover:bg-gray-50 !rounded-button whitespace-nowrap flex items-center justify-center">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-information-line"></i>
+                            </div>
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Actions Section -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">How It Works</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Send File Card -->
+                    <div class="action-card bg-white rounded shadow-md p-6 border border-gray-100" style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
+                        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <div class="w-8 h-8 flex items-center justify-center text-primary">
+                                <i class="ri-file-upload-line ri-2x"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold text-center text-gray-800 mb-3">Send File Securely</h3>
+                        <p class="text-gray-600 text-center mb-6">Upload and encrypt files that only the recipient can access with their private key.</p>
+                        <a href="/upload/" class="block w-full py-3 bg-primary text-white rounded font-medium hover:bg-primary/90 text-center !rounded-button whitespace-nowrap">
+                            Send File
+                        </a>
+                    </div>
+
+                    <!-- Download File Card -->
+                    <div class="action-card bg-white rounded shadow-md p-6 border border-gray-100" style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
+                        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <div class="w-8 h-8 flex items-center justify-center text-primary">
+                                <i class="ri-file-download-line ri-2x"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold text-center text-gray-800 mb-3">Download Encrypted File</h3>
+                        <p class="text-gray-600 text-center mb-6">Enter your access code to download and decrypt files sent to you securely.</p>
+                        <a href="/download/" class="block w-full py-3 bg-primary text-white rounded font-medium hover:bg-primary/90 text-center !rounded-button whitespace-nowrap">
+                            Download File
+                        </a>
+                    </div>
+
+                    <!-- Request File Card -->
+                    <div class="action-card bg-white rounded shadow-md p-6 border border-gray-100" style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
+                        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <div class="w-8 h-8 flex items-center justify-center text-primary">
+                                <i class="ri-send-plane-line ri-2x"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold text-center text-gray-800 mb-3">Request Confidential File</h3>
+                        <p class="text-gray-600 text-center mb-6">Generate a secure link to request files from others with end-to-end encryption.</p>
+                        <a href="/request_send/" class="block w-full py-3 bg-primary text-white rounded font-medium hover:bg-primary/90 text-center !rounded-button whitespace-nowrap">
+                            Request File
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Features Section -->
+        <section class="py-16" style="background-color: rgba(23, 195, 178, 0.05);">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Advanced Security Features</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- End-to-End Encryption -->
+                    <div class="feature-card bg-white rounded shadow-md p-6" style="border: 1px solid rgba(23, 195, 178, 0.2); box-shadow: 0 10px 20px rgba(34, 124, 157, 0.08);">
+                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                            <div class="w-6 h-6 flex items-center justify-center text-primary">
+                                <i class="ri-lock-line"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">End-to-End Encryption</h3>
+                        <p class="text-gray-600">Your files are encrypted with the recipient's public key. Only they can decrypt it using their private key.</p>
+                    </div>
+
+                    <!-- AI Security Monitoring -->
+                    <div class="feature-card bg-white rounded shadow-md p-6" style="border: 1px solid rgba(23, 195, 178, 0.2); box-shadow: 0 10px 20px rgba(34, 124, 157, 0.08);">
+                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                            <div class="w-6 h-6 flex items-center justify-center text-primary">
+                                <i class="ri-shield-check-line"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">AI Security Monitoring</h3>
+                        <p class="text-gray-600">Advanced AI algorithms scan and monitor file transfers to detect and prevent security threats.</p>
+                    </div>
+
+                    <!-- RSA Key Distribution -->
+                    <div class="feature-card bg-white rounded shadow-md p-6" style="border: 1px solid rgba(23, 195, 178, 0.2); box-shadow: 0 10px 20px rgba(34, 124, 157, 0.08);">
+                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                            <div class="w-6 h-6 flex items-center justify-center text-primary">
+                                <i class="ri-key-line"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">RSA Key Distribution</h3>
+                        <p class="text-gray-600">Secure key generation and distribution system ensures only authorized recipients can access your files.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Trusted by Security Professionals</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-white rounded shadow-md p-6" style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 20px rgba(34, 124, 157, 0.08);">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mr-4">
+                                <div class="w-6 h-6 flex items-center justify-center text-gray-500">
+                                    <i class="ri-user-3-line"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">Michael Anderson</h4>
+                                <p class="text-sm text-gray-500">CTO, SecureNet Solutions</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 italic">"This platform has revolutionized how our team shares sensitive client data. The end-to-end encryption gives us confidence that our files remain confidential."</p>
+                        <div class="flex mt-4">
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded shadow-md p-6" style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 20px rgba(34, 124, 157, 0.08);">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mr-4">
+                                <div class="w-6 h-6 flex items-center justify-center text-gray-500">
+                                    <i class="ri-user-3-line"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">Jennifer Reynolds</h4>
+                                <p class="text-sm text-gray-500">Security Analyst, DataGuard Inc.</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 italic">"As a security professional, I'm impressed with the robust encryption and key management. It's the most secure file sharing solution I've evaluated."</p>
+                        <div class="flex mt-4">
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-half-line"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded shadow-md p-6" style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 20px rgba(34, 124, 157, 0.08);">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mr-4">
+                                <div class="w-6 h-6 flex items-center justify-center text-gray-500">
+                                    <i class="ri-user-3-line"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">David Chen</h4>
+                                <p class="text-sm text-gray-500">Compliance Officer, HealthTech Global</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 italic">"This platform has been essential for our HIPAA compliance. The security features and audit trail make it perfect for sharing sensitive patient information."</p>
+                        <div class="flex mt-4">
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <div class="w-5 h-5 flex items-center justify-center text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-16" style="background-color: rgba(23, 195, 178, 0.05);">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">Ready to Share Files Securely?</h2>
+                    <p class="text-xl text-gray-600 mb-8">Start protecting your confidential files today with our advanced encryption technology.</p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="#" class="px-8 py-4 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button whitespace-nowrap flex items-center justify-center">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-shield-check-line"></i>
+                            </div>
+                            Get Started Now
+                        </a>
+                        <a href="#" class="px-8 py-4 border border-gray-300 bg-white rounded text-gray-700 font-medium hover:bg-gray-50 !rounded-button whitespace-nowrap flex items-center justify-center">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-customer-service-2-line"></i>
+                            </div>
+                            Contact Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-10" style="background: linear-gradient(to right, #ffffff, #fef9ef); border-top: 1px solid rgba(255, 203, 119, 0.3);">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="text-xl font-['Pacifico'] text-primary mb-4">logo</h3>
+                    <p class="text-gray-600 mb-4">Secure file sharing with advanced encryption technology. Protecting your confidential data since 2023.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-500 hover:text-primary">
+                            <div class="w-6 h-6 flex items-center justify-center">
+                                <i class="ri-twitter-x-line"></i>
+                            </div>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-primary">
+                            <div class="w-6 h-6 flex items-center justify-center">
+                                <i class="ri-linkedin-box-line"></i>
+                            </div>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-primary">
+                            <div class="w-6 h-6 flex items-center justify-center">
+                                <i class="ri-facebook-box-line"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-4">Features</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-primary">End-to-End Encryption</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">AI Security Monitoring</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">RSA Key Distribution</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">Secure File Requests</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">File Access Control</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-primary">Documentation</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">Security Whitepaper</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">API Reference</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">Blog</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-primary">About Us</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">Careers</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">Contact</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-600 text-sm mb-4 md:mb-0">© 2025 Secure File Transfer. All rights reserved.</p>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center text-gray-500">
+                        <div class="w-5 h-5 flex items-center justify-center mr-1">
+                            <i class="ri-shield-check-line"></i>
+                        </div>
+                        <span class="text-sm">SOC 2 Certified</span>
+                    </div>
+                    <div class="flex items-center text-gray-500">
+                        <div class="w-5 h-5 flex items-center justify-center mr-1">
+                            <i class="ri-shield-keyhole-line"></i>
+                        </div>
+                        <span class="text-sm">HIPAA Compliant</span>
+                    </div>
+                    <div class="flex items-center text-gray-500">
+                        <div class="w-5 h-5 flex items-center justify-center mr-1">
+                            <i class="ri-shield-star-line"></i>
+                        </div>
+                        <span class="text-sm">GDPR Ready</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+});
+</script>
+</body>
+</html>

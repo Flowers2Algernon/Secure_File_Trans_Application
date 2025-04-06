@@ -9,6 +9,7 @@ __pycache__/
 # Virtual environment
 venv/
 *.env  # If you use .env files for environment variables (consider security implications for sensitive data!)
+.env
 
 # Django-specific
 *.log
