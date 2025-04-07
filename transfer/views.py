@@ -1,11 +1,14 @@
 import os
 from datetime import datetime
 
+from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from flask import render_template
+
 from .utils import generate_code, hash_access_code, get_code_expire_time, verify_access_code
-from .models import EncrptedFile
+from .models import EncrptedFile, UserProfile
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework import status, views, parsers
@@ -99,9 +102,11 @@ def delete_expired_file(request):
         # 错误处理
         return JsonResponse({'error': str(e)}, status=500)
 
+
 def file_list(request):
     Files = EncrptedFile.objects.all()
     return render(request, "front_end/file_list.html", {'files': Files})
+
 
 def ai_monitor_access_code_request(request_data):
     # This function is a placeholder for AI monitoring of access code requests.
@@ -110,20 +115,21 @@ def ai_monitor_access_code_request(request_data):
         return "suspicious", "AI detected suspicious activity in access code request."
     else:
         return "normal", "AI detected normal activity in access code request."
-    
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class GetEncryptedFileView(views.APIView):
-    def post(self, request,*args, **kwargs):
+    def post(self, request, *args, **kwargs):
         access_code = request.data.get('access_code')
 
         if not access_code:
             return Response({'error': 'Access code is required'}, status=status.HTTP_400_BAD_REQUEST)
         # prepare data for AI
         request_data_for_ai = {
-            "timestamp":datetime.now(),
-            "ipaddress":request.META.get('REMOTE_ADDR'),
-            "access_code":access_code,
-            "user_agent":request.META.get('HTTP_USER_AGENT'),
+            "timestamp": datetime.now(),
+            "ipaddress": request.META.get('REMOTE_ADDR'),
+            "access_code": access_code,
+            "user_agent": request.META.get('HTTP_USER_AGENT'),
         }
 
         ai_decision, ai_reason = ai_monitor_access_code_request(request_data_for_ai)
@@ -132,12 +138,13 @@ class GetEncryptedFileView(views.APIView):
             print(f"AI detected suspicious activity: {ai_reason}")
             return Response({'error': 'Suspicious activity detected. Access denied.'}, status=status.HTTP_403_FORBIDDEN)
         elif ai_decision == "normal":
-            hashed_code = hash_access_code(access_code) # hash the access code
+            hashed_code = hash_access_code(access_code)  # hash the access code
             try:
                 # search for the file using the hashed code in database
                 file_instance = None
                 for enc_file in EncrptedFile.objects.all():
-                    if verify_access_code(enc_file.code_hash, hashed_code):#compare the hashed code with the stored hash
+                    if verify_access_code(enc_file.code_hash,
+                                          hashed_code):  # compare the hashed code with the stored hash
                         file_instance = enc_file
                         break
 
@@ -145,25 +152,52 @@ class GetEncryptedFileView(views.APIView):
                     return Response({'error': 'Invalid access code'}, status=status.HTTP_404_NOT_FOUND)
                 if file_instance.code_expire < timezone.now():
                     return Response({'error': 'Access code expired'}, status=status.HTTP_410_GONE)
-                
+
                 # Access code is valid and not expired, serve the ENCRYPTED file
                 try:
                     with file_instance.uploaded_file.open('rb') as f:
                         encrypted_file_content = f.read()
 
                     response = HttpResponse(encrypted_file_content, content_type='application/octet-stream')
-                    response['Content-Disposition'] = f"attachment; filename=\"{file_instance.uploaded_file.name.split('/')[-1]}\""
+                    response[
+                        'Content-Disposition'] = f"attachment; filename=\"{file_instance.uploaded_file.name.split('/')[-1]}\""
                     return response
                 except Exception as e:
                     return Response({'error': 'Error reading the file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
                 print(f"Download error: {str(e)}")  # Log the actual error
-                return Response({'error': f'Error processing download request: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else: # unknown decision for ai
-            return Response({'error': 'Error processing download request due to AI monitoring - unknown decision.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': f'Error processing download request: {str(e)}'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:  # unknown decision for ai
+            return Response({'error': 'Error processing download request due to AI monitoring - unknown decision.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 def download_page(request):
     return render(request, "front_end/download_file.html")
 
+
 def request_send_page(request):
     return render(request, "front_end/requestSend.html")
+
+
+def sso_login(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        # if username ==
+        # todo
+        ...
+    return render(request, "front_end/login.html")
+
+
+def register(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        password_hash = make_password(password)
+        email = request.POST.get('email')
+
+        save = UserProfile(username=username, password=password_hash, email=email).save()
+        print(save)
+    return render(request, "front_end/register.html")
