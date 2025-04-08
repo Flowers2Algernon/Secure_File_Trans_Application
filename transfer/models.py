@@ -26,3 +26,11 @@ class FileLog(models.Model):
 
     def __str__(self):
         return str(self.file_id)
+
+class UserProfile(models.Model):
+    username = models.CharField(max_length=100,unique=True)
+    email = models.EmailField()
+    password = models.CharField(max_length=100)
+
+    def __str__(self):
+        return str(self.username)
