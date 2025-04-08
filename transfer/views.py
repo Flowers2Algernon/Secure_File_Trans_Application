@@ -5,7 +5,6 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from flask import render_template
 
 from .utils import generate_code, hash_access_code, get_code_expire_time, verify_access_code
 from .models import EncrptedFile, UserProfile
@@ -74,6 +73,7 @@ def delete_expired_file(request):
     """
     Delete expired file view function.删除过期文件的视图函数。
     """
+    # get current date 获取当前时间
     # 获取当前时间
     now = datetime.now()
 
@@ -84,14 +84,15 @@ def delete_expired_file(request):
         if not expired_files.exists():
             return JsonResponse({'message': 'No expired files found.'}, status=404)
 
+        # delete expired files 删除过期文件
         # 删除过期文件
         deleted_count = 0
         for expired_file in expired_files:
             try:
                 # 删除文件
                 if expired_file.file and os.path.isfile(expired_file.file.path):
-                    os.remove(expired_file.file.path)  # 删除文件
-                    expired_file.delete()  # 删除数据库中的记录
+                    os.remove(expired_file.file.path)  # delete file    删除文件
+                    expired_file.delete()  # delete from database   删除数据库中的记录
                     deleted_count += 1
             except ObjectDoesNotExist:
                 continue
@@ -99,6 +100,7 @@ def delete_expired_file(request):
         return JsonResponse({'message': f'{deleted_count} expired files deleted successfully.'}, status=200)
 
     except Exception as e:
+        # error handle  错误处理
         # 错误处理
         return JsonResponse({'error': str(e)}, status=500)
 
