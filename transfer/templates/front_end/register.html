@@ -1,62 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Register Page</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Register - Secure File Sharing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#17c3b2',
+                        secondary: '#227c9d'
+                    },
+                    borderRadius: {
+                        button: '8px'
+                    }
+                }
+            }
+        };
+    </script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .register-container {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 300px;
-        }
-        .register-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .register-container input[type="text"],
-        .register-container input[type="email"],
-        .register-container input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        .register-container input[type="submit"] {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .register-container input[type="submit"]:hover {
-            background-color: #45a049;
+        .hero-bg {
+            background-image: url('https://public.readdy.ai/ai/img_res/c32fd85f293cae1af2f5e9cdb470060d.jpg');
+            background-size: cover;
+            background-position: center;
         }
     </style>
 </head>
-<body>
-<div class="register-container">
-    <h2>User Registration</h2>
-    <form action="{% url 'register' %}" method="POST">
-        {% csrf_token %}
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-        <input type="submit" value="Register">
+<body class="min-h-screen bg-[#fef9ef] flex items-center justify-center hero-bg">
+<div class="bg-white bg-opacity-90 p-8 rounded-xl shadow-lg w-full max-w-md">
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Register</h2>
+    <form action="/register" method="POST" class="space-y-4">
+        <div>
+            <label class="block text-gray-700 mb-1">Username</label>
+            <input type="text" name="username" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"/>
+        </div>
+        <div>
+            <label class="block text-gray-700 mb-1">Email</label>
+            <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"/>
+        </div>
+        <div>
+            <label class="block text-gray-700 mb-1">Password</label>
+            <input type="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"/>
+        </div>
+        <button type="submit" class="w-full py-3 bg-primary text-white font-semibold rounded-button hover:bg-primary/90">Register</button>
     </form>
+    <p class="text-center text-gray-600 mt-4">
+        Already have an account?
+        <a href="/login" class="text-primary hover:underline">Log In</a>
+    </p>
 </div>
 </body>
 </html>
