@@ -1,464 +1,518 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Request Secure File</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com/3.4.16"></script>
-<script>tailwind.config={theme:{extend:{colors:{primary:'#17c3b2',secondary:'#227c9d'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
-<style>
-:where([class^="ri-"])::before { content: "\f3c2"; }
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
--webkit-appearance: none;
-margin: 0;
-}
-input[type="number"] {
--moz-appearance: textfield;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Secure File</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config = { theme: { extend: { colors: { primary: '#17c3b2', secondary: '#227c9d' }, borderRadius: { 'none': '0px', 'sm': '4px', DEFAULT: '8px', 'md': '12px', 'lg': '16px', 'xl': '20px', '2xl': '24px', '3xl': '32px', 'full': '9999px', 'button': '8px' } } } }</script>
+    <style>
+        :where([class^="ri-"])::before {
+            content: "\f3c2";
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
 </head>
+
 <body class="min-h-screen bg-[#fef9ef]">
-<div class="min-h-screen flex flex-col">
-<!-- Header -->
-<header class="bg-white shadow-sm py-4" style="background: linear-gradient(to right, #ffffff, #fef9ef); box-shadow: 0 4px 12px rgba(23, 195, 178, 0.08);">
-<div class="container mx-auto px-4 flex items-center justify-between">
-<div class="flex items-center">
-<h1 class="text-2xl font-['Pacifico'] text-primary mr-8">Secure File Transfer</h1>
-<nav class="hidden md:flex space-x-6">
-<a href="/upload/" class="flex items-center text-gray-700 hover:text-primary">
-<div class="w-5 h-5 flex items-center justify-center mr-1">
-<i class="ri-file-upload-line"></i>
-</div>
-<span>Send File</span>
-</a>
-<a href="/download/" class="flex items-center text-gray-700 hover:text-primary">
-<div class="w-5 h-5 flex items-center justify-center mr-1">
-<i class="ri-file-download-line"></i>
-</div>
-<span>Download File</span>
-</a>
-<a href="/request_send/" class="flex items-center text-primary font-medium border-b-2 border-primary">
-<div class="w-5 h-5 flex items-center justify-center mr-1">
-<i class="ri-send-plane-line"></i>
-</div>
-<span>Request File</span>
-</a>
-</nav>
-</div>
-<div class="flex items-center space-x-4">
-<div class="flex items-center text-primary">
-<div class="w-6 h-6 flex items-center justify-center">
-<i class="ri-lock-line"></i>
-</div>
-<span class="ml-1 text-sm">Secure Connection</span>
-</div>
-<div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-<div class="w-6 h-6 flex items-center justify-center">
-<i class="ri-user-line"></i>
-</div>
-</div>
-</div>
-</div>
-</header>
-<!-- Main Content -->
-<main class="flex-grow container mx-auto px-4 py-8">
-<div class="max-w-3xl mx-auto">
-<!-- Page Title -->
-<div class="mb-8 text-center">
-<h2 class="text-3xl font-bold text-gray-800">Request Secure File</h2>
-<p class="text-gray-600 mt-2">Request encrypted files that only you can access with your private key</p>
-</div>
-<!-- Progress Steps -->
-<div class="mb-10">
-<div class="flex items-center justify-between">
-<div class="flex flex-col items-center">
-<div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
-<div class="w-6 h-6 flex items-center justify-center">
-<i class="ri-key-line"></i>
-</div>
-</div>
-<span class="text-sm mt-2 text-primary font-medium">Generate Keys</span>
-</div>
-<div class="flex-1 h-1 mx-4 bg-gray-200 relative" style="background-color: rgba(163, 206, 241, 0.3);">
-<div class="absolute inset-0 bg-primary" style="width: 0%"></div>
-</div>
-<div class="flex flex-col items-center">
-<div class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center">
-<div class="w-6 h-6 flex items-center justify-center">
-<i class="ri-send-plane-line"></i>
-</div>
-</div>
-<span class="text-sm mt-2 text-gray-500">Send Request</span>
-</div>
-<div class="flex-1 h-1 mx-4 bg-gray-200" style="background-color: rgba(163, 206, 241, 0.3);"></div>
-<div class="flex flex-col items-center">
-<div class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center">
-<div class="w-6 h-6 flex items-center justify-center">
-<i class="ri-file-download-line"></i>
-</div>
-</div>
-<span class="text-sm mt-2 text-gray-500">Receive File</span>
-</div>
-</div>
-</div>
-<!-- Main Form -->
-<div class="bg-white rounded shadow-md p-6 mb-8" style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
-<div class="mb-6">
-<label for="sender-email" class="block text-gray-700 font-medium mb-2">Sender's Email</label>
-<div class="relative">
-<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-<div class="w-5 h-5 flex items-center justify-center text-gray-400">
-<i class="ri-mail-line"></i>
-</div>
-</div>
-<input type="email" id="sender-email" class="w-full pl-10 pr-4 py-3 border-gray-300 border rounded focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button" placeholder="Enter sender's email address">
-</div>
-</div>
-<div class="mb-6">
-<label for="file-description" class="block text-gray-700 font-medium mb-2">File Description <span class="text-gray-400 text-sm">(optional)</span></label>
-<textarea id="file-description" rows="3" class="w-full px-4 py-3 border-gray-300 border rounded focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button" placeholder="Describe the file you're requesting..."></textarea>
-<div class="text-right text-xs text-gray-500 mt-1">
-<span id="char-count">0</span>/200 characters
-</div>
-</div>
-<div class="mb-6">
-<label for="request-purpose" class="block text-gray-700 font-medium mb-2">Purpose of Request <span class="text-gray-400 text-sm">(optional)</span></label>
-<select id="request-purpose" class="w-full px-4 py-3 border-gray-300 border rounded focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none !rounded-button pr-8">
-<option value="" selected disabled>Select a purpose</option>
-<option value="business">Business Documents</option>
-<option value="personal">Personal Documents</option>
-<option value="legal">Legal Documents</option>
-<option value="financial">Financial Records</option>
-<option value="other">Other</option>
-</select>
-<div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-<div class="w-5 h-5 flex items-center justify-center text-gray-400">
-<i class="ri-arrow-down-s-line"></i>
-</div>
-</div>
-</div>
-<!-- Security Information -->
-<div class="p-4 rounded mb-6" style="background-color: rgba(23, 195, 178, 0.1); border: 1px solid rgba(23, 195, 178, 0.2);">
-<div class="flex items-start mb-4">
-<div class="w-6 h-6 flex items-center justify-center text-primary mt-0.5">
-<i class="ri-shield-check-line"></i>
-</div>
-<div class="ml-2">
-<h4 class="font-medium text-gray-800">End-to-End Encryption</h4>
-<p class="text-sm text-gray-600">Your private key never leaves your device. Only you can decrypt the files sent to you.</p>
-</div>
-</div>
-<div id="key-generation-status" class="hidden">
-<div class="mb-3">
-<div class="flex items-center justify-between">
-<label class="block text-gray-700 text-sm font-medium">Your Public Key</label>
-<button id="copy-key" class="text-primary text-sm flex items-center whitespace-nowrap">
-<div class="w-4 h-4 flex items-center justify-center mr-1">
-<i class="ri-clipboard-line"></i>
-</div>
-Copy Key
-</button>
-</div>
-<div class="mt-1 relative">
-<textarea id="public-key" rows="3" class="w-full px-3 py-2 text-xs border rounded !rounded-button" style="background-color: rgba(254, 249, 239, 0.5); border-color: rgba(23, 195, 178, 0.4);" readonly></textarea>
-</div>
-</div>
-<div class="mb-3">
-<div class="flex items-center justify-between">
-<label class="block text-gray-700 text-sm font-medium">Your Private Key</label>
-<button id="copy-private-key" class="text-primary text-sm flex items-center whitespace-nowrap">
-<div class="w-4 h-4 flex items-center justify-center mr-1">
-<i class="ri-clipboard-line"></i>
-</div>
-Copy Key
-</button>
-</div>
-<div class="mt-1 relative">
-<textarea id="private-key" rows="3" class="w-full px-3 py-2 text-xs border rounded !rounded-button" style="background-color: rgba(254, 249, 239, 0.5); border-color: rgba(23, 195, 178, 0.4);" readonly></textarea>
-</div>
-</div>
-<div class="text-sm text-gray-600 flex items-start">
-<div class="w-5 h-5 flex items-center justify-center text-yellow-500 mt-0.5">
-<i class="ri-information-line"></i>
-</div>
-<p class="ml-2">Your private key is stored securely in your browser and will be needed to decrypt files. Please save it in a secure location.</p>
-</div>
-<div id="email-sent-confirmation" class="mt-3 hidden">
-<div class="p-3 rounded-md bg-green-50 border border-green-200 flex items-start">
-<div class="w-5 h-5 flex items-center justify-center text-green-500 mt-0.5">
-<i class="ri-check-line"></i>
-</div>
-<p class="ml-2 text-sm text-green-700">Request sent successfully! Your public key has been sent to the recipient's email.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="flex flex-col sm:flex-row justify-end gap-3">
-<button id="cancel-btn" class="px-6 py-3 border border-gray-300 rounded text-gray-700 font-medium hover:bg-gray-50 !rounded-button whitespace-nowrap">Cancel</button>
-<button id="generate-keys-btn" class="px-6 py-3 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button whitespace-nowrap flex items-center justify-center">
-<div class="w-5 h-5 flex items-center justify-center mr-2">
-<i class="ri-key-2-line"></i>
-</div>
-Generate Keys & Request
-</button>
-</div>
-</div>
-<!-- FAQ Section -->
-<div class="bg-white rounded shadow-md p-6" style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
-<h3 class="text-lg font-semibold text-gray-800 mb-4">Frequently Asked Questions</h3>
-<div class="space-y-4">
-<div class="border rounded !rounded-button overflow-hidden" style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-<button class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-<span>How does the secure file request work?</span>
-<div class="w-5 h-5 flex items-center justify-center text-gray-500">
-<i class="ri-arrow-down-s-line faq-icon"></i>
-</div>
-</button>
-<div class="faq-content hidden px-4 pb-4 pt-0">
-<p class="text-gray-600 text-sm">When you request a file, we generate a unique key pair. The public key is sent to the file sender, while the private key stays only on your device. The sender encrypts the file with your public key, ensuring only you can decrypt it.</p>
-</div>
-</div>
-<div class="border rounded !rounded-button overflow-hidden" style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-<button class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-<span>Is my private key stored on your servers?</span>
-<div class="w-5 h-5 flex items-center justify-center text-gray-500">
-<i class="ri-arrow-down-s-line faq-icon"></i>
-</div>
-</button>
-<div class="faq-content hidden px-4 pb-4 pt-0">
-<p class="text-gray-600 text-sm">No. Your private key is generated and stored only in your browser. It never leaves your device and is not transmitted to our servers or to the sender.</p>
-</div>
-</div>
-<div class="border rounded !rounded-button overflow-hidden" style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-<button class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-<span>What happens if I lose my private key?</span>
-<div class="w-5 h-5 flex items-center justify-center text-gray-500">
-<i class="ri-arrow-down-s-line faq-icon"></i>
-</div>
-</button>
-<div class="faq-content hidden px-4 pb-4 pt-0">
-<p class="text-gray-600 text-sm">If you lose your private key (by clearing browser data or using a different device), you won't be able to decrypt files sent to you. You'll need to generate a new key pair and request the file again.</p>
-</div>
-</div>
-<div class="border rounded !rounded-button overflow-hidden" style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-<button class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-<span>How long does the file request remain valid?</span>
-<div class="w-5 h-5 flex items-center justify-center text-gray-500">
-<i class="ri-arrow-down-s-line faq-icon"></i>
-</div>
-</button>
-<div class="faq-content hidden px-4 pb-4 pt-0">
-<p class="text-gray-600 text-sm">File requests remain valid for 7 days. After that, the sender will need to receive a new request with a fresh public key.</p>
-</div>
-</div>
-</div>
-<div class="mt-6 flex justify-center">
-<a href="#" class="text-primary flex items-center hover:underline">
-<div class="w-5 h-5 flex items-center justify-center mr-1">
-<i class="ri-customer-service-2-line"></i>
-</div>
-Need more help? Contact our support team
-</a>
-</div>
-</div>
-</div>
-</main>
-<!-- Footer -->
-<footer class="py-6" style="background: linear-gradient(to right, #ffffff, #fef9ef); border-top: 1px solid rgba(255, 203, 119, 0.3);">
-<div class="container mx-auto px-4">
-<div class="flex flex-col md:flex-row justify-between items-center">
-<div class="mb-4 md:mb-0">
-<p class="text-gray-600 text-sm">© 2025 Secure File Transfer. All rights reserved.</p>
-</div>
-<div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
-<div class="flex space-x-6">
-<a href="/upload/" class="flex items-center text-gray-600 hover:text-primary">
-<div class="w-5 h-5 flex items-center justify-center mr-1">
-<i class="ri-file-upload-line"></i>
-</div>
-<span class="text-sm">Send File</span>
-</a>
-<a href="/download/" class="flex items-center text-gray-600 hover:text-primary">
-<div class="w-5 h-5 flex items-center justify-center mr-1">
-<i class="ri-file-download-line"></i>
-</div>
-<span class="text-sm">Download File</span>
-</a>
-<a href="/request_send/" class="flex items-center text-primary">
-<div class="w-5 h-5 flex items-center justify-center mr-1">
-<i class="ri-send-plane-line"></i>
-</div>
-<span class="text-sm">Request File</span>
-</a>
-</div>
-<div class="flex space-x-6">
-<a href="#" class="text-gray-500 hover:text-gray-700">
-<div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-shield-keyhole-line"></i>
-</div>
-</a>
-<a href="#" class="text-gray-500 hover:text-gray-700">
-<div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-file-list-3-line"></i>
-</div>
-</a>
-<a href="#" class="text-gray-500 hover:text-gray-700">
-<div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-question-line"></i>
-</div>
-</a>
-</div>
-</div>
-</div>
-</div>
-</footer>
-</div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-const generateKeysBtn = document.getElementById('generate-keys-btn');
-const cancelBtn = document.getElementById('cancel-btn');
-const fileDescription = document.getElementById('file-description');
-const charCount = document.getElementById('char-count');
-const keyGenerationStatus = document.getElementById('key-generation-status');
-const publicKeyTextarea = document.getElementById('public-key');
-const copyKeyBtn = document.getElementById('copy-key');
-const faqToggles = document.querySelectorAll('.faq-toggle');
-// Character count for description
-fileDescription.addEventListener('input', function() {
-const count = this.value.length;
-charCount.textContent = count;
-if (count > 200) {
-this.value = this.value.substring(0, 200);
-charCount.textContent = 200;
-}
-});
-// Generate keys button
-generateKeysBtn.addEventListener('click', function() {
-// Get sender email
-const senderEmail = document.getElementById('sender-email').value;
-if (!senderEmail) {
-// Show error if email is missing
-const emailInput = document.getElementById('sender-email');
-emailInput.classList.add('border-red-500');
-emailInput.focus();
-// Create error message if it doesn't exist
-if (!document.getElementById('email-error')) {
-const errorMsg = document.createElement('p');
-errorMsg.id = 'email-error';
-errorMsg.className = 'text-red-500 text-sm mt-1';
-errorMsg.textContent = 'Please enter the sender\'s email address';
-emailInput.parentNode.parentNode.appendChild(errorMsg);
-}
-return;
-} else {
-// Remove error if exists
-document.getElementById('sender-email').classList.remove('border-red-500');
-const errorMsg = document.getElementById('email-error');
-if (errorMsg) errorMsg.remove();
-}
-// Show loading state
-const originalText = this.innerHTML;
-this.innerHTML = `
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white shadow-sm py-4"
+            style="background: linear-gradient(to right, #ffffff, #fef9ef); box-shadow: 0 4px 12px rgba(23, 195, 178, 0.08);">
+            <div class="container mx-auto px-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-['Pacifico'] text-primary mr-8">Secure File Transfer</h1>
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="/upload/" class="flex items-center text-gray-700 hover:text-primary">
+                            <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                <i class="ri-file-upload-line"></i>
+                            </div>
+                            <span>Send File</span>
+                        </a>
+                        <a href="/download/" class="flex items-center text-gray-700 hover:text-primary">
+                            <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                <i class="ri-file-download-line"></i>
+                            </div>
+                            <span>Download File</span>
+                        </a>
+                        <a href="/request_send/"
+                            class="flex items-center text-primary font-medium border-b-2 border-primary">
+                            <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                <i class="ri-send-plane-line"></i>
+                            </div>
+                            <span>Request File</span>
+                        </a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center text-primary">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-lock-line"></i>
+                        </div>
+                        <span class="ml-1 text-sm">Secure Connection</span>
+                    </div>
+                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-user-line"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <div class="max-w-3xl mx-auto">
+                <!-- Page Title -->
+                <div class="mb-8 text-center">
+                    <h2 class="text-3xl font-bold text-gray-800">Request Secure File</h2>
+                    <p class="text-gray-600 mt-2">Request encrypted files that only you can access with your private key
+                    </p>
+                </div>
+                <!-- Progress Steps -->
+                <div class="mb-10">
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                                <div class="w-6 h-6 flex items-center justify-center">
+                                    <i class="ri-key-line"></i>
+                                </div>
+                            </div>
+                            <span class="text-sm mt-2 text-primary font-medium">Generate Keys</span>
+                        </div>
+                        <div class="flex-1 h-1 mx-4 bg-gray-200 relative"
+                            style="background-color: rgba(163, 206, 241, 0.3);">
+                            <div class="absolute inset-0 bg-primary" style="width: 0%"></div>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center">
+                                <div class="w-6 h-6 flex items-center justify-center">
+                                    <i class="ri-send-plane-line"></i>
+                                </div>
+                            </div>
+                            <span class="text-sm mt-2 text-gray-500">Send Request</span>
+                        </div>
+                        <div class="flex-1 h-1 mx-4 bg-gray-200" style="background-color: rgba(163, 206, 241, 0.3);">
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center">
+                                <div class="w-6 h-6 flex items-center justify-center">
+                                    <i class="ri-file-download-line"></i>
+                                </div>
+                            </div>
+                            <span class="text-sm mt-2 text-gray-500">Receive File</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Main Form -->
+                <div class="bg-white rounded shadow-md p-6 mb-8"
+                    style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
+                    <div class="mb-6">
+                        <label for="sender-email" class="block text-gray-700 font-medium mb-2">Sender's Email</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div class="w-5 h-5 flex items-center justify-center text-gray-400">
+                                    <i class="ri-mail-line"></i>
+                                </div>
+                            </div>
+                            <input type="email" id="sender-email"
+                                class="w-full pl-10 pr-4 py-3 border-gray-300 border rounded focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button"
+                                placeholder="Enter sender's email address">
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label for="file-description" class="block text-gray-700 font-medium mb-2">File Description
+                            <span class="text-gray-400 text-sm">(optional)</span></label>
+                        <textarea id="file-description" rows="3"
+                            class="w-full px-4 py-3 border-gray-300 border rounded focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button"
+                            placeholder="Describe the file you're requesting..."></textarea>
+                        <div class="text-right text-xs text-gray-500 mt-1">
+                            <span id="char-count">0</span>/200 characters
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label for="request-purpose" class="block text-gray-700 font-medium mb-2">Purpose of Request
+                            <span class="text-gray-400 text-sm">(optional)</span></label>
+                        <select id="request-purpose"
+                            class="w-full px-4 py-3 border-gray-300 border rounded focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none !rounded-button pr-8">
+                            <option value="" selected disabled>Select a purpose</option>
+                            <option value="business">Business Documents</option>
+                            <option value="personal">Personal Documents</option>
+                            <option value="legal">Legal Documents</option>
+                            <option value="financial">Financial Records</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                            <div class="w-5 h-5 flex items-center justify-center text-gray-400">
+                                <i class="ri-arrow-down-s-line"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Security Information -->
+                    <div class="p-4 rounded mb-6"
+                        style="background-color: rgba(23, 195, 178, 0.1); border: 1px solid rgba(23, 195, 178, 0.2);">
+                        <div class="flex items-start mb-4">
+                            <div class="w-6 h-6 flex items-center justify-center text-primary mt-0.5">
+                                <i class="ri-shield-check-line"></i>
+                            </div>
+                            <div class="ml-2">
+                                <h4 class="font-medium text-gray-800">End-to-End Encryption</h4>
+                                <p class="text-sm text-gray-600">Your private key never leaves your device. Only you can
+                                    decrypt the files sent to you.</p>
+                            </div>
+                        </div>
+                        <div id="key-generation-status" class="hidden">
+                            <div class="mb-3">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-gray-700 text-sm font-medium">Your Public Key</label>
+                                    <button id="copy-key"
+                                        class="text-primary text-sm flex items-center whitespace-nowrap">
+                                        <div class="w-4 h-4 flex items-center justify-center mr-1">
+                                            <i class="ri-clipboard-line"></i>
+                                        </div>
+                                        Copy Key
+                                    </button>
+                                </div>
+                                <div class="mt-1 relative">
+                                    <textarea id="public-key" rows="3"
+                                        class="w-full px-3 py-2 text-xs border rounded !rounded-button"
+                                        style="background-color: rgba(254, 249, 239, 0.5); border-color: rgba(23, 195, 178, 0.4);"
+                                        readonly></textarea>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-gray-700 text-sm font-medium">Your Private Key</label>
+                                    <button id="copy-private-key"
+                                        class="text-primary text-sm flex items-center whitespace-nowrap">
+                                        <div class="w-4 h-4 flex items-center justify-center mr-1">
+                                            <i class="ri-clipboard-line"></i>
+                                        </div>
+                                        Copy Key
+                                    </button>
+                                </div>
+                                <div class="mt-1 relative">
+                                    <textarea id="private-key" rows="3"
+                                        class="w-full px-3 py-2 text-xs border rounded !rounded-button"
+                                        style="background-color: rgba(254, 249, 239, 0.5); border-color: rgba(23, 195, 178, 0.4);"
+                                        readonly></textarea>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-600 flex items-start">
+                                <div class="w-5 h-5 flex items-center justify-center text-yellow-500 mt-0.5">
+                                    <i class="ri-information-line"></i>
+                                </div>
+                                <p class="ml-2">Your private key is stored securely in your browser and will be needed
+                                    to decrypt files. Please save it in a secure location.</p>
+                            </div>
+                            <div id="email-sent-confirmation" class="mt-3 hidden">
+                                <div class="p-3 rounded-md bg-green-50 border border-green-200 flex items-start">
+                                    <div class="w-5 h-5 flex items-center justify-center text-green-500 mt-0.5">
+                                        <i class="ri-check-line"></i>
+                                    </div>
+                                    <p class="ml-2 text-sm text-green-700">Request sent successfully! Your public key
+                                        has been sent to the recipient's email.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-end gap-3">
+                        <button id="cancel-btn"
+                            class="px-6 py-3 border border-gray-300 rounded text-gray-700 font-medium hover:bg-gray-50 !rounded-button whitespace-nowrap">Cancel</button>
+                        <button id="generate-keys-btn"
+                            class="px-6 py-3 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button whitespace-nowrap flex items-center justify-center">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-key-2-line"></i>
+                            </div>
+                            Generate Keys & Request
+                        </button>
+                    </div>
+                </div>
+                <!-- FAQ Section -->
+                <div class="bg-white rounded shadow-md p-6"
+                    style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Frequently Asked Questions</h3>
+                    <div class="space-y-4">
+                        <div class="border rounded !rounded-button overflow-hidden"
+                            style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
+                            <button
+                                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
+                                <span>How does the secure file request work?</span>
+                                <div class="w-5 h-5 flex items-center justify-center text-gray-500">
+                                    <i class="ri-arrow-down-s-line faq-icon"></i>
+                                </div>
+                            </button>
+                            <div class="faq-content hidden px-4 pb-4 pt-0">
+                                <p class="text-gray-600 text-sm">When you request a file, we generate a unique key pair.
+                                    The public key is sent to the file sender, while the private key stays only on your
+                                    device. The sender encrypts the file with your public key, ensuring only you can
+                                    decrypt it.</p>
+                            </div>
+                        </div>
+                        <div class="border rounded !rounded-button overflow-hidden"
+                            style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
+                            <button
+                                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
+                                <span>Is my private key stored on your servers?</span>
+                                <div class="w-5 h-5 flex items-center justify-center text-gray-500">
+                                    <i class="ri-arrow-down-s-line faq-icon"></i>
+                                </div>
+                            </button>
+                            <div class="faq-content hidden px-4 pb-4 pt-0">
+                                <p class="text-gray-600 text-sm">No. Your private key is generated and stored only in
+                                    your browser. It never leaves your device and is not transmitted to our servers or
+                                    to the sender.</p>
+                            </div>
+                        </div>
+                        <div class="border rounded !rounded-button overflow-hidden"
+                            style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
+                            <button
+                                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
+                                <span>What happens if I lose my private key?</span>
+                                <div class="w-5 h-5 flex items-center justify-center text-gray-500">
+                                    <i class="ri-arrow-down-s-line faq-icon"></i>
+                                </div>
+                            </button>
+                            <div class="faq-content hidden px-4 pb-4 pt-0">
+                                <p class="text-gray-600 text-sm">If you lose your private key (by clearing browser data
+                                    or using a different device), you won't be able to decrypt files sent to you. You'll
+                                    need to generate a new key pair and request the file again.</p>
+                            </div>
+                        </div>
+                        <div class="border rounded !rounded-button overflow-hidden"
+                            style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
+                            <button
+                                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
+                                <span>How long does the file request remain valid?</span>
+                                <div class="w-5 h-5 flex items-center justify-center text-gray-500">
+                                    <i class="ri-arrow-down-s-line faq-icon"></i>
+                                </div>
+                            </button>
+                            <div class="faq-content hidden px-4 pb-4 pt-0">
+                                <p class="text-gray-600 text-sm">File requests remain valid for 7 days. After that, the
+                                    sender will need to receive a new request with a fresh public key.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-center">
+                        <a href="#" class="text-primary flex items-center hover:underline">
+                            <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                <i class="ri-customer-service-2-line"></i>
+                            </div>
+                            Need more help? Contact our support team
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- Footer -->
+        <footer class="py-6"
+            style="background: linear-gradient(to right, #ffffff, #fef9ef); border-top: 1px solid rgba(255, 203, 119, 0.3);">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <p class="text-gray-600 text-sm">© 2025 Secure File Transfer. All rights reserved.</p>
+                    </div>
+                    <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
+                        <div class="flex space-x-6">
+                            <a href="/upload/" class="flex items-center text-gray-600 hover:text-primary">
+                                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                    <i class="ri-file-upload-line"></i>
+                                </div>
+                                <span class="text-sm">Send File</span>
+                            </a>
+                            <a href="/download/" class="flex items-center text-gray-600 hover:text-primary">
+                                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                    <i class="ri-file-download-line"></i>
+                                </div>
+                                <span class="text-sm">Download File</span>
+                            </a>
+                            <a href="/request_send/" class="flex items-center text-primary">
+                                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                    <i class="ri-send-plane-line"></i>
+                                </div>
+                                <span class="text-sm">Request File</span>
+                            </a>
+                        </div>
+                        <div class="flex space-x-6">
+                            <a href="#" class="text-gray-500 hover:text-gray-700">
+                                <div class="w-5 h-5 flex items-center justify-center">
+                                    <i class="ri-shield-keyhole-line"></i>
+                                </div>
+                            </a>
+                            <a href="#" class="text-gray-500 hover:text-gray-700">
+                                <div class="w-5 h-5 flex items-center justify-center">
+                                    <i class="ri-file-list-3-line"></i>
+                                </div>
+                            </a>
+                            <a href="#" class="text-gray-500 hover:text-gray-700">
+                                <div class="w-5 h-5 flex items-center justify-center">
+                                    <i class="ri-question-line"></i>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const generateKeysBtn = document.getElementById('generate-keys-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const fileDescription = document.getElementById('file-description');
+            const charCount = document.getElementById('char-count');
+            const keyGenerationStatus = document.getElementById('key-generation-status');
+            const publicKeyTextarea = document.getElementById('public-key');
+            const copyKeyBtn = document.getElementById('copy-key');
+            const faqToggles = document.querySelectorAll('.faq-toggle');
+            // Character count for description
+            fileDescription.addEventListener('input', function () {
+                const count = this.value.length;
+                charCount.textContent = count;
+                if (count > 200) {
+                    this.value = this.value.substring(0, 200);
+                    charCount.textContent = 200;
+                }
+            });
+            // Generate keys button
+            generateKeysBtn.addEventListener('click', function () {
+                // Get sender email
+                const senderEmail = document.getElementById('sender-email').value;
+                if (!senderEmail) {
+                    // Show error if email is missing
+                    const emailInput = document.getElementById('sender-email');
+                    emailInput.classList.add('border-red-500');
+                    emailInput.focus();
+                    // Create error message if it doesn't exist
+                    if (!document.getElementById('email-error')) {
+                        const errorMsg = document.createElement('p');
+                        errorMsg.id = 'email-error';
+                        errorMsg.className = 'text-red-500 text-sm mt-1';
+                        errorMsg.textContent = 'Please enter the sender\'s email address';
+                        emailInput.parentNode.parentNode.appendChild(errorMsg);
+                    }
+                    return;
+                } else {
+                    // Remove error if exists
+                    document.getElementById('sender-email').classList.remove('border-red-500');
+                    const errorMsg = document.getElementById('email-error');
+                    if (errorMsg) errorMsg.remove();
+                }
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = `
 <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 </svg>
 Generating Keys...
 `;
-this.disabled = true;
-// Simulate key generation and email sending (in a real app, this would use a crypto library)
-setTimeout(() => {
-// Show the key generation status section
-keyGenerationStatus.classList.remove('hidden');
-// Display mock keys
-publicKeyTextarea.value = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2K4QX1zv0fqxLj8sV5RY\nXBHq9q+ETR/4fZFx9UrXG7OYyj3uZzD+0I8a3WRCJXylCYdJWzHgWOQxm3RCL+K7\nNvZ5EG9DkTmk2Sf...";
-document.getElementById('private-key').value = "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDYrhBfXO/R+rEu\nPyxXlFhcEer2r4RNH/h9kXH1StcbsZjKPe5nMP7QjxrdZEIlfKUJh0lbMeBY5DGb\ndEIv4rs29nkQb0OROaTZJ...";
-// Show email sent confirmation
-document.getElementById('email-sent-confirmation').classList.remove('hidden');
-// Update progress bar
-document.querySelector('.absolute.inset-0.bg-primary').style.width = '100%';
-// Update the second step to active
-const steps = document.querySelectorAll('.flex.flex-col.items-center');
-steps[1].querySelector('.w-10.h-10').classList.remove('bg-gray-200', 'text-gray-500');
-steps[1].querySelector('.w-10.h-10').classList.add('bg-primary', 'text-white');
-steps[1].querySelector('.text-sm.mt-2').classList.remove('text-gray-500');
-steps[1].querySelector('.text-sm.mt-2').classList.add('text-primary', 'font-medium');
-// Reset button
-this.innerHTML = originalText;
-this.disabled = false;
-}, 2000);
-});
-// Copy public key button
-copyKeyBtn.addEventListener('click', function() {
-publicKeyTextarea.select();
-document.execCommand('copy');
-// Show copied feedback
-const originalText = this.innerHTML;
-this.innerHTML = `
+                this.disabled = true;
+                // Simulate key generation and email sending (in a real app, this would use a crypto library)
+                setTimeout(() => {
+                    // Show the key generation status section
+                    keyGenerationStatus.classList.remove('hidden');
+                    // Display mock keys
+                    publicKeyTextarea.value = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2K4QX1zv0fqxLj8sV5RY\nXBHq9q+ETR/4fZFx9UrXG7OYyj3uZzD+0I8a3WRCJXylCYdJWzHgWOQxm3RCL+K7\nNvZ5EG9DkTmk2Sf...";
+                    document.getElementById('private-key').value = "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDYrhBfXO/R+rEu\nPyxXlFhcEer2r4RNH/h9kXH1StcbsZjKPe5nMP7QjxrdZEIlfKUJh0lbMeBY5DGb\ndEIv4rs29nkQb0OROaTZJ...";
+                    // Show email sent confirmation
+                    document.getElementById('email-sent-confirmation').classList.remove('hidden');
+                    // Update progress bar
+                    document.querySelector('.absolute.inset-0.bg-primary').style.width = '100%';
+                    // Update the second step to active
+                    const steps = document.querySelectorAll('.flex.flex-col.items-center');
+                    steps[1].querySelector('.w-10.h-10').classList.remove('bg-gray-200', 'text-gray-500');
+                    steps[1].querySelector('.w-10.h-10').classList.add('bg-primary', 'text-white');
+                    steps[1].querySelector('.text-sm.mt-2').classList.remove('text-gray-500');
+                    steps[1].querySelector('.text-sm.mt-2').classList.add('text-primary', 'font-medium');
+                    // Reset button
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }, 2000);
+            });
+            // Copy public key button
+            copyKeyBtn.addEventListener('click', function () {
+                publicKeyTextarea.select();
+                document.execCommand('copy');
+                // Show copied feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = `
 <div class="w-4 h-4 flex items-center justify-center mr-1">
 <i class="ri-check-line"></i>
 </div>
 Copied!
 `;
-setTimeout(() => {
-this.innerHTML = originalText;
-}, 2000);
-});
-// Copy private key button
-document.getElementById('copy-private-key').addEventListener('click', function() {
-document.getElementById('private-key').select();
-document.execCommand('copy');
-// Show copied feedback
-const originalText = this.innerHTML;
-this.innerHTML = `
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 2000);
+            });
+            // Copy private key button
+            document.getElementById('copy-private-key').addEventListener('click', function () {
+                document.getElementById('private-key').select();
+                document.execCommand('copy');
+                // Show copied feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = `
 <div class="w-4 h-4 flex items-center justify-center mr-1">
 <i class="ri-check-line"></i>
 </div>
 Copied!
 `;
-setTimeout(() => {
-this.innerHTML = originalText;
-}, 2000);
-});
-// Cancel button
-cancelBtn.addEventListener('click', function() {
-// Reset the form or navigate away
-window.location.href = '#';
-});
-// FAQ accordion functionality
-faqToggles.forEach(toggle => {
-toggle.addEventListener('click', function() {
-const content = this.nextElementSibling;
-const icon = this.querySelector('.faq-icon');
-// Close all other FAQs
-faqToggles.forEach(otherToggle => {
-if (otherToggle !== toggle) {
-otherToggle.nextElementSibling.classList.add('hidden');
-otherToggle.querySelector('.faq-icon').classList.remove('ri-arrow-up-s-line');
-otherToggle.querySelector('.faq-icon').classList.add('ri-arrow-down-s-line');
-}
-});
-// Toggle current FAQ
-content.classList.toggle('hidden');
-if (content.classList.contains('hidden')) {
-icon.classList.remove('ri-arrow-up-s-line');
-icon.classList.add('ri-arrow-down-s-line');
-} else {
-icon.classList.remove('ri-arrow-down-s-line');
-icon.classList.add('ri-arrow-up-s-line');
-}
-});
-});
-// Open first FAQ by default
-if (faqToggles.length > 0) {
-faqToggles[0].click();
-}
-});
-</script>
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 2000);
+            });
+            // Cancel button
+            cancelBtn.addEventListener('click', function () {
+                // Reset the form or navigate away
+                window.location.href = '#';
+            });
+            // FAQ accordion functionality
+            faqToggles.forEach(toggle => {
+                toggle.addEventListener('click', function () {
+                    const content = this.nextElementSibling;
+                    const icon = this.querySelector('.faq-icon');
+                    // Close all other FAQs
+                    faqToggles.forEach(otherToggle => {
+                        if (otherToggle !== toggle) {
+                            otherToggle.nextElementSibling.classList.add('hidden');
+                            otherToggle.querySelector('.faq-icon').classList.remove('ri-arrow-up-s-line');
+                            otherToggle.querySelector('.faq-icon').classList.add('ri-arrow-down-s-line');
+                        }
+                    });
+                    // Toggle current FAQ
+                    content.classList.toggle('hidden');
+                    if (content.classList.contains('hidden')) {
+                        icon.classList.remove('ri-arrow-up-s-line');
+                        icon.classList.add('ri-arrow-down-s-line');
+                    } else {
+                        icon.classList.remove('ri-arrow-down-s-line');
+                        icon.classList.add('ri-arrow-up-s-line');
+                    }
+                });
+            });
+            // Open first FAQ by default
+            if (faqToggles.length > 0) {
+                faqToggles[0].click();
+            }
+        });
+    </script>
 </body>
+
 </html>
