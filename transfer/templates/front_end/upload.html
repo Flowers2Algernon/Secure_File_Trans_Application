@@ -1,0 +1,248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Encrypted File</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="{% static 'js/crypto.js' %}"></script>
+    <style>
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        .key-container {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .progress {
+            margin-top: 10px;
+            display: none;
+        }
+        .step {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Upload Encrypted File</h1>
+        <p class="lead">Securely share files with end-to-end encryption.</p>
+        
+        <div class="step" id="step1">
+            <h3><span class="step-number">1</span>Select File</h3>
+            <div class="mb-3">
+                <label for="fileInput" class="form-label">Choose a file to upload:</label>
+                <input type="file" class="form-control" id="fileInput">
+            </div>
+        </div>
+        
+        <div class="step" id="step2">
+            <h3><span class="step-number">2</span>Recipient's Public Key</h3>
+            <div class="mb-3">
+                <label for="recipientPublicKey" class="form-label">Enter the recipient's public key:</label>
+                <textarea class="form-control" id="recipientPublicKey" rows="5" placeholder="Paste the recipient's public key here"></textarea>
+                <small class="text-muted">The recipient's public key is used to encrypt the file so only they can decrypt it.</small>
+            </div>
+            
+            <div class="mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="requestCheckbox">
+                    <label class="form-check-label" for="requestCheckbox">
+                        This is a response to a file request
+                    </label>
+                </div>
+            </div>
+            
+            <div id="requestSection" style="display: none;">
+                <div class="alert alert-info">
+                    <p>You're responding to a file request. The recipient's public key has been automatically loaded.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="step" id="step3">
+            <h3><span class="step-number">3</span>Encrypt and Upload</h3>
+            <p>Click the button below to encrypt and upload your file. Only the recipient will be able to decrypt it.</p>
+            <button id="encryptAndUploadBtn" class="btn btn-primary">Encrypt and Upload</button>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div id="uploadResult" class="alert alert-success" style="display: none;">
+            <h4>File Uploaded Successfully!</h4>
+            <p>Share this access code with the recipient:</p>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="accessCode" readonly>
+                <button class="btn btn-outline-secondary" id="copyCodeBtn" type="button">Copy</button>
+            </div>
+            <p class="mt-3">The recipient will need:</p>
+            <ol>
+                <li>This access code</li>
+                <li>Their private key to decrypt the file</li>
+            </ol>
+            <p>The access code will expire in <span id="expiryTime">15 minutes</span>.</p>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if this is a response to a file request
+            const urlParams = new URLSearchParams(window.location.search);
+            const requestParam = urlParams.get('request');
+            
+            if (requestParam) {
+                try {
+                    // Decode the request data
+                    const requestData = JSON.parse(atob(requestParam));
+                    
+                    // Set the recipient's public key
+                    document.getElementById('recipientPublicKey').value = requestData.publicKey;
+                    
+                    // Show the request section
+                    document.getElementById('requestCheckbox').checked = true;
+                    document.getElementById('requestSection').style.display = 'block';
+                    
+                    // Add requester info to the request section
+                    const requestSection = document.getElementById('requestSection');
+                    const requesterInfo = document.createElement('div');
+                    requesterInfo.innerHTML = `
+                        <p><strong>Requester:</strong> ${requestData.name} (${requestData.email})</p>
+                        ${requestData.message ? `<p><strong>Message:</strong> ${requestData.message}</p>` : ''}
+                    `;
+                    requestSection.appendChild(requesterInfo);
+                    
+                } catch (error) {
+                    console.error('Error parsing request data:', error);
+                }
+            }
+            
+            // Request checkbox
+            document.getElementById('requestCheckbox').addEventListener('change', function() {
+                document.getElementById('requestSection').style.display = this.checked ? 'block' : 'none';
+            });
+            
+            // Encrypt and upload button
+            document.getElementById('encryptAndUploadBtn').addEventListener('click', async function() {
+                try {
+                    console.log("Starting file encryption and upload...");
+                    
+                    const fileInput = document.getElementById('fileInput');
+                    const recipientPublicKey = document.getElementById('recipientPublicKey').value;
+                    const progressBar = document.querySelector('.progress-bar');
+                    const progress = document.querySelector('.progress');
+                    
+                    if (!fileInput.files.length) {
+                        alert('Please select a file to upload.');
+                        return;
+                    }
+                    
+                    if (!recipientPublicKey) {
+                        alert('Please enter the recipient\'s public key.');
+                        return;
+                    }
+                    
+                    // Show progress
+                    progress.style.display = 'block';
+                    progressBar.style.width = '0%';
+                    
+                    // Read the file
+                    const file = fileInput.files[0];
+                    console.log(`File selected: ${file.name}, size: ${file.size}`);
+                    
+                    const fileData = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(new Uint8Array(reader.result));
+                        reader.onerror = reject;
+                        reader.readAsArrayBuffer(file);
+                    });
+                    
+                    console.log("File read complete, calculating hash...");
+                    progressBar.style.width = '20%';
+                    
+                    // Calculate file hash
+                    const fileHash = await calculateFileHash(fileData);
+                    console.log(`File hash calculated: ${fileHash.substring(0, 10)}...`);
+                    
+                    // Encrypt the file with AES
+                    console.log("Encrypting file with AES...");
+                    progressBar.style.width = '40%';
+                    const encryptionResult = await encryptFile(fileData);
+                    console.log("File encryption complete");
+                    
+                    // Encrypt the AES key with the recipient's public key
+                    console.log("Encrypting AES key with recipient's public key...");
+                    progressBar.style.width = '60%';
+                    const encryptedAesKey = await encryptAesKey(encryptionResult.aesKey, recipientPublicKey);
+                    console.log("AES key encryption complete");
+                    
+                    // Create form data for upload
+                    const formData = new FormData();
+                    formData.append('file', new Blob([encryptionResult.encryptedData]), file.name);
+                    formData.append('recipient_public_key', recipientPublicKey);
+                    formData.append('encrypted_aes_key', arrayToBase64(encryptedAesKey));
+                    formData.append('iv', arrayToBase64(encryptionResult.iv));
+                    formData.append('file_hash', fileHash);
+                    
+                    console.log("Uploading encrypted file...");
+                    progressBar.style.width = '80%';
+                    
+                    // Upload the encrypted file
+                    const response = await fetch('/upload_api/', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    console.log(`Upload response status: ${response.status}`);
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error("Error response:", errorText);
+                        throw new Error(errorText || 'Upload failed');
+                    }
+                    
+                    const result = await response.json();
+                    console.log("Upload successful:", result);
+                    
+                    // Show success message
+                    document.getElementById('accessCode').value = result.access_code;
+                    document.getElementById('expiryTime').textContent = '15 minutes';
+                    document.getElementById('uploadResult').style.display = 'block';
+                    
+                    progressBar.style.width = '100%';
+                    
+                    // Copy code button
+                    document.getElementById('copyCodeBtn').addEventListener('click', function() {
+                        const accessCode = document.getElementById('accessCode');
+                        accessCode.select();
+                        document.execCommand('copy');
+                        alert('Access code copied to clipboard!');
+                    });
+                    
+                } catch (error) {
+                    console.error('Error uploading file:', error);
+                    alert('Error uploading file: ' + error.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

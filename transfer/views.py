@@ -1,17 +1,19 @@
 import os
+import base64
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from .utils import generate_code, hash_access_code, get_code_expire_time, verify_access_code
-from .models import EncrptedFile
+from .models import EncrptedFile, FileLog, KeyPair, FileRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
 import random
 from django.utils import timezone
+from .models import EncrptedFile
 
 
 @csrf_exempt  # Disable CSRF protection for this view
@@ -29,39 +31,28 @@ def index(request):
     return render(request, 'front_end/index.html')
 
 
+# In views.py or api_views.py
+@method_decorator(csrf_exempt, name='dispatch')
 class FileUploadView(views.APIView):
-    parser_classes = [parsers.MultiPartParser]  # Enable multipart form data parsing for file uploads
-
+    parser_classes = [parsers.MultiPartParser]
+    
     def post(self, request):
-        uploaded_file = request.FILES.get('file')
-
-        if not uploaded_file:
-            return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Generate a 6-digit code
-        access_code = generate_code()
-        hashed_code = hash_access_code(access_code)
-        expiry_time = get_code_expire_time()
-
-        # store unencrypted file and access code hash and matedata
-        encrypted_file_instance = EncrptedFile.objects.create(
-            # attention: alrough here is named as encrypted file, but we don't implement encryption yet TODO: implement encryption
-            uploaded_file=uploaded_file,
-            original_filename=uploaded_file.name,  # Add the filename
-            file_size=uploaded_file.size,  # Add the file size
-            code_hash=hashed_code,
-            code_expire=expiry_time,
-        )
-
-        # prepare response
-        response_data = {
-            "file_id": str(encrypted_file_instance.file_id),
-            "access_code": access_code,
-        }
-
-        return Response(response_data, status=status.HTTP_201_CREATED)
-
-
+        try:
+            print("==== DEBUG: FileUploadView.post() called ====")
+            print(f"Request FILES: {request.FILES}")
+            print(f"Request POST keys: {list(request.POST.keys())}")
+            
+            # Rest of your view code...
+            
+        except Exception as e:
+            import traceback
+            print("==== ERROR IN FILE UPLOAD ====")
+            print(f"Error type: {type(e).__name__}")
+            print(f"Error message: {str(e)}")
+            print("Traceback:")
+            print(traceback.format_exc())
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 def upload_page(request):
     return render(request, "front_end/send_file.html")
 
@@ -167,3 +158,5 @@ def download_page(request):
 
 def request_send_page(request):
     return render(request, "front_end/requestSend.html")
+def upload_page(request):
+    return render(request, 'front_end/upload.html')
