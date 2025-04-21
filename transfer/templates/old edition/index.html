@@ -1,0 +1,32 @@
+{% extends "front_end/base.html" %}
+
+{% block title %}Secure File Transfer - Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1>Welcome to Secure File Transfer</h1>
+    <p class="lead">Upload and share files securely with temporary access codes.</p>
+    <hr class="my-4">
+    <p>Choose an option to get started:</p>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Upload a File</h5>
+                    <p class="card-text">Share a file securely using our end-to-end encryption system.</p>
+                    <a href="/upload/" class="btn btn-primary">Upload Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Download a File</h5>
+                    <p class="card-text">Access a shared file using your 6-digit access code.</p>
+                    <a href="/download/" class="btn btn-success">Download Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "front_end/base.html" %}
+
+{% block title %}Download Encrypted File{% endblock %}
+
+{% block content %}
+<h1>Download Encrypted File</h1>
+
+<div id="error-message" class="alert alert-danger" style="display:none;"></div>
+<div id="success-message" class="alert alert-success" style="display:none;"></div>
+
+<form id="download-form">
+    <div class="form-group">
+        <label for="accessCodeInput">Access Code</label>
+        <input type="text" class="form-control" id="accessCodeInput" name="accessCode" placeholder="Enter 6-Digit Access Code">
+    </div>
+    <button type="submit" class="btn btn-success">Download Encrypted File</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const downloadForm = document.getElementById('download-form');
+    const accessCodeInput = document.getElementById('accessCodeInput');
+    const errorMessageDiv = document.getElementById('error-message');
+    const successMessageDiv = document.getElementById('success-message');
+
+    downloadForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        errorMessageDiv.style.display = 'none';
+        successMessageDiv.style.display = 'none';
+
+        const accessCode = accessCodeInput.value;
+
+        if (!accessCode) {
+            errorMessageDiv.textContent = "Access Code is required.";
+            errorMessageDiv.style.display = 'block';
+            return;
+        }
+
+        const downloadData = {
+            access_code: accessCode  
+        };
+
+        try {
+            const response = await fetch('/get_encrypted_file_api/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json' // Add this line
+                },
+                body: JSON.stringify(downloadData),
+            });
+
+            if (!response.ok) {
+                try {
+                    const errorData = await response.json();
+                    errorMessageDiv.textContent = `Download failed: ${errorData.error || response.statusText}`;
+                } catch (parseError) {
+                    // If the error response isn't valid JSON (it's HTML), show a generic message
+                    errorMessageDiv.textContent = `Download failed: Server returned an unexpected response. Status: ${response.status}`;
+                    console.error("Error parsing response:", parseError);
+                }
+                errorMessageDiv.style.display = 'block';
+                return;
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+
+            const contentDisposition = response.headers.get('content-disposition');
+            let filename = 'encrypted_file.enc'; // Default encrypted file name
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+                if (filenameMatch && filenameMatch[1]) {
+                    filename = filenameMatch[1];
+                }
+            }
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
+            successMessageDiv.textContent = `Encrypted file downloaded successfully as ${filename}!`;
+            successMessageDiv.style.display = 'block';
+            downloadForm.reset();
+
+        } catch (error) {
+            console.error("Download error:", error);
+            errorMessageDiv.textContent = `Download failed: ${error.message || 'Unknown error'}`;
+            errorMessageDiv.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

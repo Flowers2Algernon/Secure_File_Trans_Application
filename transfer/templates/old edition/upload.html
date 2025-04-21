@@ -1,0 +1,92 @@
+{% extends "front_end/base.html" %}
+
+{% block title %}Secure File Upload{% endblock %}
+
+{% block content %}
+<h1>Secure File Upload</h1>
+
+<div id="error-message" class="alert alert-danger" style="display:none;"></div>
+<div id="success-message" class="alert alert-success" style="display:none;"></div>
+
+<form id="upload-form">
+    <div class="form-group">
+        <label for="fileInput">Select File</label>
+        <input type="file" class="form-control-file" id="fileInput" name="file">
+    </div>
+    <button type="submit" class="btn btn-primary">Upload File</button>
+</form>
+
+<div id="upload-response" style="display:none; margin-top: 20px;">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            File Uploaded Successfully
+        </div>
+        <div class="card-body">
+            <h5>File ID:</h5>
+            <p id="file-id" class="card-text"></p>
+            <h5>Access Code:</h5>
+            <p id="access-code" class="card-text"><span class="badge badge-primary"></span></p>
+            <div class="alert alert-warning">
+                Please save this access code! You'll need it to download your file.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const uploadForm = document.getElementById('upload-form');
+    const fileInput = document.getElementById('fileInput');
+    const errorMessageDiv = document.getElementById('error-message');
+    const successMessageDiv = document.getElementById('success-message');
+    const uploadResponseDiv = document.getElementById('upload-response');
+    const fileIdDisplay = document.getElementById('file-id');
+    const accessCodeDisplay = document.querySelector('#access-code span');
+
+    uploadForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        errorMessageDiv.style.display = 'none';
+        successMessageDiv.style.display = 'none';
+        uploadResponseDiv.style.display = 'none';
+
+        const file = fileInput.files[0];
+        if (!file) {
+            errorMessageDiv.textContent = "Please select a file.";
+            errorMessageDiv.style.display = 'block';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/upload_api/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                errorMessageDiv.textContent = `Upload failed: ${errorData.error || response.statusText}`;
+                errorMessageDiv.style.display = 'block';
+                return;
+            }
+
+            const responseData = await response.json();
+            uploadForm.reset();
+            
+            fileIdDisplay.textContent = responseData.file_id;
+            accessCodeDisplay.textContent = responseData.access_code;
+            uploadResponseDiv.style.display = 'block';
+            
+            successMessageDiv.textContent = "File uploaded successfully!";
+            successMessageDiv.style.display = 'block';
+        } catch (error) {
+            errorMessageDiv.textContent = `Upload failed: ${error.message}`;
+            errorMessageDiv.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}
