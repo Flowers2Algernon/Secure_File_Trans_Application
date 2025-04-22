@@ -1,23 +1,22 @@
 from django.urls import path
-from . import views
-from .views import FileUploadView, upload_page, GetEncryptedFileView, request_send_page, sso_login
+from .views import index, upload_page, download_page, file_list, delete_expired_file, request_send_page, sso_login, register
 from django.conf import settings
 from django.conf.urls.static import static
+from .file_views import FileUploadView, GetEncryptedFileView, CreateFileRequestView
 
 urlpatterns = [
-    # index page
-    path('', views.index, name='index'),
-    
-    # File transfer
-    path('api/generate_code/', views.generate_code_api, name='generate_code_api'),
+    path('', index, name='index'),
+    path('upload/', upload_page, name='upload'),
+    path('download/', download_page, name='download'),
+    path('request_send/', request_send_page, name='request_send'),
+    path('file_list/', file_list, name='file_list'),
+    path('delete_expired_file/', delete_expired_file, name='delete_expired_file'),
+    path('login/', sso_login, name='login'),
+    path('register/', register, name='register'),
+    # API endpoints
     path('upload_api/', FileUploadView.as_view(), name='file_upload_api'),
-    path('upload/', views.upload_page, name='upload_page'),
-    path('file_list/', views.file_list, name='file_list'),
-    path('get_encrypted_file_api/', GetEncryptedFileView.as_view(), name='get-encrypted-file-api'),
-    path('download/', views.download_page, name='download_page'),
-    path('request_send/', request_send_page, name='request_send_page'),
-    path('login/',sso_login,name='login'),
-    path('register/', views.register, name='register'),  
+    path('api/files/get_encrypted_file_api/', GetEncryptedFileView.as_view(), name='get_encrypted_file_api'),
+    path('api/file-requests/', CreateFileRequestView.as_view(), name='create_file_request'),
 ]
 
 if settings.DEBUG:

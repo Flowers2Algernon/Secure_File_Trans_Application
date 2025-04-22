@@ -9,12 +9,12 @@ from django.core.files.base import ContentFile
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
 
-from .models import EncrptedFile, FileLog
+from .models import EncrptedFile, FileLog, FileRequest  # Added FileRequest import
 from .utils import generate_code, hash_access_code, get_code_expire_time, verify_access_code
 from .crypto_utils import (
     encrypt_file_with_aes, decrypt_file_with_aes,
     encrypt_aes_key_with_rsa, decrypt_aes_key_with_rsa,
-    calculate_file_hash, verify_file_hash
+    calculate_file_hash, verify_file_hash, generate_rsa_key_pair
 )
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -96,6 +96,7 @@ class FileUploadView(views.APIView):
             print(f"Error in FileUploadView.post(): {str(e)}")
             print(traceback.format_exc())
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 @method_decorator(csrf_exempt, name='dispatch')
 class GetEncryptedFileView(views.APIView):
     def post(self, request):
@@ -166,3 +167,51 @@ class GetEncryptedFileView(views.APIView):
                 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateFileRequestView(views.APIView):
+    """API view to create a file request with key generation"""
+    
+    def post(self, request):
+        try:
+            # Parse request data
+            data = json.loads(request.body)
+            requester_email = data.get('senderEmail')
+            message = data.get('message', '')
+            purpose = data.get('purpose', '')
+            
+            # Validate data
+            if not requester_email:
+                return Response({'error': 'Requester email is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Generate an RSA key pair
+            key_pair = generate_rsa_key_pair()
+            #print(key_pair)
+            
+            # Create a FileRequest object with 7 days expiry
+            expiry_date = timezone.now() + timezone.timedelta(days=7)
+            file_request = FileRequest.objects.create(
+                requester_email=requester_email,
+                requester_name=requester_email.split('@')[0],  # Use email username as name
+                request_message=message,
+                public_key=key_pair['public_key'],
+                expires_at=expiry_date
+            )
+            
+            # Generate a request URL
+            request_url = f"{request.build_absolute_uri('/upload/')}?request={file_request.request_id}"
+            
+            # Return the key pair and request URL
+            return Response({
+                'success': True,
+                'publicKey': key_pair['public_key'],
+                'privateKey': key_pair['private_key'],
+                'requestUrl': request_url,
+                'expiresAt': expiry_date.isoformat()
+            }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            import traceback
+            print(f"Error in CreateFileRequestView.post(): {str(e)}")
+            print(traceback.format_exc())  # Add traceback for better debugging
+            return Response({'error': str(e), 'success': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

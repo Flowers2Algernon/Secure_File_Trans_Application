@@ -11,6 +11,8 @@
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
     <script>tailwind.config = { theme: { extend: { colors: { primary: '#17c3b2', secondary: '#227c9d' }, borderRadius: { 'none': '0px', 'sm': '4px', DEFAULT: '8px', 'md': '12px', 'lg': '16px', 'xl': '20px', '2xl': '24px', '3xl': '32px', 'full': '9999px', 'button': '8px' } } } }</script>
+    <!-- Add the crypto.js script reference -->
+    <script src="/static/js/crypto.js"></script>
     <style>
         :where([class^="ri-"])::before {
             content: "\f3c2";
@@ -95,16 +97,16 @@
                         </div>
                         <div class="flex-1 h-1 mx-4 bg-gray-200 relative"
                             style="background-color: rgba(163, 206, 241, 0.3);">
-                            <div class="absolute inset-0 bg-primary" style="width: 0%"></div>
+                            <div class="absolute inset-0 bg-primary" style="width: 0%" id="progress-bar"></div>
                         </div>
                         <div class="flex flex-col items-center">
                             <div
-                                class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center">
+                                class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center" id="step2-circle">
                                 <div class="w-6 h-6 flex items-center justify-center">
                                     <i class="ri-send-plane-line"></i>
                                 </div>
                             </div>
-                            <span class="text-sm mt-2 text-gray-500">Send Request</span>
+                            <span class="text-sm mt-2 text-gray-500" id="step2-text">Send Request</span>
                         </div>
                         <div class="flex-1 h-1 mx-4 bg-gray-200" style="background-color: rgba(163, 206, 241, 0.3);">
                         </div>
@@ -148,21 +150,24 @@
                     <div class="mb-6">
                         <label for="request-purpose" class="block text-gray-700 font-medium mb-2">Purpose of Request
                             <span class="text-gray-400 text-sm">(optional)</span></label>
-                        <select id="request-purpose"
-                            class="w-full px-4 py-3 border-gray-300 border rounded focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none !rounded-button pr-8">
-                            <option value="" selected disabled>Select a purpose</option>
-                            <option value="business">Business Documents</option>
-                            <option value="personal">Personal Documents</option>
-                            <option value="legal">Legal Documents</option>
-                            <option value="financial">Financial Records</option>
-                            <option value="other">Other</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                            <div class="w-5 h-5 flex items-center justify-center text-gray-400">
-                                <i class="ri-arrow-down-s-line"></i>
+                        <div class="relative">
+                            <select id="request-purpose"
+                                class="w-full px-4 py-3 border-gray-300 border rounded focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none !rounded-button pr-10">
+                                <option value="" selected disabled>Select a purpose</option>
+                                <option value="business">Business Documents</option>
+                                <option value="personal">Personal Documents</option>
+                                <option value="legal">Legal Documents</option>
+                                <option value="financial">Financial Records</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                <div class="w-5 h-5 flex items-center justify-center text-gray-400">
+                                    <i class="ri-arrow-down-s-line"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    
                     <!-- Security Information -->
                     <div class="p-4 rounded mb-6"
                         style="background-color: rgba(23, 195, 178, 0.1); border: 1px solid rgba(23, 195, 178, 0.2);">
@@ -180,7 +185,7 @@
                             <div class="mb-3">
                                 <div class="flex items-center justify-between">
                                     <label class="block text-gray-700 text-sm font-medium">Your Public Key</label>
-                                    <button id="copy-key"
+                                    <button id="copy-public-key"
                                         class="text-primary text-sm flex items-center whitespace-nowrap">
                                         <div class="w-4 h-4 flex items-center justify-center mr-1">
                                             <i class="ri-clipboard-line"></i>
@@ -217,16 +222,19 @@
                                 <div class="w-5 h-5 flex items-center justify-center text-yellow-500 mt-0.5">
                                     <i class="ri-information-line"></i>
                                 </div>
-                                <p class="ml-2">Your private key is stored securely in your browser and will be needed
-                                    to decrypt files. Please save it in a secure location.</p>
+                                <p class="ml-2">Your private key never leaves your device. Please save it in a secure location as it will be needed to decrypt files.</p>
                             </div>
-                            <div id="email-sent-confirmation" class="mt-3 hidden">
-                                <div class="p-3 rounded-md bg-green-50 border border-green-200 flex items-start">
-                                    <div class="w-5 h-5 flex items-center justify-center text-green-500 mt-0.5">
-                                        <i class="ri-check-line"></i>
-                                    </div>
-                                    <p class="ml-2 text-sm text-green-700">Request sent successfully! Your public key
-                                        has been sent to the recipient's email.</p>
+                            <div id="request-link-section" class="mt-4 p-4 border border-green-200 rounded-md bg-green-50 hidden">
+                                <h4 class="font-medium text-gray-800 mb-2">File Request Created!</h4>
+                                <p class="text-sm text-gray-600 mb-2">Share this link with the person you want to receive a file from:</p>
+                                <div class="flex mb-2">
+                                    <input type="text" id="request-link" class="flex-grow px-3 py-2 text-sm border rounded-l !rounded-button-none" readonly>
+                                    <button id="copy-link-btn" class="px-3 py-2 bg-primary text-white text-sm rounded-r !rounded-button-none flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center mr-1">
+                                            <i class="ri-clipboard-line"></i>
+                                        </div>
+                                        Copy
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -373,13 +381,26 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const generateKeysBtn = document.getElementById('generate-keys-btn');
-            const cancelBtn = document.getElementById('cancel-btn');
+            // Check if keys are already stored
+            const storedPublicKey = localStorage.getItem('publicKey');
+            const storedEncryptedPrivateKey = localStorage.getItem('encryptedPrivateKey');
+            
+            if (storedPublicKey && storedEncryptedPrivateKey) {
+                // Show keys info
+                document.getElementById('key-generation-status').classList.remove('hidden');
+                document.getElementById('public-key').value = storedPublicKey.substring(0, 64) + '...';
+                document.getElementById('private-key').value = '***** ENCRYPTED PRIVATE KEY *****';
+                
+                // Update progress
+                document.getElementById('progress-bar').style.width = '100%';
+                activateStep2();
+            }
+
             const fileDescription = document.getElementById('file-description');
             const charCount = document.getElementById('char-count');
             const keyGenerationStatus = document.getElementById('key-generation-status');
-            const publicKeyTextarea = document.getElementById('public-key');
-            const copyKeyBtn = document.getElementById('copy-key');
+            const generateKeysBtn = document.getElementById('generate-keys-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
             const faqToggles = document.querySelectorAll('.faq-toggle');
             
             // Character count for description
@@ -420,12 +441,12 @@
                 // Show loading state
                 const originalText = this.innerHTML;
                 this.innerHTML = `
-<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-</svg>
-Generating Keys...
-`;
+                <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Generating Keys...
+                `;
                 this.disabled = true;
                 
                 // Get file description and purpose
@@ -452,29 +473,31 @@ Generating Keys...
                 })
                 .then(data => {
                     if (data.success) {
+                        // Store keys in localStorage
+                        storeKeys(data.publicKey, data.privateKey);
+                        
                         // Show the key generation status section
                         keyGenerationStatus.classList.remove('hidden');
                         
                         // Display keys
-                        publicKeyTextarea.value = data.publicKey;
+                        document.getElementById('public-key').value = data.publicKey;
                         document.getElementById('private-key').value = data.privateKey;
                         
-                        // Store keys in localStorage for future use
-                        localStorage.setItem('publicKey', data.publicKey);
-                        localStorage.setItem('privateKey', data.privateKey);
-                        
-                        // Show email sent confirmation
-                        document.getElementById('email-sent-confirmation').classList.remove('hidden');
+                        // Show the request link
+                        document.getElementById('request-link').value = data.requestUrl;
+                        document.getElementById('request-link-section').classList.remove('hidden');
                         
                         // Update progress bar
-                        document.querySelector('.absolute.inset-0.bg-primary').style.width = '100%';
+                        document.getElementById('progress-bar').style.width = '100%';
                         
                         // Update the second step to active
-                        const steps = document.querySelectorAll('.flex.flex-col.items-center');
-                        steps[1].querySelector('.w-10.h-10').classList.remove('bg-gray-200', 'text-gray-500');
-                        steps[1].querySelector('.w-10.h-10').classList.add('bg-primary', 'text-white');
-                        steps[1].querySelector('.text-sm.mt-2').classList.remove('text-gray-500');
-                        steps[1].querySelector('.text-sm.mt-2').classList.add('text-primary', 'font-medium');
+                        const step2Circle = document.getElementById('step2-circle');
+                        const step2Text = document.getElementById('step2-text');
+                        
+                        step2Circle.classList.remove('bg-gray-200', 'text-gray-500');
+                        step2Circle.classList.add('bg-primary', 'text-white');
+                        step2Text.classList.remove('text-gray-500');
+                        step2Text.classList.add('text-primary', 'font-medium');
                     }
                     
                     // Reset button
@@ -482,8 +505,8 @@ Generating Keys...
                     this.disabled = false;
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while generating keys. Please try again.');
+                    console.error('Error generating keys or sending request:', error);
+                    alert('Error: ' + error.message);
                     
                     // Reset button
                     this.innerHTML = originalText;
@@ -492,17 +515,20 @@ Generating Keys...
             });
             
             // Copy public key button
-            copyKeyBtn.addEventListener('click', function () {
-                publicKeyTextarea.select();
+            document.getElementById('copy-public-key').addEventListener('click', function () {
+                const publicKey = document.getElementById('public-key');
+                publicKey.select();
                 document.execCommand('copy');
+                
                 // Show copied feedback
                 const originalText = this.innerHTML;
                 this.innerHTML = `
-<div class="w-4 h-4 flex items-center justify-center mr-1">
-<i class="ri-check-line"></i>
-</div>
-Copied!
-`;
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                <i class="ri-check-line"></i>
+                </div>
+                Copied!
+                `;
+                
                 setTimeout(() => {
                     this.innerHTML = originalText;
                 }, 2000);
@@ -510,16 +536,39 @@ Copied!
             
             // Copy private key button
             document.getElementById('copy-private-key').addEventListener('click', function () {
-                document.getElementById('private-key').select();
+                const privateKey = document.getElementById('private-key');
+                privateKey.select();
                 document.execCommand('copy');
+                
                 // Show copied feedback
                 const originalText = this.innerHTML;
                 this.innerHTML = `
-<div class="w-4 h-4 flex items-center justify-center mr-1">
-<i class="ri-check-line"></i>
-</div>
-Copied!
-`;
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                <i class="ri-check-line"></i>
+                </div>
+                Copied!
+                `;
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 2000);
+            });
+            
+            // Copy link button
+            document.getElementById('copy-link-btn').addEventListener('click', function () {
+                const requestLink = document.getElementById('request-link');
+                requestLink.select();
+                document.execCommand('copy');
+                
+                // Show copied feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = `
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                <i class="ri-check-line"></i>
+                </div>
+                Copied!
+                `;
+                
                 setTimeout(() => {
                     this.innerHTML = originalText;
                 }, 2000);
@@ -528,7 +577,7 @@ Copied!
             // Cancel button
             cancelBtn.addEventListener('click', function () {
                 // Reset the form or navigate away
-                window.location.href = '#';
+                window.location.href = '/';
             });
             
             // FAQ accordion functionality
@@ -536,6 +585,7 @@ Copied!
                 toggle.addEventListener('click', function () {
                     const content = this.nextElementSibling;
                     const icon = this.querySelector('.faq-icon');
+                    
                     // Close all other FAQs
                     faqToggles.forEach(otherToggle => {
                         if (otherToggle !== toggle) {
@@ -544,6 +594,7 @@ Copied!
                             otherToggle.querySelector('.faq-icon').classList.add('ri-arrow-down-s-line');
                         }
                     });
+                    
                     // Toggle current FAQ
                     content.classList.toggle('hidden');
                     if (content.classList.contains('hidden')) {
