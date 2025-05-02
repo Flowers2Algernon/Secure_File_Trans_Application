@@ -34,11 +34,23 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "transfer",  
-    "rest_framework", 
-    "corsheaders",  
+    "transfer",
+    "account",
+    "rest_framework",
+    "corsheaders",
 ]
 
+# 使用数据库存储 session（替代 Redis）
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# 可选：如果你有多个子模块共用登录
+SESSION_COOKIE_NAME = "sso_sessionid"
+SESSION_COOKIE_DOMAIN = ".example.com"  # 仅当需要跨子域名共享时设置
+SESSION_COOKIE_AGE = 3600  # 1 hour
+SESSION_SAVE_EVERY_REQUEST = True  # 每次请求都刷新 cookie 有效期
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/after_user_login_page/'  # 登录后跳转页面
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",  
@@ -189,3 +201,17 @@ LOGGING = {
         },
     },
 }
+# Google SSO Service
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Replace these with your actual credentials
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '869578916535-m187ukrnu0brq8gnors88vo7p9q91fnf.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+
+AUTH_USER_MODEL = 'transfer.UserProfile'
+# Optional: redirect after login
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'

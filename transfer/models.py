@@ -1,11 +1,14 @@
-from django.db import models
 import uuid
-from django.contrib.auth.models import User
+
+from django.conf import settings
+from django.db import models
+from django.contrib.auth.models import AbstractUser, User
+
 
 class KeyPair(models.Model):
     """Model to store RSA key pairs for users"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     public_key = models.TextField()  # Store PEM encoded public key
     private_key_salt = models.BinaryField(null=True, blank=True)  # Salt for private key encryption
     encrypted_private_key = models.BinaryField(null=True, blank=True)  # Encrypted private key
@@ -58,10 +61,8 @@ class FileRequest(models.Model):
     def __str__(self):
         return f"Request from {self.requester_email}"
 
-class UserProfile(models.Model):
-    username = models.CharField(max_length=100,unique=True)
-    email = models.EmailField()
-    password = models.CharField(max_length=100)
+class UserProfile(AbstractUser):
+
 
     def __str__(self):
         return str(self.username)
