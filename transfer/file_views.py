@@ -101,72 +101,56 @@ class FileUploadView(views.APIView):
 class GetEncryptedFileView(views.APIView):
     def post(self, request):
         try:
-            # Get the access code and private key
-            data = json.loads(request.body)
-            access_code = data.get('access_code')
-            private_key_pem = data.get('private_key')
+            # Get access code from request data
+            access_code = request.data.get('accessCode')
             
-            if not access_code or not private_key_pem:
-                return Response({'error': 'Access code and private key are required'}, status=status.HTTP_400_BAD_REQUEST)
+            if not access_code:
+                return Response({'error': 'Access code is required'}, status=status.HTTP_400_BAD_REQUEST)
             
             # Hash the access code
             hashed_code = hash_access_code(access_code)
             
             # Find the file by access code hash
             try:
-                file_instance = None
-                for enc_file in EncrptedFile.objects.all():
-                    if verify_access_code(enc_file.code_hash, hashed_code):
-                        file_instance = enc_file
-                        break
+                file_instance = EncrptedFile.objects.filter(code_hash=hashed_code).first()
                 
-                if file_instance is None:
+                # Check if file exists
+                if not file_instance:
                     return Response({'error': 'Invalid access code'}, status=status.HTTP_404_NOT_FOUND)
                 
-                # Check if the access code has expired
-                if file_instance.code_expire < timezone.now():
-                    return Response({'error': 'Access code expired'}, status=status.HTTP_410_GONE)
+                # Check if code has expired
+                if file_instance.code_expire and file_instance.code_expire < timezone.now():
+                    return Response({'error': 'This file has expired'}, status=status.HTTP_410_GONE)
                 
-                # Read the encrypted file
-                with file_instance.uploaded_file.open('rb') as f:
-                    encrypted_data = f.read()
-                
-                # Decrypt the AES key with the private key
-                try:
-                    aes_key = decrypt_aes_key_with_rsa(file_instance.encrypted_aes_key, private_key_pem)
-                except Exception as e:
-                    return Response({'error': 'Invalid private key'}, status=status.HTTP_400_BAD_REQUEST)
-                
-                # Decrypt the file with the AES key
-                decrypted_data = decrypt_file_with_aes(
-                     encrypted_data,
-                     aes_key,
-                     file_instance.iv
-                     )
-                
-                # Verify the file hash
-                if not verify_file_hash(decrypted_data, file_instance.file_hash):
-                    return Response({'error': 'File integrity check failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                
-                # Log the download
+                # Create file log entry
                 FileLog.objects.create(
-                    encrypted_file=file_instance,
-                    download_time=FileLog.objects.filter(encrypted_file=file_instance).count() + 1,
+                    encrptedFile=file_instance,            # Correct parameter name
+                    download_time=1,                       # Required field with no default
                     download_final_datetime=timezone.now(),
-                    ip_address=request.META.get('REMOTE_ADDR'),
-                    user_agent=request.META.get('HTTP_USER_AGENT')
+                    ip_address=self.get_client_ip(request)
                 )
                 
-                # Return the decrypted file
-                response = HttpResponse(decrypted_data, content_type='application/octet-stream')
-                response['Content-Disposition'] = f'attachment; filename="{file_instance.original_filename}"'
-                return response
+                # Return file URL and info
+                return Response({
+                    'fileUrl': file_instance.uploaded_file.url,
+                    'fileName': file_instance.original_filename,
+                    'fileSize': file_instance.file_size
+                })
                 
-            except Exception as e:
-                return Response({'error': f'Error processing download request: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except EncrptedFile.DoesNotExist:
+                return Response({'error': 'Invalid access code'}, status=status.HTTP_404_NOT_FOUND)
                 
         except Exception as e:
+            print(f"Error in GetEncryptedFileView: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateFileRequestView(views.APIView):

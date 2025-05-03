@@ -90,7 +90,7 @@
             <h1 class="text-2xl font-['Pacifico'] text-primary mr-8">logo</h1>
             <nav class="hidden md:flex space-x-6">
               <a
-                href="#"
+                href="/upload/"
                 class="flex items-center text-primary font-medium border-b-2 border-primary"
               >
                 <div class="w-5 h-5 flex items-center justify-center mr-1">
@@ -99,7 +99,7 @@
                 <span>Send File</span>
               </a>
               <a
-                href="#"
+                href="/download/"
                 class="flex items-center text-gray-700 hover:text-primary"
               >
                 <div class="w-5 h-5 flex items-center justify-center mr-1">
@@ -108,7 +108,7 @@
                 <span>Download File</span>
               </a>
               <a
-                href="#"
+                href="/request_send"
                 class="flex items-center text-gray-700 hover:text-primary"
               >
                 <div class="w-5 h-5 flex items-center justify-center mr-1">
@@ -204,6 +204,7 @@
             style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
           >
             <form id="upload-form">
+              {% csrf_token %}
               <div class="mb-6">
                 <label
                   for="recipient-public-key"
@@ -755,12 +756,14 @@
         let isUploading = false;
         uploadForm.addEventListener("submit", function (e) {
           e.preventDefault();
+          
           // Prevent multiple simultaneous uploads
           if (isUploading) {
             uploadError.classList.remove("hidden");
             errorMessage.textContent = "Upload in progress. Please wait...";
             return;
           }
+          
           // Remove any existing status text elements
           const existingStatusText = uploadStatus.querySelector(
             ".flex.items-center.justify-center.space-x-2",
@@ -768,177 +771,183 @@
           if (existingStatusText) {
             existingStatusText.remove();
           }
+          
           // Validate form
           if (!fileInput.files.length) {
             uploadError.classList.remove("hidden");
             errorMessage.textContent = "Please select a file to upload.";
             return;
           }
+          
           if (!recipientPublicKey.value.trim()) {
             uploadError.classList.remove("hidden");
             errorMessage.textContent = "Please enter the recipient's public key.";
             return;
           }
-          // Check if the same file is being uploaded again
+          
           const currentFile = fileInput.files[0];
-          if (
-            lastUploadedFile &&
-            lastUploadedFile.name === currentFile.name &&
-            lastUploadedFile.size === currentFile.size &&
-            lastUploadedFile.lastModified === currentFile.lastModified
-          ) {
-            uploadSuccess.classList.remove("hidden");
-            uploadError.classList.add("hidden");
-            const successMessage = uploadSuccess.querySelector("p.text-green-700");
-            successMessage.textContent =
-              "This file has been uploaded successfully. Please select another file to upload.";
+          
+          // Check file size (limit to 100MB)
+          if (currentFile.size > 100 * 1024 * 1024) {
+            uploadError.classList.remove("hidden");
+            errorMessage.textContent = "File size exceeds the maximum limit of 100MB.";
             return;
           }
+          
           isUploading = true;
           lastUploadedFile = currentFile;
+          
           // Hide any previous error
           uploadError.classList.add("hidden");
-          // Show upload status with AI scanning
+          
+          // Show upload status
           uploadStatus.classList.remove("hidden");
           document.querySelector(".bg-primary.h-2\\.5").style.width = "0%";
           uploadPercentage.textContent = "0%";
-          // Update status text to show AI scanning
+          
+          // Update status text to show scanning
           const statusText = document.createElement("div");
           statusText.className = "flex items-center justify-center space-x-2 mt-2";
           statusText.innerHTML = `
-      <div class="w-5 h-5 flex items-center justify-center text-primary">
-      <i class="ri-shield-scan-line"></i>
-      </div>
-      <span class="text-sm text-gray-600">AI scanning for potential threats...</span>
-      `;
+            <div class="w-5 h-5 flex items-center justify-center text-primary">
+              <i class="ri-shield-scan-line"></i>
+            </div>
+            <span class="text-sm text-gray-600">Scanning and encrypting file...</span>
+          `;
           uploadStatus.appendChild(statusText);
+          
           // Disable upload button
           uploadBtn.disabled = true;
           uploadBtn.innerHTML = `
-      <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      Scanning & Uploading...
-      `;
-          // Simulate AI scanning and upload progress
-          let progress = 0;
-          const interval = setInterval(function () {
-            progress += 2;
-            if (progress > 100) {
-              clearInterval(interval);
-              return;
-            }
-            document.querySelector(".bg-primary.h-2\\.5").style.width =
-              `${progress}%`;
-            uploadPercentage.textContent = `${progress}%`;
-            // At 40%, simulate AI scan completion
-            if (progress === 40) {
-              const statusText = uploadStatus.querySelector(
-                ".flex.items-center.justify-center.space-x-2",
-              );
-              // Simulate random AI scan result (50% chance of success)
-              const isVirusFree = Math.random() < 0.5; // 50% chance of virus detection
-              if (isVirusFree) {
-                statusText.innerHTML = `
-      <div class="w-5 h-5 flex items-center justify-center text-green-500">
-      <i class="ri-shield-check-line"></i>
-      </div>
-      <span class="text-sm text-green-600">No threats detected - Encrypting file...</span>
-      `;
-              } else {
-                clearInterval(interval);
-                isUploading = false;
-                uploadStatus.classList.add("hidden");
-                uploadError.classList.remove("hidden");
-                uploadSuccess.classList.add("hidden");
-                errorMessage.innerHTML = `
-      <div class="flex flex-col space-y-2">
-      <div class="flex items-center text-red-600">
-      <div class="w-5 h-5 flex items-center justify-center mr-2">
-      <i class="ri-virus-line"></i>
-      </div>
-      <span>Cannot upload this file due to potential virus</span>
-      </div>
-      <p class="text-gray-600 text-sm">For your security, we cannot process this file. Please scan your device and try uploading a different file.</p>
-      <a href="#" class="text-primary hover:underline flex items-center mt-2">
-      <div class="w-5 h-5 flex items-center justify-center mr-1">
-      <i class="ri-customer-service-2-line"></i>
-      </div>
-      Contact support for assistance
-      </a>
-      </div>
-      `;
-                lastUploadedFile = currentFile; // Mark this file as processed
-                uploadBtn.disabled = false;
-                uploadBtn.innerHTML = `
-      <div class="w-5 h-5 flex items-center justify-center mr-2">
-      <i class="ri-upload-2-line"></i>
-      </div>
-      Upload & Encrypt File
-      `;
-                // Keep the file details visible but disable upload button
-                uploadBtn.disabled = true;
-                uploadBtn.innerHTML = `
-      <div class="w-5 h-5 flex items-center justify-center mr-2">
-      <i class="ri-close-circle-line"></i>
-      </div>
-      File Blocked
-      `;
-                return;
+            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Uploading...
+          `;
+          
+          // Create FormData object
+          const formData = new FormData();
+          formData.append('file', currentFile);
+          formData.append('recipient_public_key', recipientPublicKey.value.trim());
+          
+          // Optional metadata
+          // formData.append('encrypted_aes_key', ''); // Add if you implement client-side encryption
+          // formData.append('iv', ''); // Add if you implement client-side encryption
+          // formData.append('file_hash', ''); // Add if you implement hash verification
+          
+          // Get the CSRF token from the cookie
+          function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+              const cookies = document.cookie.split(';');
+              for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+                }
               }
             }
-            if (progress === 100) {
-              clearInterval(interval);
-              isUploading = false;
-              lastUploadedFile = currentFile; // Mark this file as successfully uploaded
-              // Update progress steps
-              progressBar.style.width = "100%";
-              const steps = document.querySelectorAll(".flex.flex-col.items-center");
-              steps[1]
-                .querySelector(".w-10.h-10")
-                .classList.remove("bg-gray-200", "text-gray-500");
-              steps[1]
-                .querySelector(".w-10.h-10")
-                .classList.add("bg-primary", "text-white");
-              steps[1]
-                .querySelector(".text-sm.mt-2")
-                .classList.remove("text-gray-500");
-              steps[1]
-                .querySelector(".text-sm.mt-2")
-                .classList.add("text-primary", "font-medium");
-              steps[2]
-                .querySelector(".w-10.h-10")
-                .classList.remove("bg-gray-200", "text-gray-500");
-              steps[2]
-                .querySelector(".w-10.h-10")
-                .classList.add("bg-primary", "text-white");
-              steps[2]
-                .querySelector(".text-sm.mt-2")
-                .classList.remove("text-gray-500");
-              steps[2]
-                .querySelector(".text-sm.mt-2")
-                .classList.add("text-primary", "font-medium");
-              // Hide upload status
-              setTimeout(function () {
-                uploadStatus.classList.add("hidden");
-                uploadSuccess.classList.remove("hidden");
-                // Generate random 6-digit access code
-                const code = Math.floor(100000 + Math.random() * 900000);
-                accessCode.textContent = code;
-                // Reset upload button
-                uploadBtn.disabled = false;
-                uploadBtn.innerHTML = `
-      <div class="w-5 h-5 flex items-center justify-center mr-2">
-      <i class="ri-upload-2-line"></i>
-      </div>
-      Upload & Encrypt File
-      `;
-              }, 500);
+            return cookieValue;
+          }
+          
+          // Make the AJAX request
+          fetch('/upload_api/', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formData,
+          })
+          .then(response => {
+            if (!response.ok) {
+              return response.json().then(data => {
+                throw new Error(data.error || 'Upload failed');
+              });
             }
-          }, 100);
-          // In a real application, you would use AJAX to upload the file
-          // For demonstration purposes, we're just simulating the upload
+            return response.json();
+          })
+          .then(data => {
+            // Update progress steps
+            progressBar.style.width = "100%";
+            const steps = document.querySelectorAll(".flex.flex-col.items-center");
+            steps[1].querySelector(".w-10.h-10").classList.remove("bg-gray-200", "text-gray-500");
+            steps[1].querySelector(".w-10.h-10").classList.add("bg-primary", "text-white");
+            steps[1].querySelector(".text-sm.mt-2").classList.remove("text-gray-500");
+            steps[1].querySelector(".text-sm.mt-2").classList.add("text-primary", "font-medium");
+            steps[2].querySelector(".w-10.h-10").classList.remove("bg-gray-200", "text-gray-500");
+            steps[2].querySelector(".w-10.h-10").classList.add("bg-primary", "text-white");
+            steps[2].querySelector(".text-sm.mt-2").classList.remove("text-gray-500");
+            steps[2].querySelector(".text-sm.mt-2").classList.add("text-primary", "font-medium");
+            
+            // Hide upload status
+            uploadStatus.classList.add("hidden");
+            uploadSuccess.classList.remove("hidden");
+            
+            // Set the access code from the response
+            accessCode.textContent = data.access_code;
+            
+            // Reset upload button
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = `
+              <div class="w-5 h-5 flex items-center justify-center mr-2">
+                <i class="ri-upload-2-line"></i>
+              </div>
+              Upload & Encrypt File
+            `;
+            
+            isUploading = false;
+          })
+          .catch(error => {
+            console.error('Upload error:', error);
+            
+            isUploading = false;
+            uploadStatus.classList.add("hidden");
+            uploadError.classList.remove("hidden");
+            errorMessage.textContent = error.message || 'An error occurred during upload.';
+            
+            // Reset upload button
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = `
+              <div class="w-5 h-5 flex items-center justify-center mr-2">
+                <i class="ri-upload-2-line"></i>
+              </div>
+              Upload & Encrypt File
+            `;
+          });
+          
+          // Add upload progress tracking
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', '/upload_api/');
+          
+          xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+              const percentComplete = Math.round((e.loaded / e.total) * 100);
+              document.querySelector(".bg-primary.h-2\\.5").style.width = percentComplete + "%";
+              uploadPercentage.textContent = percentComplete + "%";
+              
+              // Update status message at certain thresholds
+              if (percentComplete > 30 && percentComplete < 60) {
+                statusText.innerHTML = `
+                  <div class="w-5 h-5 flex items-center justify-center text-green-500">
+                    <i class="ri-shield-check-line"></i>
+                  </div>
+                  <span class="text-sm text-green-600">File verified - Encrypting data...</span>
+                `;
+              } else if (percentComplete >= 60) {
+                statusText.innerHTML = `
+                  <div class="w-5 h-5 flex items-center justify-center text-green-500">
+                    <i class="ri-upload-cloud-2-line"></i>
+                  </div>
+                  <span class="text-sm text-green-600">Encryption complete - Uploading file...</span>
+                `;
+              }
+            }
+          });
+          
+          // Don't actually send this XHR - we're using fetch for the actual upload
+          // This is just to avoid duplicating the progress tracking logic
         });
         // Copy access code
         copyCodeBtn.addEventListener("click", function () {

@@ -33,27 +33,6 @@ def index(request):
     return render(request, 'front_end/index.html')
 
 
-# In views.py or api_views.py
-@method_decorator(csrf_exempt, name='dispatch')
-class FileUploadView(views.APIView):
-    parser_classes = [parsers.MultiPartParser]
-    
-    def post(self, request):
-        try:
-            print("==== DEBUG: FileUploadView.post() called ====")
-            print(f"Request FILES: {request.FILES}")
-            print(f"Request POST keys: {list(request.POST.keys())}")
-            
-            # Rest of your view code...
-            
-        except Exception as e:
-            import traceback
-            print("==== ERROR IN FILE UPLOAD ====")
-            print(f"Error type: {type(e).__name__}")
-            print(f"Error message: {str(e)}")
-            print("Traceback:")
-            print(traceback.format_exc())
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 def upload_page(request):
     return render(request, "front_end/send_file.html")
