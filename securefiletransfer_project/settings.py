@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "transfer",
+    "transfer.apps.AppConfig",
     "account",
     "rest_framework",
     "corsheaders",
@@ -49,7 +50,7 @@ SESSION_COOKIE_DOMAIN = ".example.com"  # 仅当需要跨子域名共享时设�
 SESSION_COOKIE_AGE = 3600  # 1 hour
 SESSION_SAVE_EVERY_REQUEST = True  # 每次请求都刷新 cookie 有效期
 
-LOGIN_URL = '/login/'
+LOGIN_URL = '/login_page/'
 LOGIN_REDIRECT_URL = '/after_user_login_page/'  # 登录后跳转页面
 
 MIDDLEWARE = [

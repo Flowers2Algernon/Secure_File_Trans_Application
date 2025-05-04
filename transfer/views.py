@@ -58,13 +58,12 @@ def upload_page(request):
     return render(request, "front_end/send_file.html")
 
 
-# @shared_task #定时任务 Scheduled task
+
 def delete_expired_file(request):
     """
     Delete expired file view function.删除过期文件的视图函数。
     """
     # get current date 获取当前时间
-    # 获取当前时间
     now = datetime.now()
 
     try:
@@ -75,7 +74,6 @@ def delete_expired_file(request):
             return JsonResponse({'message': 'No expired files found.'}, status=404)
 
         # delete expired files 删除过期文件
-        # 删除过期文件
         deleted_count = 0
         for expired_file in expired_files:
             try:
@@ -91,7 +89,6 @@ def delete_expired_file(request):
 
     except Exception as e:
         # error handle  错误处理
-        # 错误处理
         return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -171,6 +168,7 @@ def download_page(request):
 
 def request_send_page(request):
     return render(request, "front_end/requestSend.html")
+
 
 
 def after_user_login_page(request):

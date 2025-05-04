@@ -22,6 +22,7 @@ class EncrptedFile(models.Model):
     original_filename = models.CharField(max_length=100)
     uploaded_file = models.FileField(upload_to='uploaded_files/')
     file_size = models.IntegerField(default=0)
+    download_acount = models.IntegerField(default=0)
     
     # Encryption fields
     encrypted_aes_key = models.BinaryField(null=True, blank=True)
