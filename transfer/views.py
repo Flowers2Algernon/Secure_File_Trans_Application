@@ -1,21 +1,19 @@
 import os
-import base64
-from datetime import datetime
+import random
+from datetime import datetime, timedelta
 
-from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-
-from .utils import generate_code, hash_access_code, get_code_expire_time, verify_access_code
-from .models import EncrptedFile, UserProfile
-from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
+from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.timezone import now
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
-import random
-from django.utils import timezone
+
 from .models import EncrptedFile
+from .utils import generate_code, hash_access_code, verify_access_code
 
 
 @csrf_exempt  # Disable CSRF protection for this view
@@ -33,18 +31,40 @@ def index(request):
     return render(request, 'front_end/index.html')
 
 
-        
+# In views.py or api_views.py
+@method_decorator(csrf_exempt, name='dispatch')
+class FileUploadView(views.APIView):
+    parser_classes = [parsers.MultiPartParser]
+
+    def post(self, request):
+        try:
+            print("==== DEBUG: FileUploadView.post() called ====")
+            print(f"Request FILES: {request.FILES}")
+            print(f"Request POST keys: {list(request.POST.keys())}")
+
+            # Rest of your view code...
+
+        except Exception as e:
+            import traceback
+            print("==== ERROR IN FILE UPLOAD ====")
+            print(f"Error type: {type(e).__name__}")
+            print(f"Error message: {str(e)}")
+            print("Traceback:")
+            print(traceback.format_exc())
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 def upload_page(request):
     return render(request, "front_end/send_file.html")
 
 
-# @shared_task #定时任务 Scheduled task
+
 def delete_expired_file(request):
     """
     Delete expired file view function.删除过期文件的视图函数。
     """
     # get current date 获取当前时间
-    # 获取当前时间
     now = datetime.now()
 
     try:
@@ -55,7 +75,6 @@ def delete_expired_file(request):
             return JsonResponse({'message': 'No expired files found.'}, status=404)
 
         # delete expired files 删除过期文件
-        # 删除过期文件
         deleted_count = 0
         for expired_file in expired_files:
             try:
@@ -71,7 +90,6 @@ def delete_expired_file(request):
 
     except Exception as e:
         # error handle  错误处理
-        # 错误处理
         return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -153,23 +171,42 @@ def request_send_page(request):
     return render(request, "front_end/requestSend.html")
 
 
-def sso_login(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        # if username ==
-        # todo
-        ...
-    return render(request, "front_end/login.html")
+
+def after_user_login_page(request):
+    return render(request, "front_end/after_user_login_page.html")
 
 
-def register(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        password_hash = make_password(password)
-        email = request.POST.get('email')
+def search_encrypted_files(request):
+    query = request.GET.get("query", "").lower()
+    date_filter = request.GET.get("date", "all")
 
-        save = UserProfile(username=username, password=password_hash, email=email).save()
-        print(save)
-    return render(request, "front_end/register.html")
+    files = EncrptedFile.objects.all()
+
+    if query:
+        files = files.filter(original_filename__icontains=query)
+
+    if date_filter == "today":
+        files = files.filter(uploaded_date__date=now().date())
+    elif date_filter == "week":
+        week_ago = now() - timedelta(days=7)
+        files = files.filter(uploaded_date__gte=week_ago)
+    elif date_filter == "month":
+        month_start = now().replace(day=1)
+        files = files.filter(uploaded_date__gte=month_start)
+    elif date_filter == "year":
+        year_start = now().replace(month=1, day=1)
+        files = files.filter(uploaded_date__gte=year_start)
+
+    data = [
+        {
+            "file_id": str(f.file_id),
+            "filename": f.original_filename,
+            "size": f.file_size,
+            "uploaded": f.uploaded_date.strftime("%Y-%m-%d %H:%M"),
+            "url": f.uploaded_file.url,
+            "status": "Available" if f.code_expire > now() else "Expired",
+        }
+        for f in files
+    ]
+
+    return JsonResponse({"files": data})
