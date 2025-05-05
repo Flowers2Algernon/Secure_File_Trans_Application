@@ -327,91 +327,98 @@
     </footer>
     </div>
 
- <script defer>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Element references
-        const codeDigits = document.querySelectorAll('.code-digit');
-        const downloadForm = document.getElementById('download-form');
-        const downloadBtn = document.getElementById('download-btn');
-        const loadingState = document.getElementById('loading-state');
-        const downloadSuccess = document.getElementById('download-success');
-        const downloadError = document.getElementById('download-error');
-        const errorMessage = document.getElementById('error-message');
-        const progressBar = document.querySelector('.bg-primary.h-2\\.5');
-        const downloadPercentage = document.getElementById('download-percentage');
-        const faqToggles = document.querySelectorAll('.faq-toggle');
-
-        // Auto-focus and input behavior for code digits
-        codeDigits.forEach((digit, index) => {
-            digit.addEventListener('input', function () {
-                if (this.value.length === 1 && index < codeDigits.length - 1) {
-                    codeDigits[index + 1].focus();
-                }
-            });
-
-            digit.addEventListener('keydown', function (e) {
-                if (e.key === 'Backspace' && this.value === '' && index > 0) {
-                    codeDigits[index - 1].focus();
-                }
-            });
-
-            digit.addEventListener('keypress', function (e) {
-                if (!/^\d$/.test(e.key)) {
+    <script defer>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Element references
+            const codeDigits = document.querySelectorAll('.code-digit');
+            const downloadForm = document.getElementById('download-form');
+            const downloadBtn = document.getElementById('download-btn');
+            const loadingState = document.getElementById('loading-state');
+            const downloadSuccess = document.getElementById('download-success');
+            const downloadError = document.getElementById('download-error');
+            const errorMessage = document.getElementById('error-message');
+            const progressBar = document.querySelector('.bg-primary.h-2\\.5');
+            const downloadPercentage = document.getElementById('download-percentage');
+            const faqToggles = document.querySelectorAll('.faq-toggle');
+            const privateKey = document.getElementById("privateKey").value.trim();  // ✅ Private key textarea
+        
+            // Auto-focus and input behavior for access code digits
+            codeDigits.forEach((digit, index) => {
+                digit.addEventListener('input', function () {
+                    if (this.value.length === 1 && index < codeDigits.length - 1) {
+                        codeDigits[index + 1].focus();
+                    }
+                });
+        
+                digit.addEventListener('keydown', function (e) {
+                    if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                        codeDigits[index - 1].focus();
+                    }
+                });
+        
+                digit.addEventListener('keypress', function (e) {
+                    if (!/^\d$/.test(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+        
+                digit.addEventListener('paste', function (e) {
                     e.preventDefault();
-                }
-            });
-
-            digit.addEventListener('paste', function (e) {
-                e.preventDefault();
-                const pastedData = e.clipboardData.getData('text');
-                if (/^\d+$/.test(pastedData)) {
-                    for (let i = 0; i < Math.min(pastedData.length, codeDigits.length); i++) {
-                        codeDigits[i].value = pastedData[i];
-                        if (i < codeDigits.length - 1) {
-                            codeDigits[i + 1].focus();
+                    const pastedData = e.clipboardData.getData('text');
+                    if (/^\d+$/.test(pastedData)) {
+                        for (let i = 0; i < Math.min(pastedData.length, codeDigits.length); i++) {
+                            codeDigits[i].value = pastedData[i];
+                            if (i < codeDigits.length - 1) {
+                                codeDigits[i + 1].focus();
+                            }
                         }
                     }
-                }
-            });
-        });
-
-        // Handle form submission
-        if (downloadForm) {
-            downloadForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                let accessCode = '';
-                codeDigits.forEach(digit => {
-                    accessCode += digit.value.trim();
                 });
-
-                if (accessCode.length !== 6 || !/^\d{6}$/.test(accessCode)) {
-                    if (downloadError && errorMessage) {
+            });
+        
+            // Handle form submission
+            if (downloadForm) {
+                downloadForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+        
+                    let accessCode = '';
+                    codeDigits.forEach(digit => {
+                        accessCode += digit.value.trim();
+                    });
+        
+                    const privateKey = document.getElementById("privateKey").value.trim();  // ✅ get private key
+        
+                    if (accessCode.length !== 6 || !/^\d{6}$/.test(accessCode)) {
                         downloadError.classList.remove('hidden');
                         errorMessage.textContent = 'Please enter a valid 6-digit access code.';
+                        return;
                     }
-                    return;
-                }
-
-                if (downloadError) downloadError.classList.add('hidden');
-                if (loadingState) loadingState.classList.remove('hidden');
-
-                if (downloadBtn) {
-                    downloadBtn.disabled = true;
-                    downloadBtn.innerHTML = `
-                        <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Downloading...
-                    `;
-                }
-
-                fetch('/api/files/get_encrypted_file_api/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ accessCode })
-                })
+        
+                    if (!privateKey) {
+                        downloadError.classList.remove('hidden');
+                        errorMessage.textContent = 'Please paste your private key to proceed.';
+                        return;
+                    }
+        
+                    downloadError.classList.add('hidden');
+                    loadingState.classList.remove('hidden');
+        
+                    if (downloadBtn) {
+                        downloadBtn.disabled = true;
+                        downloadBtn.innerHTML = `
+                            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Downloading...
+                        `;
+                    }
+        
+                    fetch('/api/files/get_encrypted_file_api/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ accessCode, privateKey })  // ✅ include both
+                    })
                     .then(response => {
                         if (!response.ok) {
                             if (response.status === 404) {
@@ -424,9 +431,9 @@
                                 throw new Error('An error occurred. Please try again later.');
                             }
                         }
-                        return response.json();
+                        return response.blob();  // ✅ Expect blob, not JSON
                     })
-                    .then(data => {
+                    .then(blob => {
                         let progress = 0;
                         const interval = setInterval(() => {
                             progress += 5;
@@ -434,23 +441,23 @@
                                 clearInterval(interval);
                                 return;
                             }
-
                             if (progressBar) progressBar.style.width = `${progress}%`;
                             if (downloadPercentage) downloadPercentage.textContent = `${progress}%`;
-
+        
                             if (progress === 100) {
                                 clearInterval(interval);
                                 setTimeout(() => {
-                                    if (loadingState) loadingState.classList.add('hidden');
-                                    if (downloadSuccess) downloadSuccess.classList.remove('hidden');
-
+                                    loadingState.classList.add('hidden');
+                                    downloadSuccess.classList.remove('hidden');
+        
+                                    const url = window.URL.createObjectURL(blob);
                                     const downloadLink = document.createElement('a');
-                                    downloadLink.href = data.fileUrl;
-                                    downloadLink.download = data.fileName;
+                                    downloadLink.href = url;
+                                    downloadLink.download = 'decrypted_file';  // Optional: use original name if you pass it
                                     document.body.appendChild(downloadLink);
                                     downloadLink.click();
                                     document.body.removeChild(downloadLink);
-
+        
                                     if (downloadBtn) {
                                         downloadBtn.disabled = false;
                                         downloadBtn.innerHTML = `
@@ -465,11 +472,10 @@
                         }, 100);
                     })
                     .catch(error => {
-                        if (loadingState) loadingState.classList.add('hidden');
-                        if (downloadError && errorMessage) {
-                            downloadError.classList.remove('hidden');
-                            errorMessage.textContent = error.message;
-                        }
+                        loadingState.classList.add('hidden');
+                        downloadError.classList.remove('hidden');
+                        errorMessage.textContent = error.message;
+        
                         if (downloadBtn) {
                             downloadBtn.disabled = false;
                             downloadBtn.innerHTML = `
@@ -480,45 +486,46 @@
                             `;
                         }
                     });
-            });
-        }
-
-        // FAQ toggle behavior
-        faqToggles.forEach(toggle => {
-            toggle.addEventListener('click', function () {
-                const content = this.nextElementSibling;
-                const icon = this.querySelector('.faq-icon');
-
-                faqToggles.forEach(otherToggle => {
-                    if (otherToggle !== toggle) {
-                        otherToggle.nextElementSibling.classList.add('hidden');
-                        const otherIcon = otherToggle.querySelector('.faq-icon');
-                        if (otherIcon) {
-                            otherIcon.classList.remove('ri-arrow-up-s-line');
-                            otherIcon.classList.add('ri-arrow-down-s-line');
+                });
+            }
+        
+            // FAQ toggle behavior
+            faqToggles.forEach(toggle => {
+                toggle.addEventListener('click', function () {
+                    const content = this.nextElementSibling;
+                    const icon = this.querySelector('.faq-icon');
+        
+                    faqToggles.forEach(otherToggle => {
+                        if (otherToggle !== toggle) {
+                            otherToggle.nextElementSibling.classList.add('hidden');
+                            const otherIcon = otherToggle.querySelector('.faq-icon');
+                            if (otherIcon) {
+                                otherIcon.classList.remove('ri-arrow-up-s-line');
+                                otherIcon.classList.add('ri-arrow-down-s-line');
+                            }
+                        }
+                    });
+        
+                    content.classList.toggle('hidden');
+                    if (icon) {
+                        if (content.classList.contains('hidden')) {
+                            icon.classList.remove('ri-arrow-up-s-line');
+                            icon.classList.add('ri-arrow-down-s-line');
+                        } else {
+                            icon.classList.remove('ri-arrow-down-s-line');
+                            icon.classList.add('ri-arrow-up-s-line');
                         }
                     }
                 });
-
-                content.classList.toggle('hidden');
-                if (icon) {
-                    if (content.classList.contains('hidden')) {
-                        icon.classList.remove('ri-arrow-up-s-line');
-                        icon.classList.add('ri-arrow-down-s-line');
-                    } else {
-                        icon.classList.remove('ri-arrow-down-s-line');
-                        icon.classList.add('ri-arrow-up-s-line');
-                    }
-                }
             });
+        
+            // Auto-open first FAQ
+            if (faqToggles.length > 0) {
+                faqToggles[0].click();
+            }
         });
-
-        // Auto-open the first FAQ
-        if (faqToggles.length > 0) {
-            faqToggles[0].click();
-        }
-    });
-</script>
+        </script>
+        
 
 {% endblock %}
 </body>
