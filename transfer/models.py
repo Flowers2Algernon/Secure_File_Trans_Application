@@ -19,10 +19,11 @@ class KeyPair(models.Model):
 
 class EncrptedFile(models.Model):
     file_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     original_filename = models.CharField(max_length=100)
     uploaded_file = models.FileField(upload_to='uploaded_files/')
     file_size = models.IntegerField(default=0)
-    download_acount = models.IntegerField(default=0)
+    download_count = models.IntegerField(default=0)
     
     # Encryption fields
     encrypted_aes_key = models.BinaryField(null=True, blank=True)

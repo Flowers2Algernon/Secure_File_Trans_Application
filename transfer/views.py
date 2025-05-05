@@ -2,9 +2,11 @@ import os
 import random
 from datetime import datetime, timedelta
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
@@ -94,6 +96,12 @@ def file_list(request):
     Files = EncrptedFile.objects.all()
     return render(request, "front_end/file_list.html", {'files': Files})
 
+@login_required
+def query_files_by_user(request):
+    user = request.user
+    files = EncrptedFile.objects.filter(user=user)
+    return files
+
 
 def ai_monitor_access_code_request(request_data):
     # This function is a placeholder for AI monitoring of access code requests.
@@ -170,8 +178,15 @@ def request_send_page(request):
 
 def after_user_login_page(request):
     count = request.session.pop('approach_expired_count', 0)
-    return render(request, "front_end/after_user_login_page.html", {"approach_expired_count": count})
+    files = query_files_by_user(request)
+    return render(request, "front_end/after_user_login_page.html", {"approach_expired_count": count, "files": files})
 
+def delete_file(request,file_id):
+    if request.method == "POST":
+        file = get_object_or_404(EncrptedFile, file_id=file_id)
+        file.delete()
+        messages.success(request, 'File deleted successfully.')
+    return redirect('transfer:after_user_login_page')  # 修改为你的dashboard路由名
 
 def search_encrypted_files(request):
     query = request.GET.get("query", "").lower()

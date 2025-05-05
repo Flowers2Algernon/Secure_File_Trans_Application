@@ -136,7 +136,9 @@
                         <div class="w-5 h-5 flex items-center justify-center mr-2">
                             <i class="ri-upload-2-line"></i>
                         </div>
-                        Send File
+                        <a href="/upload/">
+                            Send File
+                        </a>
                     </button>
                     <button
                             class="px-5 py-2.5 border border-primary text-primary rounded font-medium hover:bg-primary/10 !rounded-button whitespace-nowrap flex items-center justify-center"
@@ -144,7 +146,9 @@
                         <div class="w-5 h-5 flex items-center justify-center mr-2">
                             <i class="ri-send-plane-line"></i>
                         </div>
-                        Request File
+                        <a href="/request_send/">
+                            Request File
+                        </a>
                     </button>
                 </div>
             </div>
@@ -869,218 +873,70 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                         <tr>
-                            <th
-                                    scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                                File
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                File Name
                             </th>
-                            <th
-                                    scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                                Recipient
-                            </th>
-                            <th
-                                    scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                                Date
-                            </th>
-                            <th
-                                    scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Size
                             </th>
-                            <th
-                                    scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                                Status
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Upload Time
                             </th>
-                            <th
-                                    scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Download Time
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Expired Time
+                            </th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions
                             </th>
                         </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div
-                                            class="w-8 h-8 flex items-center justify-center bg-blue-100 rounded text-blue-500 mr-3"
-                                    >
-                                        <i class="ri-file-word-line"></i>
+                        {% for file in files %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-blue-100 rounded text-blue-500 mr-3">
+                                            <i class="ri-file-line"></i>
+                                        </div>
+                                        <div class="text-sm font-medium text-gray-900">{{ file.original_filename }}</div>
                                     </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">
-                                            Client Presentation.pptx
-                                        </div>
-                                        <div class="text-xs text-gray-500">
-                                            Expires in 4 days
-                                        </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ file.file_size }} KB
+                                </td>
+                                <td class="ts px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ file.uploaded_date }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ file.download_count }}
+                                </td>
+                                <td class="ts px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ file.code_expire }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end space-x-2">
+                                        <form method="POST" action="{% url 'transfer:delete_file' file.file_id %}"
+                                              onsubmit="return confirm('Are you sure you want to delete this file?');">
+                                            {% csrf_token %}
+                                            <button type="submit"
+                                                    class="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 !rounded-button">
+                                                <div class="w-4 h-4 flex items-center justify-center">
+                                                    <i class="ri-delete-bin-6-line"></i>
+                                                </div>
+                                            </button>
+                                        </form>
+
                                     </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">Robert Chen</div>
-                                <div class="text-xs text-gray-500">rchen@example.com</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">Apr 19, 2025</div>
-                                <div class="text-xs text-gray-500">3:45 PM</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                5.2 MB
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
-                    >
-                      Downloaded
-                    </span>
-                            </td>
-                            <td
-                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                            >
-                                <div class="flex justify-end space-x-2">
-                                    <button
-                                            class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
-                                    >
-                                        <div class="w-4 h-4 flex items-center justify-center">
-                                            <i class="ri-refresh-line"></i>
-                                        </div>
-                                    </button>
-                                    <button
-                                            class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
-                                    >
-                                        <div class="w-4 h-4 flex items-center justify-center">
-                                            <i class="ri-more-2-fill"></i>
-                                        </div>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div
-                                            class="w-8 h-8 flex items-center justify-center bg-red-100 rounded text-red-500 mr-3"
-                                    >
-                                        <i class="ri-file-pdf-line"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">
-                                            Legal Documents.pdf
-                                        </div>
-                                        <div class="text-xs text-gray-500">
-                                            Expires in 6 days
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">Amanda Williams</div>
-                                <div class="text-xs text-gray-500">
-                                    awilliams@example.com
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">Apr 17, 2025</div>
-                                <div class="text-xs text-gray-500">10:20 AM</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                3.1 MB
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"
-                    >
-                      Not Downloaded
-                    </span>
-                            </td>
-                            <td
-                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                            >
-                                <div class="flex justify-end space-x-2">
-                                    <button
-                                            class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
-                                    >
-                                        <div class="w-4 h-4 flex items-center justify-center">
-                                            <i class="ri-refresh-line"></i>
-                                        </div>
-                                    </button>
-                                    <button
-                                            class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
-                                    >
-                                        <div class="w-4 h-4 flex items-center justify-center">
-                                            <i class="ri-more-2-fill"></i>
-                                        </div>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div
-                                            class="w-8 h-8 flex items-center justify-center bg-green-100 rounded text-green-500 mr-3"
-                                    >
-                                        <i class="ri-file-excel-line"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">
-                                            Budget Forecast.xlsx
-                                        </div>
-                                        <div class="text-xs text-gray-500">
-                                            Expires in 3 days
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">James Miller</div>
-                                <div class="text-xs text-gray-500">jmiller@example.com</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">Apr 15, 2025</div>
-                                <div class="text-xs text-gray-500">2:30 PM</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                1.8 MB
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
-                    >
-                      Downloaded
-                    </span>
-                            </td>
-                            <td
-                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                            >
-                                <div class="flex justify-end space-x-2">
-                                    <button
-                                            class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
-                                    >
-                                        <div class="w-4 h-4 flex items-center justify-center">
-                                            <i class="ri-refresh-line"></i>
-                                        </div>
-                                    </button>
-                                    <button
-                                            class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
-                                    >
-                                        <div class="w-4 h-4 flex items-center justify-center">
-                                            <i class="ri-more-2-fill"></i>
-                                        </div>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">No sent files found.</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -1466,6 +1322,11 @@
                             searchFiles();
                         }
                     });
+            });
+            document.querySelectorAll('.ts').forEach(el => {
+                const ts = parseInt(el.dataset.ts);
+                const date = new Date(ts);
+                el.innerText = date.toLocaleString();  // 或自己格式化
             });
         </script>
     {% endblock %}
