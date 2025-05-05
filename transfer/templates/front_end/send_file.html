@@ -79,62 +79,9 @@
     </style>
   </head>
   <body class="min-h-screen bg-[#fef9ef]">
+  {% block content %}
+  {% include "front_end/user_navbar.html" %}
     <div class="min-h-screen flex flex-col">
-      <!-- Header -->
-      <header
-        class="bg-white shadow-sm py-4"
-        style="background: linear-gradient(to right, #ffffff, #fef9ef); box-shadow: 0 4px 12px rgba(23, 195, 178, 0.08);"
-      >
-        <div class="container mx-auto px-4 flex items-center justify-between">
-          <div class="flex items-center">
-            <h1 class="text-2xl font-['Pacifico'] text-primary mr-8">logo</h1>
-            <nav class="hidden md:flex space-x-6">
-              <a
-                href="/upload/"
-                class="flex items-center text-primary font-medium border-b-2 border-primary"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-file-upload-line"></i>
-                </div>
-                <span>Send File</span>
-              </a>
-              <a
-                href="/download/"
-                class="flex items-center text-gray-700 hover:text-primary"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-file-download-line"></i>
-                </div>
-                <span>Download File</span>
-              </a>
-              <a
-                href="/request_send/"
-                class="flex items-center text-gray-700 hover:text-primary"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-send-plane-line"></i>
-                </div>
-                <span>Request File</span>
-              </a>
-            </nav>
-          </div>
-          <div class="flex items-center space-x-4">
-            <div class="flex items-center text-primary">
-              <div class="w-6 h-6 flex items-center justify-center">
-                <i class="ri-lock-line"></i>
-              </div>
-              <span class="ml-1 text-sm">Secure Connection</span>
-            </div>
-            <div
-              class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"
-            >
-              <div class="w-6 h-6 flex items-center justify-center">
-                <i class="ri-user-line"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
       <!-- Main Content -->
       <main class="flex-grow container mx-auto px-4 py-8">
         <div class="max-w-3xl mx-auto">
@@ -616,6 +563,7 @@
         </div>
       </footer>
     </div>
+      <script src="/static/js/navbar.js" defer/>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         // File upload handling
@@ -1008,5 +956,6 @@
         }
       });
     </script>
+  {% endblock %}
   </body>
 </html>

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 from pathlib import Path
+
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,7 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "transfer",
-    "transfer.apps.AppConfig",
+    # "transfer.apps.TransferTimerConfig",
     "account",
     "rest_framework",
     "corsheaders",
@@ -45,16 +46,18 @@ INSTALLED_APPS = [
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # 可选：如果你有多个子模块共用登录
-SESSION_COOKIE_NAME = "sso_sessionid"
-SESSION_COOKIE_DOMAIN = ".example.com"  # 仅当需要跨子域名共享时设置
+# SESSION_COOKIE_NAME = "sso_sessionid"
+# SESSION_COOKIE_DOMAIN = None    # 仅当需要跨子域名共享时设置 TMD 踩了大雷了!!!!!!!!!!
 SESSION_COOKIE_AGE = 3600  # 1 hour
 SESSION_SAVE_EVERY_REQUEST = True  # 每次请求都刷新 cookie 有效期
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False
 
 LOGIN_URL = '/login_page/'
 LOGIN_REDIRECT_URL = '/after_user_login_page/'  # 登录后跳转页面
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",  
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -195,7 +198,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'transfer': {  
+        'transfer': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG',
             'propagate': True,
@@ -212,7 +215,9 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '869578916535-m187ukrnu0brq8gnors88vo7p9q91fnf.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
 
+# Wayne's setting
 AUTH_USER_MODEL = 'transfer.UserProfile'
-# Optional: redirect after login
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+File_EXPIRED_DAYS = 3
+File_EXPIRED_Alert_DAYS = 1
+# Time zone perception
+USE_TZ = False

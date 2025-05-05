@@ -11,8 +11,6 @@ def timer():
     scheduler.add_job(delete_expired_file,  'cron', hour=0, minute=0, id='my_job')
     scheduler.start()
 
-class TransferConfig(AppConfig):
-    name = 'transfer'
 
     def ready(self):
         timer()

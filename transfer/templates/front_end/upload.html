@@ -42,6 +42,8 @@
     </style>
 </head>
 <body>
+{% block content %}
+{% include "front_end/user_navbar.html" %}
     <div class="container">
         <h1 class="mb-4">Upload Encrypted File</h1>
         <p class="lead">Securely share files with end-to-end encryption.</p>
@@ -102,7 +104,8 @@
             <p>The access code will expire in <span id="expiryTime">15 minutes</span>.</p>
         </div>
     </div>
-    
+
+    <script src="{% static '/static/js/navbar.js' %}" defer/>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Check if this is a response to a file request
@@ -244,5 +247,6 @@
             });
         });
     </script>
+{% endblock %}
 </body>
 </html>

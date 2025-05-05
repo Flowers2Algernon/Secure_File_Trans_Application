@@ -54,43 +54,40 @@ class FileUploadView(views.APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 def upload_page(request):
     return render(request, "front_end/send_file.html")
 
 
+def delete_expired_file():
+    """
+    Deletes expired files and returns the number deleted.
+    删除过期文件，并返回删除的数量。
+    """
+    now = timezone.now()
+    expired_files = EncrptedFile.objects.filter(code_expire__lte=now)
 
-def delete_expired_file(request):
-    """
-    Delete expired file view function.删除过期文件的视图函数。
-    """
-    # get current date 获取当前时间
+    deleted_count = 0
+    for expired_file in expired_files:
+        try:
+            # delete from database删除数据库记录
+            expired_file.delete()
+            deleted_count += 1
+        except ObjectDoesNotExist:
+            continue
+
+    return deleted_count
+
+"""
+    query the files are about expired, it will call delete_expired_file before query
+"""
+
+
+def query_approach_expired_files_count():
+    delete_expired_file()
     now = datetime.now()
-
-    try:
-        # get all expired files获取所有过期的文件
-        expired_files = EncrptedFile.objects.filter(code_expire__lte=now)
-
-        if not expired_files.exists():
-            return JsonResponse({'message': 'No expired files found.'}, status=404)
-
-        # delete expired files 删除过期文件
-        deleted_count = 0
-        for expired_file in expired_files:
-            try:
-                # 删除文件
-                if expired_file.file and os.path.isfile(expired_file.file.path):
-                    os.remove(expired_file.file.path)  # delete file    删除文件
-                    expired_file.delete()  # delete from database   删除数据库中的记录
-                    deleted_count += 1
-            except ObjectDoesNotExist:
-                continue
-
-        return JsonResponse({'message': f'{deleted_count} expired files deleted successfully.'}, status=200)
-
-    except Exception as e:
-        # error handle  错误处理
-        return JsonResponse({'error': str(e)}, status=500)
+    one_day_later = now + timedelta(days=1)
+    files = EncrptedFile.objects.filter(code_expire__lte=one_day_later, code_expire__gt=now)
+    return files.count()
 
 
 def file_list(request):
@@ -171,9 +168,9 @@ def request_send_page(request):
     return render(request, "front_end/requestSend.html")
 
 
-
 def after_user_login_page(request):
-    return render(request, "front_end/after_user_login_page.html")
+    count = request.session.pop('approach_expired_count', 0)
+    return render(request, "front_end/after_user_login_page.html", {"approach_expired_count": count})
 
 
 def search_encrypted_files(request):
