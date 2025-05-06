@@ -4,11 +4,11 @@ import hashlib
 from datetime import timedelta
 from django.conf import settings
 from django.utils import timezone
+import random
 
-def generate_code(length=6):
-    alphabet = string.ascii_letters + string.digits
-    code = ''.join(secrets.choice(alphabet) for i in range(length))
-    return code
+def generate_code():
+    """Generate a random 6-digit numeric access code."""
+    return ''.join(random.choices('0123456789', k=6))
 
 def hash_access_code(code):
     return hashlib.sha256(code.encode('utf-8')).hexdigest()  # Corrected to call .hexdigest() on the hash object

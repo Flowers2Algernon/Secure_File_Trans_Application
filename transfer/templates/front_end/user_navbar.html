@@ -1,0 +1,120 @@
+<header class="bg-white shadow-sm py-4"
+        style="background: linear-gradient(to right, #ffffff, #fef9ef); box-shadow: 0 4px 12px rgba(23, 195, 178, 0.08);">
+    <div class="container mx-auto px-4 flex items-center justify-between">
+        <div class="flex items-center">
+            <a class="text-2xl font-['Pacifico'] text-primary mr-8" href="/after_user_login_page">Secure File
+                Transfer</a>
+            <nav class="hidden md:flex space-x-6">
+                <a class="flex items-center text-gray-700 hover:text-primary" href="/upload/">
+                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                        <i class="ri-file-upload-line"></i>
+                    </div>
+                    <span>Send File</span>
+                </a>
+                <a class="flex items-center text-gray-700 hover:text-primary" href="/download/">
+                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                        <i class="ri-file-download-line"></i>
+                    </div>
+                    <span>Download File</span>
+                </a>
+                <a class="flex items-center text-gray-700 hover:text-primary" href="/request_send/">
+                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                        <i class="ri-send-plane-line"></i>
+                    </div>
+                    <span>Request File</span>
+                </a>
+            </nav>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
+                        id="notification-btn">
+                    <div class="w-6 h-6 flex items-center justify-center">
+                        <i class="ri-notification-3-line"></i>
+                    </div>
+                        {% if approach_expired_count %}
+                    <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">1</span>
+                        {% else %}
+                        {% endif %}
+                </button>
+                <div class="hidden absolute right-0 mt-2 w-80 bg-white rounded shadow-lg z-10 border border-gray-200"
+                     id="notification-dropdown">
+                    <div class="p-3 border-b border-gray-200">
+                        <h3 class="font-medium text-gray-800">Notifications</h3>
+                    </div>
+                    <div class="max-h-80 overflow-y-auto">
+
+                        <a class="block p-3 border-b border-gray-100 hover:bg-gray-50 flex" href="#">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-500 mr-3 flex-shrink-0">
+                                <div class="w-4 h-4 flex items-center justify-center">
+                                    <i class="ri-timer-line"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">
+                                    File expiring soon
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    {{ approach_expired_count }} expires in 1 days
+                                </p>
+                                <p class="text-xs text-gray-400 mt-1">Yesterday</p>
+                            </div>
+                        </a>
+                    </div>
+                    <!--
+                    <div class="p-2 border-t border-gray-200">
+                        <a class="block text-center text-primary text-sm p-1 hover:underline" href="#">View all
+                            notifications</a>
+                    </div>
+                    -->
+                </div>
+            </div>
+            <div class="relative">
+                <!--
+                <p>登录状态：{{ request.user.is_authenticated }}</p>
+                <p>用户名：{{ request.user.username }}</p>
+            -->
+                {% if request.user.is_authenticated %}
+                    <!--if user is logined-->
+                    <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
+                            id="user-menu-btn">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-user-line"></i>
+                        </div>
+                    </button>
+                    <div class="hidden absolute right-0 mt-2 w-48 bg-white rounded shadow-lg z-10 border border-gray-200"
+                         id="user-dropdown">
+                        <div class="p-3 border-b border-gray-200 flex items-center">
+                            <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary mr-2">
+                                <div class="w-5 h-5 flex items-center justify-center">
+                                    <i class="ri-user-line"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">{{ request.user.username }}</p>
+                                <p class="text-xs text-gray-500">{{ request.user.email }}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="border-t border-gray-200 mt-1"></div>
+                            <a class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+                               href="{% url 'account:sign_out' %}">
+                                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                    <i class="ri-logout-box-r-line"></i>
+                                </div>
+                                Sign Out
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'account:login_page' %}"
+                       class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-user-line"></i>
+                        </div>
+                    </a>
+                    </div>
+                {% endif %}
+        </div>
+    </div>
+</header>

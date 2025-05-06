@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 - Page Not Found</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#17c3b2", secondary: "#227c9d" },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+          background-color: #fef9ef;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+      }
+      .error-container {
+          max-width: 500px;
+          text-align: center;
+          padding: 2rem;
+      }
+      .error-number {
+          font-size: 10rem;
+          line-height: 1;
+          font-weight: 700;
+          background: linear-gradient(135deg, #17c3b2 0%, #227c9d 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          margin-bottom: 1.5rem;
+          animation: float 6s ease-in-out infinite;
+      }
+      @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+          100% { transform: translateY(0px); }
+      }
+      .error-icon {
+          font-size: 5rem;
+          margin-bottom: 1.5rem;
+          color: #17c3b2;
+          animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+          0% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.1); opacity: 0.8; }
+          100% { transform: scale(1); opacity: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="error-container">
+      <div class="error-number">404</div>
+
+      <div
+        class="w-24 h-24 mx-auto flex items-center justify-center text-primary mb-6"
+      >
+        <i class="ri-map-pin-user-line error-icon"></i>
+      </div>
+
+      <h1 class="text-3xl font-bold text-gray-800 mb-4">Page Not Found</h1>
+
+      <p class="text-gray-600 mb-8">
+        The page you're looking for doesn't exist or has been moved. Please
+        check the URL or navigate back to the homepage.
+      </p>
+
+      <a
+        href="/"
+        class="inline-flex items-center px-6 py-3 bg-primary text-white rounded font-medium hover:bg-primary/90 transition-colors duration-300 !rounded-button whitespace-nowrap"
+      >
+        <div class="w-5 h-5 flex items-center justify-center mr-2">
+          <i class="ri-home-line"></i>
+        </div>
+        Return to Homepage
+      </a>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Add entrance animation
+        const errorContainer = document.querySelector(".error-container");
+        errorContainer.style.opacity = "0";
+        errorContainer.style.transform = "translateY(20px)";
+        errorContainer.style.transition = "opacity 0.8s ease, transform 0.8s ease";
+
+        setTimeout(() => {
+          errorContainer.style.opacity = "1";
+          errorContainer.style.transform = "translateY(0)";
+        }, 100);
+
+        // Add hover effect to button
+        const button = document.querySelector("a.bg-primary");
+        button.addEventListener("mouseenter", function () {
+          this.classList.add("shadow-lg");
+          this.style.transform = "translateY(-2px)";
+        });
+
+        button.addEventListener("mouseleave", function () {
+          this.classList.remove("shadow-lg");
+          this.style.transform = "translateY(0)";
+        });
+      });
+    </script>
+  </body>
+</html>
