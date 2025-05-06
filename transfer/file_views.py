@@ -8,6 +8,8 @@ from django.utils import timezone
 from django.core.files.base import ContentFile
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
+import mimetypes  # Make sure this is at the top of your file
+
 
 from .models import EncrptedFile, FileLog, FileRequest  # Added FileRequest import
 from .utils import generate_code, hash_access_code, get_code_expire_time, verify_access_code
@@ -97,6 +99,7 @@ class FileUploadView(views.APIView):
             print(traceback.format_exc())
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @method_decorator(csrf_exempt, name='dispatch')
 class GetEncryptedFileView(views.APIView):
     def post(self, request):
@@ -134,20 +137,14 @@ class GetEncryptedFileView(views.APIView):
                     encrypted_file_data = f.read()
                 decrypted_file_data = decrypt_file_with_aes(encrypted_file_data, aes_key, iv)
 
-                # Save decrypted file to temp location
-                temp_filename = f"decrypted_{file_instance.file_id}.bin"
-                temp_file_path = os.path.join("media", "temp_downloads", temp_filename)
-                os.makedirs(os.path.dirname(temp_file_path), exist_ok=True)
+                # Determine content type
+                filename = file_instance.original_filename
+                content_type, _ = mimetypes.guess_type(filename)
+                content_type = content_type or 'application/octet-stream'
 
-                with open(temp_file_path, 'wb') as out_file:
-                    out_file.write(decrypted_file_data)
-
-                file_url = request.build_absolute_uri(f"/media/temp_downloads/{temp_filename}")
-
-                return Response({
-                    'fileUrl': file_url,
-                    'fileName': file_instance.original_filename
-                })
+                response = HttpResponse(decrypted_file_data, content_type=content_type)
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
 
             except Exception as e:
                 print(f"Decryption failed: {str(e)}")
@@ -160,6 +157,7 @@ class GetEncryptedFileView(views.APIView):
     def get_client_ip(self, request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         return x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR')
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateFileRequestView(views.APIView):
