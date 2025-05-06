@@ -458,11 +458,7 @@ Generating Keys...
                 document.execCommand('copy');
                 // Show copied feedback
                 const originalText = this.innerHTML;
-                this.innerHTML = `
-<div class="w-4 h-4 flex items-center justify-center mr-1">
-<i class="ri-check-line"></i>
-</div>
-Copied!
+                this.innerHTML = ` <div class="w-4 h-4 flex items-center justify-center mr-1"> <i class="ri-check-line"></i> </div> Copied!
 `;
                 setTimeout(() => {
                     this.innerHTML = originalText;

@@ -576,7 +576,7 @@
     </div>
     <script defer>
         document.addEventListener("DOMContentLoaded", function () {
-            // File upload handling
+            // Elements
             const fileInput = document.getElementById("file-input");
             const fileDetails = document.getElementById("file-details");
             const fileName = document.querySelector(".file-name");
@@ -598,383 +598,174 @@
             const publicKeyFile = document.getElementById("public-key-file");
             const recipientPublicKey = document.getElementById("recipient-public-key");
             const progressBar = document.querySelector(".absolute.inset-0.bg-primary");
-            // File drag and drop
-            ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
-                fileDropArea.addEventListener(eventName, preventDefaults, false);
+        
+            console.log("🔐 Secure upload script loaded"); // ✅ Optional debug
+        
+            // Drag & Drop handlers
+            ["dragenter", "dragover", "dragleave", "drop"].forEach(event => {
+                fileDropArea.addEventListener(event, e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
             });
-
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
-            ["dragenter", "dragover"].forEach((eventName) => {
-                fileDropArea.addEventListener(eventName, highlight, false);
+        
+            ["dragenter", "dragover"].forEach(e => {
+                fileDropArea.addEventListener(e, () => fileDropArea.classList.add("is-active"), false);
             });
-            ["dragleave", "drop"].forEach((eventName) => {
-                fileDropArea.addEventListener(eventName, unhighlight, false);
+            ["dragleave", "drop"].forEach(e => {
+                fileDropArea.addEventListener(e, () => fileDropArea.classList.remove("is-active"), false);
             });
-
-            function highlight() {
-                fileDropArea.classList.add("is-active");
-            }
-
-            function unhighlight() {
-                fileDropArea.classList.remove("is-active");
-            }
-
-            fileDropArea.addEventListener("drop", handleDrop, false);
-
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
+        
+            fileDropArea.addEventListener("drop", e => {
+                const files = e.dataTransfer.files;
                 if (files.length) {
                     fileInput.files = files;
                     updateFileDetails();
                 }
-            }
-
-            // File input change
+            });
+        
             fileInput.addEventListener("change", updateFileDetails);
-
+        
             function updateFileDetails() {
-                // Hide success and error messages when new file is selected
                 uploadSuccess.classList.add("hidden");
                 uploadError.classList.add("hidden");
                 uploadStatus.classList.add("hidden");
-                // Re-enable upload button when new file is selected
                 uploadBtn.disabled = false;
-                uploadBtn.innerHTML = `
-      <div class="w-5 h-5 flex items-center justify-center mr-2">
-      <i class="ri-upload-2-line"></i>
-      </div>
-      Upload & Encrypt File
-      `;
-                // Reset progress steps
-                const progressBar = document.querySelector(".absolute.inset-0.bg-primary");
+                uploadBtn.innerHTML = `<div class="w-5 h-5 flex items-center justify-center mr-2"><i class="ri-upload-2-line"></i></div>Upload & Encrypt File`;
+        
                 progressBar.style.width = "0%";
-                const steps = document.querySelectorAll(".flex.flex-col.items-center");
-                steps[1]
-                    .querySelector(".w-10.h-10")
-                    .classList.remove("bg-primary", "text-white");
-                steps[1]
-                    .querySelector(".w-10.h-10")
-                    .classList.add("bg-gray-200", "text-gray-500");
-                steps[1]
-                    .querySelector(".text-sm.mt-2")
-                    .classList.remove("text-primary", "font-medium");
-                steps[1].querySelector(".text-sm.mt-2").classList.add("text-gray-500");
-                steps[2]
-                    .querySelector(".w-10.h-10")
-                    .classList.remove("bg-primary", "text-white");
-                steps[2]
-                    .querySelector(".w-10.h-10")
-                    .classList.add("bg-gray-200", "text-gray-500");
-                steps[2]
-                    .querySelector(".text-sm.mt-2")
-                    .classList.remove("text-primary", "font-medium");
-                steps[2].querySelector(".text-sm.mt-2").classList.add("text-gray-500");
+        
                 if (fileInput.files.length) {
                     const file = fileInput.files[0];
-                    const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
                     fileName.textContent = file.name;
-                    fileSize.textContent = `${fileSizeInMB} MB`;
+                    fileSize.textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
                     fileDetails.classList.remove("hidden");
                     fileMsg.innerHTML = `<span class="text-primary font-medium">File selected</span>`;
                 } else {
                     fileDetails.classList.add("hidden");
-                    fileMsg.innerHTML = `
-      <div class="w-12 h-12 flex items-center justify-center text-primary mb-2">
-      <i class="ri-upload-cloud-2-line ri-2x"></i>
-      </div>
-      <span class="font-medium text-gray-700">Drag & drop file here or click to browse</span>
-      <span class="text-sm text-gray-500 mt-1">Maximum file size: 100MB</span>
-      `;
+                    fileMsg.innerHTML = `<div class="w-12 h-12 flex items-center justify-center text-primary mb-2"><i class="ri-upload-cloud-2-line ri-2x"></i></div><span class="font-medium text-gray-700">Drag & drop file here or click to browse</span><span class="text-sm text-gray-500 mt-1">Maximum file size: 100MB</span>`;
                 }
             }
-
-            // Remove file
-            removeFileBtn.addEventListener("click", function () {
+        
+            removeFileBtn.addEventListener("click", () => {
                 fileInput.value = "";
-                lastUploadedFile = null;
                 updateFileDetails();
-                // Re-enable upload button when file is removed
-                uploadBtn.disabled = false;
-                uploadBtn.innerHTML = `
-      <div class="w-5 h-5 flex items-center justify-center mr-2">
-      <i class="ri-upload-2-line"></i>
-      </div>
-      Upload & Encrypt File
-      `;
             });
-            // Public key file upload
+        
             publicKeyFile.addEventListener("change", function () {
                 if (this.files.length) {
-                    const file = this.files[0];
                     const reader = new FileReader();
-                    reader.onload = function (e) {
-                        recipientPublicKey.value = e.target.result;
-                    };
-                    reader.readAsText(file);
+                    reader.onload = e => recipientPublicKey.value = e.target.result;
+                    reader.readAsText(this.files[0]);
                 }
             });
-            // Form submission
-            let lastUploadedFile = null;
-            let isUploading = false;
-            uploadForm.addEventListener("submit", function (e) {
+        
+            uploadForm.addEventListener("submit", async function (e) {
                 e.preventDefault();
-
-                // Prevent multiple simultaneous uploads
-                if (isUploading) {
-                    uploadError.classList.remove("hidden");
-                    errorMessage.textContent = "Upload in progress. Please wait...";
-                    return;
-                }
-
-                // Remove any existing status text elements
-                const existingStatusText = uploadStatus.querySelector(
-                    ".flex.items-center.justify-center.space-x-2",
-                );
-                if (existingStatusText) {
-                    existingStatusText.remove();
-                }
-
-                // Validate form
+        
                 if (!fileInput.files.length) {
                     uploadError.classList.remove("hidden");
                     errorMessage.textContent = "Please select a file to upload.";
                     return;
                 }
-
+        
                 if (!recipientPublicKey.value.trim()) {
                     uploadError.classList.remove("hidden");
                     errorMessage.textContent = "Please enter the recipient's public key.";
                     return;
                 }
-
+        
                 const currentFile = fileInput.files[0];
-
-                // Check file size (limit to 100MB)
                 if (currentFile.size > 100 * 1024 * 1024) {
                     uploadError.classList.remove("hidden");
-                    errorMessage.textContent = "File size exceeds the maximum limit of 100MB.";
+                    errorMessage.textContent = "File size exceeds 100MB.";
                     return;
                 }
-
-                isUploading = true;
-                lastUploadedFile = currentFile;
-
-                // Hide any previous error
+        
                 uploadError.classList.add("hidden");
-
-                // Show upload status
                 uploadStatus.classList.remove("hidden");
-                document.querySelector(".bg-primary.h-2\\.5").style.width = "0%";
+                progressBar.style.width = "0%";
                 uploadPercentage.textContent = "0%";
-
-                // Update status text to show scanning
-                const statusText = document.createElement("div");
-                statusText.className = "flex items-center justify-center space-x-2 mt-2";
-                statusText.innerHTML = `
-            <div class="w-5 h-5 flex items-center justify-center text-primary">
-              <i class="ri-shield-scan-line"></i>
-            </div>
-            <span class="text-sm text-gray-600">Scanning and encrypting file...</span>
-          `;
-                uploadStatus.appendChild(statusText);
-
-                // Disable upload button
+        
                 uploadBtn.disabled = true;
-                uploadBtn.innerHTML = `
-            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Uploading...
-          `;
-
-                // Create FormData object
-                const formData = new FormData();
-                formData.append('file', currentFile);
-                formData.append('recipient_public_key', recipientPublicKey.value.trim());
-
-                // Optional metadata
-                // formData.append('encrypted_aes_key', ''); // Add if you implement client-side encryption
-                // formData.append('iv', ''); // Add if you implement client-side encryption
-                // formData.append('file_hash', ''); // Add if you implement hash verification
-
-                // Get the CSRF token from the cookie
-                function getCookie(name) {
-                    let cookieValue = null;
-                    if (document.cookie && document.cookie !== '') {
-                        const cookies = document.cookie.split(';');
-                        for (let i = 0; i < cookies.length; i++) {
-                            const cookie = cookies[i].trim();
-                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                break;
-                            }
+                uploadBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4zm2 5.29A7.96 7.96 0 014 12H0c0 3.04 1.14 5.82 3 7.94l3-2.65z"></path></svg>Uploading...`;
+        
+                try {
+                    const arrayBuffer = await currentFile.arrayBuffer();
+                    const aesKey = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt"]);
+                    const iv = crypto.getRandomValues(new Uint8Array(12));
+                    const encryptedFileData = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, aesKey, arrayBuffer);
+                    const rawAesKey = await crypto.subtle.exportKey("raw", aesKey);
+        
+                    // Import RSA public key
+                    const pem = recipientPublicKey.value.trim();
+                    const pemContents = pem.replace(/-----BEGIN PUBLIC KEY-----/, "")
+                                           .replace(/-----END PUBLIC KEY-----/, "")
+                                           .replace(/\s/g, "");
+                    const binaryDer = new Uint8Array([...atob(pemContents)].map(c => c.charCodeAt(0)));
+                    const rsaKey = await crypto.subtle.importKey("spki", binaryDer.buffer, { name: "RSA-OAEP", hash: "SHA-256" }, false, ["encrypt"]);
+        
+                    const encryptedAesKey = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, rsaKey, rawAesKey);
+                    const encryptedAesKeyB64 = btoa(String.fromCharCode(...new Uint8Array(encryptedAesKey)));
+                    const ivB64 = btoa(String.fromCharCode(...iv));
+                    const fileHashBuffer = await crypto.subtle.digest("SHA-256", encryptedFileData);
+                    const fileHash = btoa(String.fromCharCode(...new Uint8Array(fileHashBuffer)));
+        
+                    const formData = new FormData();
+                    formData.append("file", new Blob([encryptedFileData]), currentFile.name);
+                    formData.append("recipient_public_key", pem);
+                    formData.append("encrypted_aes_key", encryptedAesKeyB64);
+                    formData.append("iv", ivB64);
+                    formData.append("file_hash", fileHash);
+        
+                    // CSRF token
+                    function getCookie(name) {
+                        const cookies = document.cookie.split(";");
+                        for (let cookie of cookies) {
+                            const [key, value] = cookie.trim().split("=");
+                            if (key === name) return decodeURIComponent(value);
                         }
+                        return null;
                     }
-                    return cookieValue;
+        
+                    const response = await fetch("/upload_api/", {
+                        method: "POST",
+                        headers: { "X-CSRFToken": getCookie("csrftoken") },
+                        body: formData
+                    });
+        
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || "Upload failed");
+        
+                    progressBar.style.width = "100%";
+                    uploadStatus.classList.add("hidden");
+                    uploadSuccess.classList.remove("hidden");
+                    accessCode.textContent = data.access_code;
+        
+                } catch (err) {
+                    console.error("❌ Upload error:", err);
+                    uploadStatus.classList.add("hidden");
+                    uploadError.classList.remove("hidden");
+                    errorMessage.textContent = err.message || "Upload failed.";
                 }
-
-                // Make the AJAX request
-                fetch('/upload_api/', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: formData,
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(data => {
-                                throw new Error(data.error || 'Upload failed');
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Update progress steps
-                        progressBar.style.width = "100%";
-                        const steps = document.querySelectorAll(".flex.flex-col.items-center");
-                        steps[1].querySelector(".w-10.h-10").classList.remove("bg-gray-200", "text-gray-500");
-                        steps[1].querySelector(".w-10.h-10").classList.add("bg-primary", "text-white");
-                        steps[1].querySelector(".text-sm.mt-2").classList.remove("text-gray-500");
-                        steps[1].querySelector(".text-sm.mt-2").classList.add("text-primary", "font-medium");
-                        steps[2].querySelector(".w-10.h-10").classList.remove("bg-gray-200", "text-gray-500");
-                        steps[2].querySelector(".w-10.h-10").classList.add("bg-primary", "text-white");
-                        steps[2].querySelector(".text-sm.mt-2").classList.remove("text-gray-500");
-                        steps[2].querySelector(".text-sm.mt-2").classList.add("text-primary", "font-medium");
-
-                        // Hide upload status
-                        uploadStatus.classList.add("hidden");
-                        uploadSuccess.classList.remove("hidden");
-
-                        // Set the access code from the response
-                        accessCode.textContent = data.access_code;
-
-                        // Reset upload button
-                        uploadBtn.disabled = false;
-                        uploadBtn.innerHTML = `
-              <div class="w-5 h-5 flex items-center justify-center mr-2">
-                <i class="ri-upload-2-line"></i>
-              </div>
-              Upload & Encrypt File
-            `;
-
-                        isUploading = false;
-                    })
-                    .catch(error => {
-                        console.error('Upload error:', error);
-
-                        isUploading = false;
-                        uploadStatus.classList.add("hidden");
-                        uploadError.classList.remove("hidden");
-                        errorMessage.textContent = error.message || 'An error occurred during upload.';
-
-                        // Reset upload button
-                        uploadBtn.disabled = false;
-                        uploadBtn.innerHTML = `
-              <div class="w-5 h-5 flex items-center justify-center mr-2">
-                <i class="ri-upload-2-line"></i>
-              </div>
-              Upload & Encrypt File
-            `;
-                    });
-
-                // Add upload progress tracking
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', '/upload_api/');
-
-                xhr.upload.addEventListener('progress', function (e) {
-                    if (e.lengthComputable) {
-                        const percentComplete = Math.round((e.loaded / e.total) * 100);
-                        document.querySelector(".bg-primary.h-2\\.5").style.width = percentComplete + "%";
-                        uploadPercentage.textContent = percentComplete + "%";
-
-                        // Update status message at certain thresholds
-                        if (percentComplete > 30 && percentComplete < 60) {
-                            statusText.innerHTML = `
-                  <div class="w-5 h-5 flex items-center justify-center text-green-500">
-                    <i class="ri-shield-check-line"></i>
-                  </div>
-                  <span class="text-sm text-green-600">File verified - Encrypting data...</span>
-                `;
-                        } else if (percentComplete >= 60) {
-                            statusText.innerHTML = `
-                  <div class="w-5 h-5 flex items-center justify-center text-green-500">
-                    <i class="ri-upload-cloud-2-line"></i>
-                  </div>
-                  <span class="text-sm text-green-600">Encryption complete - Uploading file...</span>
-                `;
-                        }
-                    }
-                });
-
-                // Don't actually send this XHR - we're using fetch for the actual upload
-                // This is just to avoid duplicating the progress tracking logic
+        
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = `<div class="w-5 h-5 flex items-center justify-center mr-2"><i class="ri-upload-2-line"></i></div>Upload & Encrypt File`;
             });
-            // Copy access code
+        
             copyCodeBtn.addEventListener("click", function () {
-                const code = accessCode.textContent;
-                navigator.clipboard.writeText(code).then(() => {
-                    const originalText = this.innerHTML;
-                    this.innerHTML = `
-      <div class="w-4 h-4 flex items-center justify-center mr-1">
-      <i class="ri-check-line"></i>
-      </div>
-      Copied!
-      `;
-                    setTimeout(() => {
-                        this.innerHTML = originalText;
-                    }, 2000);
+                navigator.clipboard.writeText(accessCode.textContent).then(() => {
+                    const original = this.innerHTML;
+                    this.innerHTML = `<div class="w-4 h-4 flex items-center justify-center mr-1"><i class="ri-check-line"></i></div>Copied!`;
+                    setTimeout(() => this.innerHTML = original, 2000);
                 });
             });
-            // Retry upload
-            retryUpload.addEventListener("click", function () {
-                uploadError.classList.add("hidden");
-            });
-            // Cancel button
-            cancelBtn.addEventListener("click", function () {
-                window.location.href = "#";
-            });
-            // FAQ accordion functionality
-            const faqToggles = document.querySelectorAll(".faq-toggle");
-            faqToggles.forEach((toggle) => {
-                toggle.addEventListener("click", function () {
-                    const content = this.nextElementSibling;
-                    const icon = this.querySelector(".faq-icon");
-                    // Close all other FAQs
-                    faqToggles.forEach((otherToggle) => {
-                        if (otherToggle !== toggle) {
-                            otherToggle.nextElementSibling.classList.add("hidden");
-                            otherToggle
-                                .querySelector(".faq-icon")
-                                .classList.remove("ri-arrow-up-s-line");
-                            otherToggle
-                                .querySelector(".faq-icon")
-                                .classList.add("ri-arrow-down-s-line");
-                        }
-                    });
-                    // Toggle current FAQ
-                    content.classList.toggle("hidden");
-                    if (content.classList.contains("hidden")) {
-                        icon.classList.remove("ri-arrow-up-s-line");
-                        icon.classList.add("ri-arrow-down-s-line");
-                    } else {
-                        icon.classList.remove("ri-arrow-down-s-line");
-                        icon.classList.add("ri-arrow-up-s-line");
-                    }
-                });
-            });
-            // Open first FAQ by default
-            if (faqToggles.length > 0) {
-                faqToggles[0].click();
-            }
+        
+            retryUpload.addEventListener("click", () => uploadError.classList.add("hidden"));
+            cancelBtn.addEventListener("click", () => window.location.href = "#");
         });
-    </script>
+        </script>
+        
 {% endblock %}
 </body>
 </html>
