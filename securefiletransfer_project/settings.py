@@ -26,7 +26,16 @@ SECRET_KEY = "django-insecure-zr(i3qyisc&e*o&#-9ml8j1lwui-s*#uqzt%qg=tx#228zxk)e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 # DEBUG = False
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'safesend.me',
+    'www.safesend.me',
+    'your_elastic_ip_address', # 添加你的 Elastic IP
+    'ec2-54-206-113-215.ap-southeast-2.compute.amazonaws.com',
+    '54.206.113.215',
+    'localhost',
+    '127.0.0.1',
+    '3.105.66.133',
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
