@@ -1,0 +1,75 @@
+#  Template to deploy a Python Django application to the Google App Engine standard environment
+
+#  This template allows you to deploy your Python Django application to the Google App Engine.
+#  The workflow allows running tests, code linting and security scans on feature branches (as well as master).
+#  The Python Django application will be deployed after the code is merged to master.
+
+# Prerequisites: $KEY_FILE and $PROJECT setup in the Deployment variables.
+# For advanced cases, please, follow examples from the pipe's README https://bitbucket.org/atlassian/google-app-engine-deploy/src/master/README.md
+# Your environment variables should also be declared in the app.yaml.template.
+
+image: python:3.8
+
+# Workflow Configuration
+
+pipelines:
+  default:
+    - parallel:
+        - step:
+            name: Build and Test
+            caches:
+              - pip
+            script:
+              # Use a in-memory sqlite3 database
+              - export TRAMPOLINE_CI=true
+              - pip install -r requirements.txt
+              - pip install -r requirements-test.txt
+              - python manage.py migrate
+              - python manage.py test
+        - step:
+            name: Lint the python code
+            script:
+              - pip install flake8
+              # Command-line utility for enforcing style (PEP-0008) consistency across Python projects https://flake8.pycqa.org/en/latest/manpage.html
+              - flake8 . --extend-exclude=dist,build,static,migrations
+              # excluded by Default: ['.svn', 'CVS', '.bzr', '.hg', '.git', '__pycache__', '.tox', '.eggs', '*.egg']
+
+  branches:
+    master:
+      - parallel:
+        - step:
+            name: Build and Test
+            caches:
+              - pip
+            script:
+              # Use a in-memory sqlite3 database
+              - export TRAMPOLINE_CI=true
+              - pip install -r requirements.txt
+              - pip install -r requirements-test.txt
+              - python manage.py migrate
+              - python manage.py test
+        - step:
+            name: Security Scan
+            script:
+              # Run a security scan for sensitive data.
+              # See more security tools at https://bitbucket.org/product/features/pipelines/integrations?&category=security
+              - pipe: atlassian/git-secrets-scan:0.5.1
+      - step:
+          name: Deploy to Production
+          deployment: Production
+          trigger: manual
+          image: atlassian/default-image:3
+          script:
+            # Substitute the values of environment variables to app.yaml
+            # https://www.gnu.org/software/gettext/manual/html_node/envsubst-Invocation.html
+            - apt install -y gettext-base
+            - envsubst < app.yaml.template > app.yaml
+
+            # Deploy your Django app to the Google App Engine
+            # See more details https://bitbucket.org/atlassian/google-app-engine-deploy/src/master/
+            - pipe: atlassian/google-app-engine-deploy:0.7.3
+              variables:
+                KEY_FILE: $KEY_FILE
+                PROJECT: $PROJECT
+
+            # add your app DB migrations workflow if exists
