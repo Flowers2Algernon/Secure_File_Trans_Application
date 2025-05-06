@@ -8,6 +8,8 @@ from django.utils import timezone
 from django.core.files.base import ContentFile
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
+import mimetypes  # ✅ New import
+
 
 from .models import EncrptedFile, FileLog, FileRequest  # Added FileRequest import
 from .utils import generate_code, hash_access_code, get_code_expire_time, verify_access_code
@@ -97,6 +99,7 @@ class FileUploadView(views.APIView):
             print(traceback.format_exc())
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @method_decorator(csrf_exempt, name='dispatch')
 class GetEncryptedFileView(views.APIView):
     def post(self, request):
@@ -117,7 +120,7 @@ class GetEncryptedFileView(views.APIView):
             if file_instance.code_expire and file_instance.code_expire < timezone.now():
                 return Response({'error': 'This file has expired'}, status=status.HTTP_410_GONE)
 
-            # Logging the download
+            # Log the download attempt
             FileLog.objects.create(
                 encrptedFile=file_instance,
                 download_time=1,
@@ -126,12 +129,14 @@ class GetEncryptedFileView(views.APIView):
             )
 
             try:
+                # Decrypt AES key and file
                 encrypted_aes_key = file_instance.encrypted_aes_key
                 iv = file_instance.iv
                 aes_key = decrypt_aes_key_with_rsa(encrypted_aes_key, private_key_pem)
 
                 with file_instance.uploaded_file.open('rb') as f:
                     encrypted_file_data = f.read()
+
                 decrypted_file_data = decrypt_file_with_aes(encrypted_file_data, aes_key, iv)
 
                 # Save decrypted file to temp location
@@ -142,12 +147,18 @@ class GetEncryptedFileView(views.APIView):
                 with open(temp_file_path, 'wb') as out_file:
                     out_file.write(decrypted_file_data)
 
-                file_url = request.build_absolute_uri(f"/media/temp_downloads/{temp_filename}")
+                # file_url = request.build_absolute_uri(f"/media/temp_downloads/{temp_filename}")
 
-                return Response({
-                    'fileUrl': file_url,
-                    'fileName': file_instance.original_filename
-                })
+                # return Response({
+                #     'fileUrl': file_url,
+                #     'fileName': file_instance.original_filename
+                # })
+
+                response = HttpResponse(decrypted_file_data, content_type='application/pdf')
+                response['Content-Disposition'] = f'attachment; filename="{file_instance.original_filename}"'
+                return response
+
+
 
             except Exception as e:
                 print(f"Decryption failed: {str(e)}")
@@ -160,6 +171,7 @@ class GetEncryptedFileView(views.APIView):
     def get_client_ip(self, request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         return x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR')
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateFileRequestView(views.APIView):
