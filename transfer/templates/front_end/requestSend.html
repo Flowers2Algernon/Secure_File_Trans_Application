@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Secure File</title>
+    <title>Request File</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
@@ -31,8 +31,8 @@
 </head>
 
 <body class="min-h-screen bg-[#fef9ef]">
-{% block content %}
-{% include "front_end/user_navbar.html" %}
+    {% block content %}
+    {% include "front_end/user_navbar.html" %}
     <div class="min-h-screen flex flex-col">
         <!-- Main Content -->
         <main class="flex-grow container mx-auto px-4 py-8">
@@ -342,7 +342,7 @@
             const publicKeyTextarea = document.getElementById('public-key');
             const copyKeyBtn = document.getElementById('copy-key');
             const faqToggles = document.querySelectorAll('.faq-toggle');
-            
+
             // Character count for description
             fileDescription.addEventListener('input', function () {
                 const count = this.value.length;
@@ -352,7 +352,7 @@
                     charCount.textContent = 200;
                 }
             });
-            
+
             // Generate keys button
             generateKeysBtn.addEventListener('click', function () {
                 // Get sender email
@@ -377,7 +377,7 @@
                     const errorMsg = document.getElementById('email-error');
                     if (errorMsg) errorMsg.remove();
                 }
-                
+
                 // Show loading state
                 const originalText = this.innerHTML;
                 this.innerHTML = `
@@ -388,11 +388,11 @@
 Generating Keys...
 `;
                 this.disabled = true;
-                
+
                 // Get file description and purpose
                 const fileDescription = document.getElementById('file-description').value;
                 const purpose = document.getElementById('request-purpose').value || '';
-                
+
                 // Send request to backend to generate keys and create file request
                 fetch('/api/file-requests/', {
                     method: 'POST',
@@ -405,53 +405,53 @@ Generating Keys...
                         purpose: purpose
                     })
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Show the key generation status section
-                        keyGenerationStatus.classList.remove('hidden');
-                        
-                        // Display keys
-                        publicKeyTextarea.value = data.publicKey;
-                        document.getElementById('private-key').value = data.privateKey;
-                        
-                        // Store keys in localStorage for future use
-                        localStorage.setItem('publicKey', data.publicKey);
-                        localStorage.setItem('privateKey', data.privateKey);
-                        
-                        // Show email sent confirmation
-                        document.getElementById('email-sent-confirmation').classList.remove('hidden');
-                        
-                        // Update progress bar
-                        document.querySelector('.absolute.inset-0.bg-primary').style.width = '100%';
-                        
-                        // Update the second step to active
-                        const steps = document.querySelectorAll('.flex.flex-col.items-center');
-                        steps[1].querySelector('.w-10.h-10').classList.remove('bg-gray-200', 'text-gray-500');
-                        steps[1].querySelector('.w-10.h-10').classList.add('bg-primary', 'text-white');
-                        steps[1].querySelector('.text-sm.mt-2').classList.remove('text-gray-500');
-                        steps[1].querySelector('.text-sm.mt-2').classList.add('text-primary', 'font-medium');
-                    }
-                    
-                    // Reset button
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while generating keys. Please try again.');
-                    
-                    // Reset button
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                });
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Show the key generation status section
+                            keyGenerationStatus.classList.remove('hidden');
+
+                            // Display keys
+                            publicKeyTextarea.value = data.publicKey;
+                            document.getElementById('private-key').value = data.privateKey;
+
+                            // Store keys in localStorage for future use
+                            localStorage.setItem('publicKey', data.publicKey);
+                            localStorage.setItem('privateKey', data.privateKey);
+
+                            // Show email sent confirmation
+                            document.getElementById('email-sent-confirmation').classList.remove('hidden');
+
+                            // Update progress bar
+                            document.querySelector('.absolute.inset-0.bg-primary').style.width = '100%';
+
+                            // Update the second step to active
+                            const steps = document.querySelectorAll('.flex.flex-col.items-center');
+                            steps[1].querySelector('.w-10.h-10').classList.remove('bg-gray-200', 'text-gray-500');
+                            steps[1].querySelector('.w-10.h-10').classList.add('bg-primary', 'text-white');
+                            steps[1].querySelector('.text-sm.mt-2').classList.remove('text-gray-500');
+                            steps[1].querySelector('.text-sm.mt-2').classList.add('text-primary', 'font-medium');
+                        }
+
+                        // Reset button
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while generating keys. Please try again.');
+
+                        // Reset button
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                    });
             });
-            
+
             // Copy public key button
             copyKeyBtn.addEventListener('click', function () {
                 publicKeyTextarea.select();
@@ -464,7 +464,7 @@ Generating Keys...
                     this.innerHTML = originalText;
                 }, 2000);
             });
-            
+
             // Copy private key button
             document.getElementById('copy-private-key').addEventListener('click', function () {
                 document.getElementById('private-key').select();
@@ -481,13 +481,13 @@ Copied!
                     this.innerHTML = originalText;
                 }, 2000);
             });
-            
+
             // Cancel button
             cancelBtn.addEventListener('click', function () {
                 // Reset the form or navigate away
                 window.location.href = '#';
             });
-            
+
             // FAQ accordion functionality
             faqToggles.forEach(toggle => {
                 toggle.addEventListener('click', function () {
@@ -512,14 +512,14 @@ Copied!
                     }
                 });
             });
-            
+
             // Open first FAQ by default
             if (faqToggles.length > 0) {
                 faqToggles[0].click();
             }
         });
     </script>
-{% endblock %}
+    {% endblock %}
 </body>
 
 </html>
