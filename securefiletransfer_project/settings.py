@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "account",
     "rest_framework",
     "corsheaders",
+    'social_django',
 ]
 
 # 使用数据库存储 session（替代 Redis）
