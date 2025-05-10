@@ -8,6 +8,8 @@ from django.utils import timezone
 from django.core.files.base import ContentFile
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
+import mimetypes  # Make sure this is at the top of your file
+
 
 from .models import EncrptedFile, FileLog, FileRequest  # Added FileRequest import
 from .utils import generate_code, hash_access_code, get_code_expire_time, verify_access_code
@@ -97,60 +99,65 @@ class FileUploadView(views.APIView):
             print(traceback.format_exc())
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @method_decorator(csrf_exempt, name='dispatch')
 class GetEncryptedFileView(views.APIView):
     def post(self, request):
         try:
-            # Get access code from request data
             access_code = request.data.get('accessCode')
-            
+            private_key_pem = request.data.get('privateKey')
+
             if not access_code:
                 return Response({'error': 'Access code is required'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Hash the access code
+            if not private_key_pem:
+                return Response({'error': 'Private key is required'}, status=status.HTTP_400_BAD_REQUEST)
+
             hashed_code = hash_access_code(access_code)
-            
-            # Find the file by access code hash
-            try:
-                file_instance = EncrptedFile.objects.filter(code_hash=hashed_code).first()
-                
-                # Check if file exists
-                if not file_instance:
-                    return Response({'error': 'Invalid access code'}, status=status.HTTP_404_NOT_FOUND)
-                
-                # Check if code has expired
-                if file_instance.code_expire and file_instance.code_expire < timezone.now():
-                    return Response({'error': 'This file has expired'}, status=status.HTTP_410_GONE)
-                
-                # Create file log entry
-                FileLog.objects.create(
-                    encrptedFile=file_instance,            # Correct parameter name
-                    download_time=1,                       # Required field with no default
-                    download_final_datetime=timezone.now(),
-                    ip_address=self.get_client_ip(request)
-                )
-                
-                # Return file URL and info
-                return Response({
-                    'fileUrl': file_instance.uploaded_file.url,
-                    'fileName': file_instance.original_filename,
-                    'fileSize': file_instance.file_size
-                })
-                
-            except EncrptedFile.DoesNotExist:
+            file_instance = EncrptedFile.objects.filter(code_hash=hashed_code).first()
+
+            if not file_instance:
                 return Response({'error': 'Invalid access code'}, status=status.HTTP_404_NOT_FOUND)
-                
+            if file_instance.code_expire and file_instance.code_expire < timezone.now():
+                return Response({'error': 'This file has expired'}, status=status.HTTP_410_GONE)
+
+            # Logging the download
+            FileLog.objects.create(
+                encrptedFile=file_instance,
+                download_time=1,
+                download_final_datetime=timezone.now(),
+                ip_address=self.get_client_ip(request)
+            )
+
+            try:
+                encrypted_aes_key = file_instance.encrypted_aes_key
+                iv = file_instance.iv
+                aes_key = decrypt_aes_key_with_rsa(encrypted_aes_key, private_key_pem)
+
+                with file_instance.uploaded_file.open('rb') as f:
+                    encrypted_file_data = f.read()
+                decrypted_file_data = decrypt_file_with_aes(encrypted_file_data, aes_key, iv)
+
+                # Determine content type
+                filename = file_instance.original_filename
+                content_type, _ = mimetypes.guess_type(filename)
+                content_type = content_type or 'application/octet-stream'
+
+                response = HttpResponse(decrypted_file_data, content_type=content_type)
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
+
+            except Exception as e:
+                print(f"Decryption failed: {str(e)}")
+                return Response({'error': f'Decryption failed: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         except Exception as e:
             print(f"Error in GetEncryptedFileView: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
     def get_client_ip(self, request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        return ip
+        return x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR')
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateFileRequestView(views.APIView):

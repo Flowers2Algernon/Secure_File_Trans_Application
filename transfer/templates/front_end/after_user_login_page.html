@@ -1,1538 +1,1217 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Dashboard - Secure File Transfer</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link
-      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
-      rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+            rel="stylesheet"
     />
     <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
-      rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+            rel="stylesheet"
     />
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: { primary: "#17c3b2", secondary: "#227c9d" },
-            borderRadius: {
-              none: "0px",
-              sm: "4px",
-              DEFAULT: "8px",
-              md: "12px",
-              lg: "16px",
-              xl: "20px",
-              "2xl": "24px",
-              "3xl": "32px",
-              full: "9999px",
-              button: "8px",
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {primary: "#17c3b2", secondary: "#227c9d"},
+                    borderRadius: {
+                        none: "0px",
+                        sm: "4px",
+                        DEFAULT: "8px",
+                        md: "12px",
+                        lg: "16px",
+                        xl: "20px",
+                        "2xl": "24px",
+                        "3xl": "32px",
+                        full: "9999px",
+                        button: "8px",
+                    },
+                },
             },
-          },
-        },
-      };
+        };
     </script>
     <style>
-      :where([class^="ri-"])::before { content: "\f3c2"; }
-      input[type="number"]::-webkit-inner-spin-button,
-      input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-      }
-      input[type="number"] {
-      -moz-appearance: textfield;
-      }
-      .custom-checkbox {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      border: 2px solid #d1d5db;
-      border-radius: 4px;
-      outline: none;
-      cursor: pointer;
-      position: relative;
-      }
-      .custom-checkbox:checked {
-      background-color: #17c3b2;
-      border-color: #17c3b2;
-      }
-      .custom-checkbox:checked::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 5px;
-      width: 6px;
-      height: 10px;
-      border: solid white;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-      }
-      .custom-switch {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 40px;
-      height: 22px;
-      border-radius: 11px;
-      background-color: #d1d5db;
-      position: relative;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      }
-      .custom-switch:checked {
-      background-color: #17c3b2;
-      }
-      .custom-switch::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background-color: white;
-      transition: transform 0.2s;
-      }
-      .custom-switch:checked::after {
-      transform: translateX(18px);
-      }
+        :where([class^="ri-"])::before {
+            content: "\f3c2";
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .custom-checkbox:checked {
+            background-color: #17c3b2;
+            border-color: #17c3b2;
+        }
+
+        .custom-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 5px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .custom-switch {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 40px;
+            height: 22px;
+            border-radius: 11px;
+            background-color: #d1d5db;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .custom-switch:checked {
+            background-color: #17c3b2;
+        }
+
+        .custom-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: white;
+            transition: transform 0.2s;
+        }
+
+        .custom-switch:checked::after {
+            transform: translateX(18px);
+        }
     </style>
-  </head>
-  <body class="min-h-screen bg-[#fef9ef]">
-    <div class="min-h-screen flex flex-col">
-      <!-- Header -->
-      <header
-        class="bg-white shadow-sm py-4"
-        style="background: linear-gradient(to right, #ffffff, #fef9ef); box-shadow: 0 4px 12px rgba(23, 195, 178, 0.08);"
-      >
-        <div class="container mx-auto px-4 flex items-center justify-between">
-          <div class="flex items-center">
-            <h1 class="text-2xl font-['Pacifico'] text-primary mr-8">logo</h1>
-            <nav class="hidden md:flex space-x-6">
-              <a
-                href="#"
-                class="flex items-center text-gray-700 hover:text-primary"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-file-upload-line"></i>
-                </div>
-                <span>Send File</span>
-              </a>
-              <a
-                href="#"
-                class="flex items-center text-gray-700 hover:text-primary"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-file-download-line"></i>
-                </div>
-                <span>Download File</span>
-              </a>
-              <a
-                href="#"
-                class="flex items-center text-gray-700 hover:text-primary"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-send-plane-line"></i>
-                </div>
-                <span>Request File</span>
-              </a>
-            </nav>
-          </div>
-          <div class="flex items-center space-x-4">
-            <div class="relative">
-              <button
-                id="notification-btn"
-                class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
-              >
-                <div class="w-6 h-6 flex items-center justify-center">
-                  <i class="ri-notification-3-line"></i>
-                </div>
-                <span
-                  class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
-                  >3</span
-                >
-              </button>
-              <div
-                id="notification-dropdown"
-                class="hidden absolute right-0 mt-2 w-80 bg-white rounded shadow-lg z-10 border border-gray-200"
-              >
-                <div class="p-3 border-b border-gray-200">
-                  <h3 class="font-medium text-gray-800">Notifications</h3>
-                </div>
-                <div class="max-h-80 overflow-y-auto">
-                  <a
-                    href="#"
-                    class="block p-3 border-b border-gray-100 hover:bg-gray-50 flex"
-                  >
-                    <div
-                      class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 mr-3 flex-shrink-0"
-                    >
-                      <div class="w-4 h-4 flex items-center justify-center">
-                        <i class="ri-file-download-line"></i>
-                      </div>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-800">
-                        New file received
-                      </p>
-                      <p class="text-xs text-gray-500">
-                        Project proposal.pdf from Sarah Johnson
-                      </p>
-                      <p class="text-xs text-gray-400 mt-1">10 minutes ago</p>
-                    </div>
-                  </a>
-                  <a
-                    href="#"
-                    class="block p-3 border-b border-gray-100 hover:bg-gray-50 flex"
-                  >
-                    <div
-                      class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-500 mr-3 flex-shrink-0"
-                    >
-                      <div class="w-4 h-4 flex items-center justify-center">
-                        <i class="ri-check-line"></i>
-                      </div>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-800">
-                        File downloaded
-                      </p>
-                      <p class="text-xs text-gray-500">
-                        Michael Brown downloaded your file
-                      </p>
-                      <p class="text-xs text-gray-400 mt-1">1 hour ago</p>
-                    </div>
-                  </a>
-                  <a
-                    href="#"
-                    class="block p-3 border-b border-gray-100 hover:bg-gray-50 flex"
-                  >
-                    <div
-                      class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-500 mr-3 flex-shrink-0"
-                    >
-                      <div class="w-4 h-4 flex items-center justify-center">
-                        <i class="ri-timer-line"></i>
-                      </div>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-gray-800">
-                        File expiring soon
-                      </p>
-                      <p class="text-xs text-gray-500">
-                        Financial_report_Q1.xlsx expires in 2 days
-                      </p>
-                      <p class="text-xs text-gray-400 mt-1">Yesterday</p>
-                    </div>
-                  </a>
-                </div>
-                <div class="p-2 border-t border-gray-200">
-                  <a
-                    href="#"
-                    class="block text-center text-primary text-sm p-1 hover:underline"
-                    >View all notifications</a
-                  >
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <button
-                id="user-menu-btn"
-                class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
-              >
-                <div class="w-6 h-6 flex items-center justify-center">
-                  <i class="ri-user-line"></i>
-                </div>
-              </button>
-              <div
-                id="user-dropdown"
-                class="hidden absolute right-0 mt-2 w-48 bg-white rounded shadow-lg z-10 border border-gray-200"
-              >
-                <div class="p-3 border-b border-gray-200 flex items-center">
-                  <div
-                    class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary mr-2"
-                  >
-                    <div class="w-5 h-5 flex items-center justify-center">
-                      <i class="ri-user-line"></i>
-                    </div>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-800">Alex Morgan</p>
-                    <p class="text-xs text-gray-500">alex.morgan@example.com</p>
-                  </div>
-                </div>
+</head>
+<body class="min-h-screen bg-[#fef9ef]">
+<div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    {% block content %}
+        {% include "front_end/user_navbar.html" %}
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <div
+                    class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+            >
                 <div>
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                  >
-                    <div class="w-5 h-5 flex items-center justify-center mr-2">
-                      <i class="ri-user-settings-line"></i>
-                    </div>
-                    Account Settings
-                  </a>
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                  >
-                    <div class="w-5 h-5 flex items-center justify-center mr-2">
-                      <i class="ri-shield-keyhole-line"></i>
-                    </div>
-                    Security
-                  </a>
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                  >
-                    <div class="w-5 h-5 flex items-center justify-center mr-2">
-                      <i class="ri-history-line"></i>
-                    </div>
-                    Activity Log
-                  </a>
-                  <div class="border-t border-gray-200 mt-1"></div>
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
-                  >
-                    <div class="w-5 h-5 flex items-center justify-center mr-2">
-                      <i class="ri-logout-box-r-line"></i>
-                    </div>
-                    Sign Out
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-      <!-- Main Content -->
-      <main class="flex-grow container mx-auto px-4 py-8">
-        <div
-          class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-        >
-          <div>
-            <h2 class="text-2xl font-bold text-gray-800">Welcome back, Alex</h2>
-            <p class="text-gray-600 mt-1">
-              Here's what's happening with your secure transfers
-            </p>
-          </div>
-          <div class="flex flex-col sm:flex-row gap-3">
-            <button
-              class="px-5 py-2.5 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button whitespace-nowrap flex items-center justify-center"
-            >
-              <div class="w-5 h-5 flex items-center justify-center mr-2">
-                <i class="ri-upload-2-line"></i>
-              </div>
-              Send File
-            </button>
-            <button
-              class="px-5 py-2.5 border border-primary text-primary rounded font-medium hover:bg-primary/10 !rounded-button whitespace-nowrap flex items-center justify-center"
-            >
-              <div class="w-5 h-5 flex items-center justify-center mr-2">
-                <i class="ri-send-plane-line"></i>
-              </div>
-              Request File
-            </button>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <!-- Stats Card 1 -->
-          <div
-            class="bg-white rounded shadow-md p-5"
-            style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
-          >
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="font-medium text-gray-700">Storage Used</h3>
-              <div
-                class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-500"
-              >
-                <div class="w-5 h-5 flex items-center justify-center">
-                  <i class="ri-hard-drive-2-line"></i>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-end gap-2 mb-2">
-              <span class="text-3xl font-bold text-gray-800">3.2</span>
-              <span class="text-gray-600 mb-1">GB of 10 GB</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div
-                class="bg-blue-500 h-2 rounded-full"
-                style="width: 32%"
-              ></div>
-            </div>
-            <p class="text-xs text-gray-500 mt-2">32% of your storage used</p>
-          </div>
-          <!-- Stats Card 2 -->
-          <div
-            class="bg-white rounded shadow-md p-5"
-            style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
-          >
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="font-medium text-gray-700">Files Transferred</h3>
-              <div
-                class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-500"
-              >
-                <div class="w-5 h-5 flex items-center justify-center">
-                  <i class="ri-file-transfer-line"></i>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-end gap-2 mb-2">
-              <span class="text-3xl font-bold text-gray-800">47</span>
-              <span class="text-gray-600 mb-1">files this month</span>
-            </div>
-            <div class="flex items-center gap-1 text-green-600">
-              <div class="w-4 h-4 flex items-center justify-center">
-                <i class="ri-arrow-up-line"></i>
-              </div>
-              <span class="text-sm">12% increase from last month</span>
-            </div>
-          </div>
-          <!-- Stats Card 3 -->
-          <div
-            class="bg-white rounded shadow-md p-5"
-            style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
-          >
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="font-medium text-gray-700">Security Status</h3>
-              <div
-                class="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center text-primary"
-              >
-                <div class="w-5 h-5 flex items-center justify-center">
-                  <i class="ri-shield-check-line"></i>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 mb-3">
-              <span class="text-xl font-bold text-gray-800">Protected</span>
-              <span
-                class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
-                >Active</span
-              >
-            </div>
-            <div class="flex items-center gap-2 text-gray-600 text-sm">
-              <div
-                class="w-4 h-4 flex items-center justify-center text-green-600"
-              >
-                <i class="ri-check-line"></i>
-              </div>
-              <span>End-to-end encryption enabled</span>
-            </div>
-            <div class="flex items-center gap-2 text-gray-600 text-sm mt-1">
-              <div
-                class="w-4 h-4 flex items-center justify-center text-green-600"
-              >
-                <i class="ri-check-line"></i>
-              </div>
-              <span>Two-factor authentication active</span>
-            </div>
-          </div>
-        </div>
-        <!-- Search and Filter -->
-        <div
-          class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6"
-        >
-          <div class="relative w-full md:w-80">
-            <div
-              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-            >
-              <div
-                class="w-5 h-5 flex items-center justify-center text-gray-400"
-              >
-                <i class="ri-search-line"></i>
-              </div>
-            </div>
-            <input
-              type="text"
-              id="search-input"
-              class="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button"
-              placeholder="Search files, senders or recipients..."
-            />
-            <button
-              onclick="searchFiles()"
-              class="absolute inset-y-1 right-1 px-3 flex items-center bg-primary text-white rounded-md hover:bg-primary/90 !rounded-button"
-            >
-              <div class="w-5 h-5 flex items-center justify-center">
-                <i class="ri-search-line"></i>
-              </div>
-            </button>
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="flex items-center">
-              <label for="date-filter" class="text-sm text-gray-700 mr-2"
-                >Date:</label
-              >
-              <select
-                id="date-filter"
-                class="border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button pr-8"
-              >
-                <option value="all">All time</option>
-                <option value="today">Today</option>
-                <option value="week">This week</option>
-                <option value="month" selected>This month</option>
-                <option value="year">This year</option>
-              </select>
-            </div>
-            <div class="flex items-center">
-              <label for="type-filter" class="text-sm text-gray-700 mr-2"
-                >Type:</label
-              >
-              <select
-                id="type-filter"
-                class="border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button pr-8"
-              >
-                <option value="all" selected>All files</option>
-                <option value="documents">Documents</option>
-                <option value="images">Images</option>
-                <option value="videos">Videos</option>
-                <option value="archives">Archives</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <!-- Tabs -->
-        <div class="mb-6">
-          <div class="border-b border-gray-200">
-            <div class="flex flex-wrap -mb-px">
-              <button
-                data-tab="received"
-                class="inline-block py-3 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium"
-              >
-                Received Files
-              </button>
-              <button
-                data-tab="sent"
-                class="inline-block py-3 px-4 border-b-2 border-primary text-primary font-medium"
-              >
-                Sent Files
-              </button>
-              <button
-                data-tab="pending"
-                class="inline-block py-3 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium"
-              >
-                Pending Requests
-              </button>
-            </div>
-          </div>
-          <!-- Empty States -->
-          <div
-            id="empty-received"
-            class="hidden bg-white rounded shadow-md p-8 text-center"
-            style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
-          >
-            <div
-              class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <div
-                class="w-8 h-8 flex items-center justify-center text-primary"
-              >
-                <i class="ri-inbox-line"></i>
-              </div>
-            </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">
-              No Received Files
-            </h3>
-            <p class="text-gray-600 mb-4">
-              You haven't received any files yet. Files sent to you will appear
-              here.
-            </p>
-            <button
-              class="px-4 py-2 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button inline-flex items-center"
-            >
-              <div class="w-5 h-5 flex items-center justify-center mr-2">
-                <i class="ri-send-plane-line"></i>
-              </div>
-              Request Files
-            </button>
-          </div>
-          <div
-            id="empty-sent"
-            class="hidden bg-white rounded shadow-md p-8"
-            style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
-          >
-            <div class="max-w-md mx-auto text-center">
-              <div
-                class="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-6"
-              >
-                <div
-                  class="w-12 h-12 flex items-center justify-center text-primary"
-                >
-                  <i class="ri-send-plane-line"></i>
-                </div>
-              </div>
-              <h3 class="text-xl font-semibold text-gray-900 mb-3">
-                No Files Sent Yet
-              </h3>
-              <p class="text-gray-600 mb-6 leading-relaxed">
-                Your sent files will appear here. Share documents securely with
-                your team members and clients by sending your first file.
-              </p>
-              <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <button
-                  class="px-5 py-2.5 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button inline-flex items-center justify-center"
-                >
-                  <div class="w-5 h-5 flex items-center justify-center mr-2">
-                    <i class="ri-upload-2-line"></i>
-                  </div>
-                  Send New File
-                </button>
-                <button
-                  class="px-5 py-2.5 border border-primary text-primary rounded font-medium hover:bg-primary/10 !rounded-button inline-flex items-center justify-center"
-                >
-                  <div class="w-5 h-5 flex items-center justify-center mr-2">
-                    <i class="ri-question-line"></i>
-                  </div>
-                  Learn How It Works
-                </button>
-              </div>
-              <div class="mt-8 p-4 bg-blue-50 rounded-lg">
-                <div class="flex items-start">
-                  <div
-                    class="w-8 h-8 flex-shrink-0 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-3"
-                  >
-                    <div class="w-5 h-5 flex items-center justify-center">
-                      <i class="ri-lightbulb-line"></i>
-                    </div>
-                  </div>
-                  <div class="text-left">
-                    <h4 class="text-sm font-medium text-blue-900 mb-1">
-                      Pro Tip
-                    </h4>
-                    <p class="text-sm text-blue-700">
-                      You can set custom expiry dates and password protection
-                      for your files before sending them to ensure maximum
-                      security.
+                    <h2 class="text-2xl font-bold text-gray-800">Welcome back, Alex</h2>
+                    <p class="text-gray-600 mt-1">
+                        Here's what's happening with your secure transfers
                     </p>
-                  </div>
                 </div>
-              </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button
+                            class="px-5 py-2.5 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button whitespace-nowrap flex items-center justify-center"
+                    >
+                        <div class="w-5 h-5 flex items-center justify-center mr-2">
+                            <i class="ri-upload-2-line"></i>
+                        </div>
+                        <a href="/upload/">
+                            Send File
+                        </a>
+                    </button>
+                    <button
+                            class="px-5 py-2.5 border border-primary text-primary rounded font-medium hover:bg-primary/10 !rounded-button whitespace-nowrap flex items-center justify-center"
+                    >
+                        <div class="w-5 h-5 flex items-center justify-center mr-2">
+                            <i class="ri-send-plane-line"></i>
+                        </div>
+                        <a href="/request_send/">
+                            Request File
+                        </a>
+                    </button>
+                </div>
             </div>
-          </div>
-          <div id="pending-files" class="hidden">
-            <div
-              class="bg-white rounded shadow-md p-8"
-              style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
-            >
-              <div class="max-w-md mx-auto text-center">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Stats Card 1 -->
                 <div
-                  class="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-6"
+                        class="bg-white rounded shadow-md p-5"
+                        style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
                 >
-                  <div
-                    class="w-12 h-12 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-time-line"></i>
-                  </div>
-                </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-3">
-                  No Pending Requests
-                </h3>
-                <p class="text-gray-600 mb-6 leading-relaxed">
-                  You don't have any pending file requests at the moment.
-                  Request files from your team members or clients to get
-                  started.
-                </p>
-                <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                  <button
-                    class="px-5 py-2.5 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button inline-flex items-center justify-center"
-                  >
-                    <div class="w-5 h-5 flex items-center justify-center mr-2">
-                      <i class="ri-send-plane-line"></i>
-                    </div>
-                    Request New File
-                  </button>
-                  <button
-                    class="px-5 py-2.5 border border-primary text-primary rounded font-medium hover:bg-primary/10 !rounded-button inline-flex items-center justify-center"
-                  >
-                    <div class="w-5 h-5 flex items-center justify-center mr-2">
-                      <i class="ri-question-line"></i>
-                    </div>
-                    Learn How It Works
-                  </button>
-                </div>
-                <div class="mt-8 p-4 bg-blue-50 rounded-lg">
-                  <div class="flex items-start">
-                    <div
-                      class="w-8 h-8 flex-shrink-0 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-3"
-                    >
-                      <div class="w-5 h-5 flex items-center justify-center">
-                        <i class="ri-lightbulb-line"></i>
-                      </div>
-                    </div>
-                    <div class="text-left">
-                      <h4 class="text-sm font-medium text-blue-900 mb-1">
-                        Pro Tip
-                      </h4>
-                      <p class="text-sm text-blue-700">
-                        You can set custom expiry dates and password protection
-                        for your file requests to ensure secure file transfers.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Received Files Section -->
-        <div
-          id="received-files"
-          class="hidden bg-white rounded shadow-md mb-8"
-          style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
-        >
-          <div
-            class="p-4 border-b border-gray-200 flex items-center justify-between"
-          >
-            <h3 class="font-semibold text-gray-800">Recently Received Files</h3>
-            <a
-              href="#"
-              class="text-primary text-sm hover:underline flex items-center"
-            >
-              View All
-              <div class="w-4 h-4 flex items-center justify-center ml-1">
-                <i class="ri-arrow-right-s-line"></i>
-              </div>
-            </a>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    File
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Sender
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Date
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Size
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Status
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div
-                        class="w-8 h-8 flex items-center justify-center bg-blue-100 rounded text-blue-500 mr-3"
-                      >
-                        <i class="ri-file-word-line"></i>
-                      </div>
-                      <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-medium text-gray-700">Storage Used</h3>
                         <div
-                          class="text-sm font-medium text-gray-900 flex items-center"
+                                class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-500"
                         >
-                          Project Proposal.docx
-                          <span
-                            class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full"
-                            >New</span
-                          >
+                            <div class="w-5 h-5 flex items-center justify-center">
+                                <i class="ri-hard-drive-2-line"></i>
+                            </div>
                         </div>
-                        <div class="text-xs text-gray-500">
-                          Expires in 6 days
-                        </div>
-                      </div>
                     </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Sarah Johnson</div>
-                    <div class="text-xs text-gray-500">johnson@example.com</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Apr 20, 2025</div>
-                    <div class="text-xs text-gray-500">10:32 AM</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    2.4 MB
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-end gap-2 mb-2">
+                        <span class="text-3xl font-bold text-gray-800">3.2</span>
+                        <span class="text-gray-600 mb-1">GB of 10 GB</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                                class="bg-blue-500 h-2 rounded-full"
+                                style="width: 32%"
+                        ></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">32% of your storage used</p>
+                </div>
+                <!-- Stats Card 2 -->
+                <div
+                        class="bg-white rounded shadow-md p-5"
+                        style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
+                >
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-medium text-gray-700">Files Transferred</h3>
+                        <div
+                                class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-500"
+                        >
+                            <div class="w-5 h-5 flex items-center justify-center">
+                                <i class="ri-file-transfer-line"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-2 mb-2">
+                        <span class="text-3xl font-bold text-gray-800">47</span>
+                        <span class="text-gray-600 mb-1">files this month</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-green-600">
+                        <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-arrow-up-line"></i>
+                        </div>
+                        <span class="text-sm">12% increase from last month</span>
+                    </div>
+                </div>
+                <!-- Stats Card 3 -->
+                <div
+                        class="bg-white rounded shadow-md p-5"
+                        style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
+                >
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-medium text-gray-700">Security Status</h3>
+                        <div
+                                class="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center text-primary"
+                        >
+                            <div class="w-5 h-5 flex items-center justify-center">
+                                <i class="ri-shield-check-line"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-xl font-bold text-gray-800">Protected</span>
+                        <span
+                                class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
+                        >Active</span
+                        >
+                    </div>
+                    <div class="flex items-center gap-2 text-gray-600 text-sm">
+                        <div
+                                class="w-4 h-4 flex items-center justify-center text-green-600"
+                        >
+                            <i class="ri-check-line"></i>
+                        </div>
+                        <span>End-to-end encryption enabled</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-gray-600 text-sm mt-1">
+                        <div
+                                class="w-4 h-4 flex items-center justify-center text-green-600"
+                        >
+                            <i class="ri-check-line"></i>
+                        </div>
+                        <span>Two-factor authentication active</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Search and Filter -->
+            <div
+                    class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6"
+            >
+                <div class="relative w-full md:w-80">
+                    <div
+                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                    >
+                        <div
+                                class="w-5 h-5 flex items-center justify-center text-gray-400"
+                        >
+                            <i class="ri-search-line"></i>
+                        </div>
+                    </div>
+                    <input
+                            type="text"
+                            id="search-input"
+                            class="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button"
+                            placeholder="Search files, senders or recipients..."
+                    />
+                    <button
+                            onclick="searchFiles()"
+                            class="absolute inset-y-1 right-1 px-3 flex items-center bg-primary text-white rounded-md hover:bg-primary/90 !rounded-button"
+                    >
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-search-line"></i>
+                        </div>
+                    </button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center">
+                        <label for="date-filter" class="text-sm text-gray-700 mr-2"
+                        >Date:</label
+                        >
+                        <select
+                                id="date-filter"
+                                class="border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button pr-8"
+                        >
+                            <option value="all">All time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This week</option>
+                            <option value="month" selected>This month</option>
+                            <option value="year">This year</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center">
+                        <label for="type-filter" class="text-sm text-gray-700 mr-2"
+                        >Type:</label
+                        >
+                        <select
+                                id="type-filter"
+                                class="border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button pr-8"
+                        >
+                            <option value="all" selected>All files</option>
+                            <option value="documents">Documents</option>
+                            <option value="images">Images</option>
+                            <option value="videos">Videos</option>
+                            <option value="archives">Archives</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Tabs -->
+            <div class="mb-6">
+                <div class="border-b border-gray-200">
+                    <div class="flex flex-wrap -mb-px">
+                        <button
+                                data-tab="received"
+                                class="inline-block py-3 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium"
+                        >
+                            Received Files
+                        </button>
+                        <button
+                                data-tab="sent"
+                                class="inline-block py-3 px-4 border-b-2 border-primary text-primary font-medium"
+                        >
+                            Sent Files
+                        </button>
+                        <button
+                                data-tab="pending"
+                                class="inline-block py-3 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium"
+                        >
+                            Pending Requests
+                        </button>
+                    </div>
+                </div>
+                <!-- Empty States -->
+                <div
+                        id="empty-received"
+                        class="hidden bg-white rounded shadow-md p-8 text-center"
+                        style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
+                >
+                    <div
+                            class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4"
+                    >
+                        <div
+                                class="w-8 h-8 flex items-center justify-center text-primary"
+                        >
+                            <i class="ri-inbox-line"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        No Received Files
+                    </h3>
+                    <p class="text-gray-600 mb-4">
+                        You haven't received any files yet. Files sent to you will appear
+                        here.
+                    </p>
+                    <button
+                            class="px-4 py-2 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button inline-flex items-center"
+                    >
+                        <div class="w-5 h-5 flex items-center justify-center mr-2">
+                            <i class="ri-send-plane-line"></i>
+                        </div>
+                        Request Files
+                    </button>
+                </div>
+                <div
+                        id="empty-sent"
+                        class="hidden bg-white rounded shadow-md p-8"
+                        style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
+                >
+                    <div class="max-w-md mx-auto text-center">
+                        <div
+                                class="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-6"
+                        >
+                            <div
+                                    class="w-12 h-12 flex items-center justify-center text-primary"
+                            >
+                                <i class="ri-send-plane-line"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                            No Files Sent Yet
+                        </h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            Your sent files will appear here. Share documents securely with
+                            your team members and clients by sending your first file.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button
+                                    class="px-5 py-2.5 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button inline-flex items-center justify-center"
+                            >
+                                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                    <i class="ri-upload-2-line"></i>
+                                </div>
+                                Send New File
+                            </button>
+                            <button
+                                    class="px-5 py-2.5 border border-primary text-primary rounded font-medium hover:bg-primary/10 !rounded-button inline-flex items-center justify-center"
+                            >
+                                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                    <i class="ri-question-line"></i>
+                                </div>
+                                Learn How It Works
+                            </button>
+                        </div>
+                        <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+                            <div class="flex items-start">
+                                <div
+                                        class="w-8 h-8 flex-shrink-0 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-3"
+                                >
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-lightbulb-line"></i>
+                                    </div>
+                                </div>
+                                <div class="text-left">
+                                    <h4 class="text-sm font-medium text-blue-900 mb-1">
+                                        Pro Tip
+                                    </h4>
+                                    <p class="text-sm text-blue-700">
+                                        You can set custom expiry dates and password protection
+                                        for your files before sending them to ensure maximum
+                                        security.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="pending-files" class="hidden">
+                    <div
+                            class="bg-white rounded shadow-md p-8"
+                            style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
+                    >
+                        <div class="max-w-md mx-auto text-center">
+                            <div
+                                    class="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-6"
+                            >
+                                <div
+                                        class="w-12 h-12 flex items-center justify-center text-primary"
+                                >
+                                    <i class="ri-time-line"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                                No Pending Requests
+                            </h3>
+                            <p class="text-gray-600 mb-6 leading-relaxed">
+                                You don't have any pending file requests at the moment.
+                                Request files from your team members or clients to get
+                                started.
+                            </p>
+                            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                <button
+                                        class="px-5 py-2.5 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button inline-flex items-center justify-center"
+                                >
+                                    <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                        <i class="ri-send-plane-line"></i>
+                                    </div>
+                                    Request New File
+                                </button>
+                                <button
+                                        class="px-5 py-2.5 border border-primary text-primary rounded font-medium hover:bg-primary/10 !rounded-button inline-flex items-center justify-center"
+                                >
+                                    <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                        <i class="ri-question-line"></i>
+                                    </div>
+                                    Learn How It Works
+                                </button>
+                            </div>
+                            <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+                                <div class="flex items-start">
+                                    <div
+                                            class="w-8 h-8 flex-shrink-0 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-3"
+                                    >
+                                        <div class="w-5 h-5 flex items-center justify-center">
+                                            <i class="ri-lightbulb-line"></i>
+                                        </div>
+                                    </div>
+                                    <div class="text-left">
+                                        <h4 class="text-sm font-medium text-blue-900 mb-1">
+                                            Pro Tip
+                                        </h4>
+                                        <p class="text-sm text-blue-700">
+                                            You can set custom expiry dates and password protection
+                                            for your file requests to ensure secure file transfers.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Received Files Section -->
+            <div
+                    id="received-files"
+                    class="hidden bg-white rounded shadow-md mb-8"
+                    style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
+            >
+                <div
+                        class="p-4 border-b border-gray-200 flex items-center justify-between"
+                >
+                    <h3 class="font-semibold text-gray-800">Recently Received Files</h3>
+                    <a
+                            href="#"
+                            class="text-primary text-sm hover:underline flex items-center"
+                    >
+                        View All
+                        <div class="w-4 h-4 flex items-center justify-center ml-1">
+                            <i class="ri-arrow-right-s-line"></i>
+                        </div>
+                    </a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                File
+                            </th>
+                            <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                Sender
+                            </th>
+                            <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                Date
+                            </th>
+                            <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                Size
+                            </th>
+                            <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                Status
+                            </th>
+                            <th
+                                    scope="col"
+                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                Actions
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div
+                                            class="w-8 h-8 flex items-center justify-center bg-blue-100 rounded text-blue-500 mr-3"
+                                    >
+                                        <i class="ri-file-word-line"></i>
+                                    </div>
+                                    <div>
+                                        <div
+                                                class="text-sm font-medium text-gray-900 flex items-center"
+                                        >
+                                            Project Proposal.docx
+                                            <span
+                                                    class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full"
+                                            >New</span
+                                            >
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            Expires in 6 days
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Sarah Johnson</div>
+                                <div class="text-xs text-gray-500">johnson@example.com</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Apr 20, 2025</div>
+                                <div class="text-xs text-gray-500">10:32 AM</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                2.4 MB
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                     <span
-                      class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
                     >
                       Available
                     </span>
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                  >
-                    <div class="flex justify-end space-x-2">
-                      <button
-                        class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-download-line"></i>
-                        </div>
-                      </button>
-                      <button
-                        class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-more-2-fill"></i>
-                        </div>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div
-                        class="w-8 h-8 flex items-center justify-center bg-green-100 rounded text-green-500 mr-3"
-                      >
-                        <i class="ri-file-excel-line"></i>
-                      </div>
-                      <div>
-                        <div class="text-sm font-medium text-gray-900">
-                          Financial Report Q1.xlsx
-                        </div>
-                        <div class="text-xs text-gray-500">
-                          Expires in 3 days
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Michael Brown</div>
-                    <div class="text-xs text-gray-500">mbrown@example.com</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Apr 18, 2025</div>
-                    <div class="text-xs text-gray-500">2:15 PM</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    4.8 MB
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+                            </td>
+                            <td
+                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                            >
+                                <div class="flex justify-end space-x-2">
+                                    <button
+                                            class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
+                                    >
+                                        <div class="w-4 h-4 flex items-center justify-center">
+                                            <i class="ri-download-line"></i>
+                                        </div>
+                                    </button>
+                                    <button
+                                            class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
+                                    >
+                                        <div class="w-4 h-4 flex items-center justify-center">
+                                            <i class="ri-more-2-fill"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div
+                                            class="w-8 h-8 flex items-center justify-center bg-green-100 rounded text-green-500 mr-3"
+                                    >
+                                        <i class="ri-file-excel-line"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            Financial Report Q1.xlsx
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            Expires in 3 days
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Michael Brown</div>
+                                <div class="text-xs text-gray-500">mbrown@example.com</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Apr 18, 2025</div>
+                                <div class="text-xs text-gray-500">2:15 PM</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                4.8 MB
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                     <span
-                      class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
                     >
                       Available
                     </span>
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                  >
-                    <div class="flex justify-end space-x-2">
-                      <button
-                        class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-download-line"></i>
-                        </div>
-                      </button>
-                      <button
-                        class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-more-2-fill"></i>
-                        </div>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div
-                        class="w-8 h-8 flex items-center justify-center bg-red-100 rounded text-red-500 mr-3"
-                      >
-                        <i class="ri-file-pdf-line"></i>
-                      </div>
-                      <div>
-                        <div class="text-sm font-medium text-gray-900">
-                          Contract Agreement.pdf
-                        </div>
-                        <div class="text-xs text-gray-500">
-                          Expires in 5 days
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Jennifer Wilson</div>
-                    <div class="text-xs text-gray-500">jwilson@example.com</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Apr 15, 2025</div>
-                    <div class="text-xs text-gray-500">9:45 AM</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    1.2 MB
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+                            </td>
+                            <td
+                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                            >
+                                <div class="flex justify-end space-x-2">
+                                    <button
+                                            class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
+                                    >
+                                        <div class="w-4 h-4 flex items-center justify-center">
+                                            <i class="ri-download-line"></i>
+                                        </div>
+                                    </button>
+                                    <button
+                                            class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
+                                    >
+                                        <div class="w-4 h-4 flex items-center justify-center">
+                                            <i class="ri-more-2-fill"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div
+                                            class="w-8 h-8 flex items-center justify-center bg-red-100 rounded text-red-500 mr-3"
+                                    >
+                                        <i class="ri-file-pdf-line"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            Contract Agreement.pdf
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            Expires in 5 days
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Jennifer Wilson</div>
+                                <div class="text-xs text-gray-500">jwilson@example.com</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Apr 15, 2025</div>
+                                <div class="text-xs text-gray-500">9:45 AM</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                1.2 MB
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                     <span
-                      class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
                     >
                       Available
                     </span>
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                  >
-                    <div class="flex justify-end space-x-2">
-                      <button
-                        class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-download-line"></i>
-                        </div>
-                      </button>
-                      <button
-                        class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-more-2-fill"></i>
-                        </div>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div
-                        class="w-8 h-8 flex items-center justify-center bg-purple-100 rounded text-purple-500 mr-3"
-                      >
-                        <i class="ri-file-zip-line"></i>
-                      </div>
-                      <div>
-                        <div class="text-sm font-medium text-gray-900">
-                          Product Assets.zip
-                        </div>
-                        <div class="text-xs text-gray-500">
-                          Expires in 2 days
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">David Thompson</div>
-                    <div class="text-xs text-gray-500">
-                      dthompson@example.com
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Apr 12, 2025</div>
-                    <div class="text-xs text-gray-500">4:20 PM</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    15.7 MB
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+                            </td>
+                            <td
+                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                            >
+                                <div class="flex justify-end space-x-2">
+                                    <button
+                                            class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
+                                    >
+                                        <div class="w-4 h-4 flex items-center justify-center">
+                                            <i class="ri-download-line"></i>
+                                        </div>
+                                    </button>
+                                    <button
+                                            class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
+                                    >
+                                        <div class="w-4 h-4 flex items-center justify-center">
+                                            <i class="ri-more-2-fill"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div
+                                            class="w-8 h-8 flex items-center justify-center bg-purple-100 rounded text-purple-500 mr-3"
+                                    >
+                                        <i class="ri-file-zip-line"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            Product Assets.zip
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            Expires in 2 days
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">David Thompson</div>
+                                <div class="text-xs text-gray-500">
+                                    dthompson@example.com
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Apr 12, 2025</div>
+                                <div class="text-xs text-gray-500">4:20 PM</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                15.7 MB
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                     <span
-                      class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"
+                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"
                     >
                       Expiring Soon
                     </span>
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                  >
-                    <div class="flex justify-end space-x-2">
-                      <button
-                        class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-download-line"></i>
-                        </div>
-                      </button>
-                      <button
-                        class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-more-2-fill"></i>
-                        </div>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div
-                        class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded text-gray-500 mr-3"
-                      >
-                        <i class="ri-file-image-line"></i>
-                      </div>
-                      <div>
-                        <div class="text-sm font-medium text-gray-900">
-                          Marketing Images.zip
-                        </div>
-                        <div class="text-xs text-gray-500">Expired</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Emily Parker</div>
-                    <div class="text-xs text-gray-500">eparker@example.com</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Apr 5, 2025</div>
-                    <div class="text-xs text-gray-500">11:10 AM</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    8.3 MB
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+                            </td>
+                            <td
+                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                            >
+                                <div class="flex justify-end space-x-2">
+                                    <button
+                                            class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
+                                    >
+                                        <div class="w-4 h-4 flex items-center justify-center">
+                                            <i class="ri-download-line"></i>
+                                        </div>
+                                    </button>
+                                    <button
+                                            class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
+                                    >
+                                        <div class="w-4 h-4 flex items-center justify-center">
+                                            <i class="ri-more-2-fill"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div
+                                            class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded text-gray-500 mr-3"
+                                    >
+                                        <i class="ri-file-image-line"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            Marketing Images.zip
+                                        </div>
+                                        <div class="text-xs text-gray-500">Expired</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Emily Parker</div>
+                                <div class="text-xs text-gray-500">eparker@example.com</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Apr 5, 2025</div>
+                                <div class="text-xs text-gray-500">11:10 AM</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                8.3 MB
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                     <span
-                      class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800"
+                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800"
                     >
                       Expired
                     </span>
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                  >
-                    <div class="flex justify-end space-x-2">
-                      <button
-                        class="p-1.5 bg-gray-100 text-gray-400 rounded cursor-not-allowed !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-download-line"></i>
-                        </div>
-                      </button>
-                      <button
-                        class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-more-2-fill"></i>
-                        </div>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <!-- Sent Files Section -->
-        <div
-          id="sent-files"
-          class="bg-white rounded shadow-md mb-8"
-          style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
-        >
-          <div
-            class="p-4 border-b border-gray-200 flex items-center justify-between"
-          >
-            <h3 class="font-semibold text-gray-800">Recently Sent Files</h3>
-            <a
-              href="#"
-              class="text-primary text-sm hover:underline flex items-center"
-            >
-              View All
-              <div class="w-4 h-4 flex items-center justify-center ml-1">
-                <i class="ri-arrow-right-s-line"></i>
-              </div>
-            </a>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    File
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Recipient
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Date
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Size
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Status
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div
-                        class="w-8 h-8 flex items-center justify-center bg-blue-100 rounded text-blue-500 mr-3"
-                      >
-                        <i class="ri-file-word-line"></i>
-                      </div>
-                      <div>
-                        <div class="text-sm font-medium text-gray-900">
-                          Client Presentation.pptx
-                        </div>
-                        <div class="text-xs text-gray-500">
-                          Expires in 4 days
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Robert Chen</div>
-                    <div class="text-xs text-gray-500">rchen@example.com</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Apr 19, 2025</div>
-                    <div class="text-xs text-gray-500">3:45 PM</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    5.2 MB
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
-                    >
-                      Downloaded
-                    </span>
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                  >
-                    <div class="flex justify-end space-x-2">
-                      <button
-                        class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-refresh-line"></i>
-                        </div>
-                      </button>
-                      <button
-                        class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-more-2-fill"></i>
-                        </div>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div
-                        class="w-8 h-8 flex items-center justify-center bg-red-100 rounded text-red-500 mr-3"
-                      >
-                        <i class="ri-file-pdf-line"></i>
-                      </div>
-                      <div>
-                        <div class="text-sm font-medium text-gray-900">
-                          Legal Documents.pdf
-                        </div>
-                        <div class="text-xs text-gray-500">
-                          Expires in 6 days
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Amanda Williams</div>
-                    <div class="text-xs text-gray-500">
-                      awilliams@example.com
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Apr 17, 2025</div>
-                    <div class="text-xs text-gray-500">10:20 AM</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    3.1 MB
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"
-                    >
-                      Not Downloaded
-                    </span>
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                  >
-                    <div class="flex justify-end space-x-2">
-                      <button
-                        class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-refresh-line"></i>
-                        </div>
-                      </button>
-                      <button
-                        class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-more-2-fill"></i>
-                        </div>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div
-                        class="w-8 h-8 flex items-center justify-center bg-green-100 rounded text-green-500 mr-3"
-                      >
-                        <i class="ri-file-excel-line"></i>
-                      </div>
-                      <div>
-                        <div class="text-sm font-medium text-gray-900">
-                          Budget Forecast.xlsx
-                        </div>
-                        <div class="text-xs text-gray-500">
-                          Expires in 3 days
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">James Miller</div>
-                    <div class="text-xs text-gray-500">jmiller@example.com</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">Apr 15, 2025</div>
-                    <div class="text-xs text-gray-500">2:30 PM</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    1.8 MB
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
-                    >
-                      Downloaded
-                    </span>
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                  >
-                    <div class="flex justify-end space-x-2">
-                      <button
-                        class="p-1.5 bg-primary/10 text-primary rounded hover:bg-primary/20 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-refresh-line"></i>
-                        </div>
-                      </button>
-                      <button
-                        class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
-                      >
-                        <div class="w-4 h-4 flex items-center justify-center">
-                          <i class="ri-more-2-fill"></i>
-                        </div>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <!-- Quick Settings -->
-        <div
-          class="bg-white rounded shadow-md p-6 mb-8"
-          style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
-        >
-          <h3 class="font-semibold text-gray-800 mb-4">Quick Settings</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="text-gray-800 font-medium">Default Expiry Time</h4>
-                <p class="text-sm text-gray-600">
-                  Set how long files are available
-                </p>
-              </div>
-              <select
-                class="border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button pr-8"
-              >
-                <option value="3">3 days</option>
-                <option value="7" selected>7 days</option>
-                <option value="14">14 days</option>
-                <option value="30">30 days</option>
-              </select>
+                            </td>
+                            <td
+                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                            >
+                                <div class="flex justify-end space-x-2">
+                                    <button
+                                            class="p-1.5 bg-gray-100 text-gray-400 rounded cursor-not-allowed !rounded-button"
+                                    >
+                                        <div class="w-4 h-4 flex items-center justify-center">
+                                            <i class="ri-download-line"></i>
+                                        </div>
+                                    </button>
+                                    <button
+                                            class="p-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 !rounded-button"
+                                    >
+                                        <div class="w-4 h-4 flex items-center justify-center">
+                                            <i class="ri-more-2-fill"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="text-gray-800 font-medium">Email Notifications</h4>
-                <p class="text-sm text-gray-600">
-                  Get notified when files are downloaded
-                </p>
-              </div>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" class="custom-switch" checked />
-              </label>
-            </div>
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="text-gray-800 font-medium">Password Protection</h4>
-                <p class="text-sm text-gray-600">
-                  Require password for all files
-                </p>
-              </div>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" class="custom-switch" />
-              </label>
-            </div>
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="text-gray-800 font-medium">
-                  Auto-Delete Downloaded Files
-                </h4>
-                <p class="text-sm text-gray-600">Remove files after download</p>
-              </div>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" class="custom-switch" />
-              </label>
-            </div>
-          </div>
-        </div>
-      </main>
-      <!-- Footer -->
-      <footer
-        class="py-6"
-        style="background: linear-gradient(to right, #ffffff, #fef9ef); border-top: 1px solid rgba(255, 203, 119, 0.3);"
-      >
-        <div class="container mx-auto px-4">
-          <div class="flex flex-col md:flex-row justify-between items-center">
-            <div class="mb-4 md:mb-0">
-              <p class="text-gray-600 text-sm">
-                © 2025 Secure File Transfer. All rights reserved.
-              </p>
-            </div>
+            <!-- Sent Files Section -->
             <div
-              class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8"
+                    id="sent-files"
+                    class="bg-white rounded shadow-md mb-8"
+                    style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
             >
-              <div class="flex space-x-6">
-                <a
-                  href="#"
-                  class="flex items-center text-gray-600 hover:text-primary"
+                <div
+                        class="p-4 border-b border-gray-200 flex items-center justify-between"
                 >
-                  <div class="w-5 h-5 flex items-center justify-center mr-1">
-                    <i class="ri-file-upload-line"></i>
-                  </div>
-                  <span class="text-sm">Send File</span>
-                </a>
-                <a
-                  href="#"
-                  class="flex items-center text-gray-600 hover:text-primary"
-                >
-                  <div class="w-5 h-5 flex items-center justify-center mr-1">
-                    <i class="ri-file-download-line"></i>
-                  </div>
-                  <span class="text-sm">Download File</span>
-                </a>
-                <a
-                  href="#"
-                  class="flex items-center text-gray-600 hover:text-primary"
-                >
-                  <div class="w-5 h-5 flex items-center justify-center mr-1">
-                    <i class="ri-send-plane-line"></i>
-                  </div>
-                  <span class="text-sm">Request File</span>
-                </a>
-              </div>
-              <div class="flex space-x-6">
-                <a href="#" class="text-gray-500 hover:text-gray-700">
-                  <div class="w-5 h-5 flex items-center justify-center">
-                    <i class="ri-shield-keyhole-line"></i>
-                  </div>
-                </a>
-                <a href="#" class="text-gray-500 hover:text-gray-700">
-                  <div class="w-5 h-5 flex items-center justify-center">
-                    <i class="ri-file-list-3-line"></i>
-                  </div>
-                </a>
-                <a href="#" class="text-gray-500 hover:text-gray-700">
-                  <div class="w-5 h-5 flex items-center justify-center">
-                    <i class="ri-question-line"></i>
-                  </div>
-                </a>
-              </div>
+                    <h3 class="font-semibold text-gray-800">Recently Sent Files</h3>
+                    <a
+                            href="#"
+                            class="text-primary text-sm hover:underline flex items-center"
+                    >
+                        View All
+                        <div class="w-4 h-4 flex items-center justify-center ml-1">
+                            <i class="ri-arrow-right-s-line"></i>
+                        </div>
+                    </a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                File Name
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Size
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Upload Time
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Download Time
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Expired Time
+                            </th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        {% for file in files %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-blue-100 rounded text-blue-500 mr-3">
+                                            <i class="ri-file-line"></i>
+                                        </div>
+                                        <div class="text-sm font-medium text-gray-900">{{ file.original_filename }}</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ file.file_size }} KB
+                                </td>
+                                <td class="ts px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ file.uploaded_date }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ file.download_count }}
+                                </td>
+                                <td class="ts px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ file.code_expire }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end space-x-2">
+                                        <form method="POST" action="{% url 'transfer:delete_file' file.file_id %}"
+                                              onsubmit="return confirm('Are you sure you want to delete this file?');">
+                                            {% csrf_token %}
+                                            <button type="submit"
+                                                    class="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 !rounded-button">
+                                                <div class="w-4 h-4 flex items-center justify-center">
+                                                    <i class="ri-delete-bin-6-line"></i>
+                                                </div>
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">No sent files found.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-          </div>
+            <!-- Quick Settings -->
+            <div
+                    class="bg-white rounded shadow-md p-6 mb-8"
+                    style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);"
+            >
+                <h3 class="font-semibold text-gray-800 mb-4">Quick Settings</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-gray-800 font-medium">Default Expiry Time</h4>
+                            <p class="text-sm text-gray-600">
+                                Set how long files are available
+                            </p>
+                        </div>
+                        <select
+                                class="border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none !rounded-button pr-8"
+                        >
+                            <option value="3">3 days</option>
+                            <option value="7" selected>7 days</option>
+                            <option value="14">14 days</option>
+                            <option value="30">30 days</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-gray-800 font-medium">Email Notifications</h4>
+                            <p class="text-sm text-gray-600">
+                                Get notified when files are downloaded
+                            </p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="custom-switch" checked/>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-gray-800 font-medium">Password Protection</h4>
+                            <p class="text-sm text-gray-600">
+                                Require password for all files
+                            </p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="custom-switch"/>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-gray-800 font-medium">
+                                Auto-Delete Downloaded Files
+                            </h4>
+                            <p class="text-sm text-gray-600">Remove files after download</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="custom-switch"/>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- Footer -->
+        <footer
+                class="py-6"
+                style="background: linear-gradient(to right, #ffffff, #fef9ef); border-top: 1px solid rgba(255, 203, 119, 0.3);"
+        >
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <p class="text-gray-600 text-sm">
+                            © 2025 Secure File Transfer. All rights reserved.
+                        </p>
+                    </div>
+                    <div
+                            class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8"
+                    >
+                        <div class="flex space-x-6">
+                            <a
+                                    href="#"
+                                    class="flex items-center text-gray-600 hover:text-primary"
+                            >
+                                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                    <i class="ri-file-upload-line"></i>
+                                </div>
+                                <span class="text-sm">Send File</span>
+                            </a>
+                            <a
+                                    href="#"
+                                    class="flex items-center text-gray-600 hover:text-primary"
+                            >
+                                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                    <i class="ri-file-download-line"></i>
+                                </div>
+                                <span class="text-sm">Download File</span>
+                            </a>
+                            <a
+                                    href="#"
+                                    class="flex items-center text-gray-600 hover:text-primary"
+                            >
+                                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                    <i class="ri-send-plane-line"></i>
+                                </div>
+                                <span class="text-sm">Request File</span>
+                            </a>
+                        </div>
+                        <div class="flex space-x-6">
+                            <a href="#" class="text-gray-500 hover:text-gray-700">
+                                <div class="w-5 h-5 flex items-center justify-center">
+                                    <i class="ri-shield-keyhole-line"></i>
+                                </div>
+                            </a>
+                            <a href="#" class="text-gray-500 hover:text-gray-700">
+                                <div class="w-5 h-5 flex items-center justify-center">
+                                    <i class="ri-file-list-3-line"></i>
+                                </div>
+                            </a>
+                            <a href="#" class="text-gray-500 hover:text-gray-700">
+                                <div class="w-5 h-5 flex items-center justify-center">
+                                    <i class="ri-question-line"></i>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
         </div>
-      </footer>
-    </div>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Filter functionality
-        const dateFilter = document.getElementById("date-filter");
-        const typeFilter = document.getElementById("type-filter");
-        const fileRows = document.querySelectorAll("tbody tr");
-        function searchFiles() {
-          const searchInput = document.getElementById("search-input");
-          const searchTerm = searchInput.value.toLowerCase();
-          filterFiles(searchTerm);
-        }
-        function filterFiles(searchTerm = "") {
-          const dateValue = dateFilter.value;
-          const typeValue = typeFilter.value;
-          const today = new Date();
-          let visibleCount = 0;
-          // Get the current active tab
-          const activeTab = Array.from(document.querySelectorAll("[data-tab]"))
-            .find((tab) => tab.classList.contains("border-primary"))
-            .getAttribute("data-tab");
-          // Get the relevant table and container based on active tab
-          const currentTable = document.querySelector(`#${activeTab}-files table`);
-          const currentContainer = document.querySelector(`#${activeTab}-files`);
-          const currentEmptyState = document.querySelector(
-            `#${activeTab}-files .empty-state`,
-          );
-          const fileRows = currentTable
-            ? currentTable.querySelectorAll("tbody tr")
-            : [];
-          // If there are no rows at all, show empty state immediately
-          if (!fileRows.length) {
-            showEmptyState(activeTab, currentTable, currentContainer);
-            return;
-          }
-          // Apply filters to existing rows
-          fileRows.forEach((row) => {
-            const dateText = row.querySelector(
-              "td:nth-child(3) .text-sm",
-            ).textContent;
-            const fileDate = new Date(dateText);
-            const fileType = row.querySelector("td:nth-child(1) i").className;
-            let showByDate = true;
-            let showByType = true;
-            // Date filtering
-            if (dateValue === "today") {
-              showByDate = fileDate.toDateString() === today.toDateString();
-            } else if (dateValue === "week") {
-              const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-              showByDate = fileDate >= weekAgo;
-            } else if (dateValue === "month") {
-              showByDate =
-                fileDate.getMonth() === today.getMonth() &&
-                fileDate.getFullYear() === today.getFullYear();
-            } else if (dateValue === "year") {
-              showByDate = fileDate.getFullYear() === today.getFullYear();
-            }
-            // Type filtering
-            if (typeValue === "documents") {
-              showByType =
-                fileType.includes("word-line") ||
-                fileType.includes("pdf-line") ||
-                fileType.includes("excel-line");
-            } else if (typeValue === "images") {
-              showByType = fileType.includes("image-line");
-            } else if (typeValue === "videos") {
-              showByType = fileType.includes("video-line");
-            } else if (typeValue === "archives") {
-              showByType = fileType.includes("zip-line");
-            }
-            if (showByDate && (typeValue === "all" || showByType)) {
-              row.style.display = "";
-              visibleCount++;
-            } else {
-              row.style.display = "none";
-            }
-          });
-          // Show empty state if no files are visible after filtering
-          if (visibleCount === 0) {
-            showEmptyState(activeTab, currentTable, currentContainer);
-          } else {
-            showTable(activeTab, currentTable, currentContainer);
-          }
-        }
-        function showEmptyState(type, table, container) {
-          // Don't show empty state for pending requests
-          if (type === "pending") {
-            return;
-          }
-          // Remove existing empty state if any
-          const existingEmptyState = container.querySelector(".empty-state");
-          if (existingEmptyState) {
-            existingEmptyState.remove();
-          }
-          // Hide the table if it exists
-          if (table) {
-            table.style.display = "none";
-          }
-          // Create and show new empty state
-          const emptyState = createEmptyState(type);
-          container.appendChild(emptyState);
-        }
-        function showTable(type, table, container) {
-          // Remove empty state if it exists
-          const emptyState = container.querySelector(".empty-state");
-          if (emptyState) {
-            emptyState.remove();
-          }
-          // Show the table
-          if (table) {
-            table.style.display = "table";
-          }
-        }
-        function createEmptyState(type) {
-          const div = document.createElement("div");
-          div.className = "empty-state p-8 text-center";
-          const content =
-            type === "received"
-              ? {
-                  icon: "ri-inbox-line",
-                  title: "No Files Found",
-                  description:
-                    "No files match your current filter criteria. Try adjusting your filters or check back later.",
-                  buttonIcon: "ri-filter-off-line",
-                  buttonText: "Clear Filters",
+        <script src="/static/js/navbar.js" defer/>
+        <script defer>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Filter functionality
+                const dateFilter = document.getElementById("date-filter");
+                const typeFilter = document.getElementById("type-filter");
+                const fileRows = document.querySelectorAll("tbody tr");
+
+                function searchFiles() {
+                    const query = document.getElementById("search-input").value;
+                    const date = document.getElementById("date-filter").value;
+
+                    fetch(`/api/search-files/?query=${encodeURIComponent(query)}&date=${date}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log("Filtered files:", data.files);
+                            // TODO: 将 data.files 显示到页面表格中
+                        });
                 }
-              : {
-                  icon: "ri-send-plane-line",
-                  title: "No Files Found",
-                  description:
-                    "No sent files match your current filter criteria. Try adjusting your filters or send new files.",
-                  buttonIcon: "ri-filter-off-line",
-                  buttonText: "Clear Filters",
-                };
-          div.innerHTML = `
+
+                function filterFiles(searchTerm = "") {
+                    const dateValue = dateFilter.value;
+                    const typeValue = typeFilter.value;
+                    const today = new Date();
+                    let visibleCount = 0;
+                    // Get the current active tab
+                    const activeTab = Array.from(document.querySelectorAll("[data-tab]"))
+                        .find((tab) => tab.classList.contains("border-primary"))
+                        .getAttribute("data-tab");
+                    // Get the relevant table and container based on active tab
+                    const currentTable = document.querySelector(`#${activeTab}-files table`);
+                    const currentContainer = document.querySelector(`#${activeTab}-files`);
+                    const currentEmptyState = document.querySelector(
+                        `#${activeTab}-files .empty-state`,
+                    );
+                    const fileRows = currentTable
+                        ? currentTable.querySelectorAll("tbody tr")
+                        : [];
+                    // If there are no rows at all, show empty state immediately
+                    if (!fileRows.length) {
+                        showEmptyState(activeTab, currentTable, currentContainer);
+                        return;
+                    }
+                    // Apply filters to existing rows
+                    fileRows.forEach((row) => {
+                        const dateText = row.querySelector(
+                            "td:nth-child(3) .text-sm",
+                        ).textContent;
+                        const fileDate = new Date(dateText);
+                        const fileType = row.querySelector("td:nth-child(1) i").className;
+                        let showByDate = true;
+                        let showByType = true;
+                        // Date filtering
+                        if (dateValue === "today") {
+                            showByDate = fileDate.toDateString() === today.toDateString();
+                        } else if (dateValue === "week") {
+                            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                            showByDate = fileDate >= weekAgo;
+                        } else if (dateValue === "month") {
+                            showByDate =
+                                fileDate.getMonth() === today.getMonth() &&
+                                fileDate.getFullYear() === today.getFullYear();
+                        } else if (dateValue === "year") {
+                            showByDate = fileDate.getFullYear() === today.getFullYear();
+                        }
+                        // Type filtering
+                        if (typeValue === "documents") {
+                            showByType =
+                                fileType.includes("word-line") ||
+                                fileType.includes("pdf-line") ||
+                                fileType.includes("excel-line");
+                        } else if (typeValue === "images") {
+                            showByType = fileType.includes("image-line");
+                        } else if (typeValue === "videos") {
+                            showByType = fileType.includes("video-line");
+                        } else if (typeValue === "archives") {
+                            showByType = fileType.includes("zip-line");
+                        }
+                        if (showByDate && (typeValue === "all" || showByType)) {
+                            row.style.display = "";
+                            visibleCount++;
+                        } else {
+                            row.style.display = "none";
+                        }
+                    });
+                    // Show empty state if no files are visible after filtering
+                    if (visibleCount === 0) {
+                        showEmptyState(activeTab, currentTable, currentContainer);
+                    } else {
+                        showTable(activeTab, currentTable, currentContainer);
+                    }
+                }
+
+                function showEmptyState(type, table, container) {
+                    // Don't show empty state for pending requests
+                    if (type === "pending") {
+                        return;
+                    }
+                    // Remove existing empty state if any
+                    const existingEmptyState = container.querySelector(".empty-state");
+                    if (existingEmptyState) {
+                        existingEmptyState.remove();
+                    }
+                    // Hide the table if it exists
+                    if (table) {
+                        table.style.display = "none";
+                    }
+                    // Create and show new empty state
+                    const emptyState = createEmptyState(type);
+                    container.appendChild(emptyState);
+                }
+
+                function showTable(type, table, container) {
+                    // Remove empty state if it exists
+                    const emptyState = container.querySelector(".empty-state");
+                    if (emptyState) {
+                        emptyState.remove();
+                    }
+                    // Show the table
+                    if (table) {
+                        table.style.display = "table";
+                    }
+                }
+
+                function createEmptyState(type) {
+                    const div = document.createElement("div");
+                    div.className = "empty-state p-8 text-center";
+                    const content =
+                        type === "received"
+                            ? {
+                                icon: "ri-inbox-line",
+                                title: "No Files Found",
+                                description:
+                                    "No files match your current filter criteria. Try adjusting your filters or check back later.",
+                                buttonIcon: "ri-filter-off-line",
+                                buttonText: "Clear Filters",
+                            }
+                            : {
+                                icon: "ri-send-plane-line",
+                                title: "No Files Found",
+                                description:
+                                    "No sent files match your current filter criteria. Try adjusting your filters or send new files.",
+                                buttonIcon: "ri-filter-off-line",
+                                buttonText: "Clear Filters",
+                            };
+                    div.innerHTML = `
       <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
       <div class="w-8 h-8 flex items-center justify-center text-primary">
       <i class="${content.icon}"></i>
@@ -1547,101 +1226,109 @@
       ${content.buttonText}
       </button>
       `;
-          return div;
-        }
-        function clearFilters() {
-          dateFilter.value = "all";
-          typeFilter.value = "all";
-          filterFiles();
-        }
-        dateFilter.addEventListener("change", filterFiles);
-        typeFilter.addEventListener("change", filterFiles);
-        // Initial filter
-        filterFiles();
-        // User dropdown toggle
-        const userMenuBtn = document.getElementById("user-menu-btn");
-        const userDropdown = document.getElementById("user-dropdown");
-        userMenuBtn.addEventListener("click", function () {
-          userDropdown.classList.toggle("hidden");
-          // Hide notification dropdown when user dropdown is shown
-          if (!notificationDropdown.classList.contains("hidden")) {
-            notificationDropdown.classList.add("hidden");
-          }
-        });
-        // Notification dropdown toggle
-        const notificationBtn = document.getElementById("notification-btn");
-        const notificationDropdown = document.getElementById("notification-dropdown");
-        notificationBtn.addEventListener("click", function () {
-          notificationDropdown.classList.toggle("hidden");
-          // Hide user dropdown when notification dropdown is shown
-          if (!userDropdown.classList.contains("hidden")) {
-            userDropdown.classList.add("hidden");
-          }
-        });
-        // Close dropdowns when clicking outside
-        document.addEventListener("click", function (event) {
-          if (
-            !userMenuBtn.contains(event.target) &&
-            !userDropdown.contains(event.target)
-          ) {
-            userDropdown.classList.add("hidden");
-          }
-          if (
-            !notificationBtn.contains(event.target) &&
-            !notificationDropdown.contains(event.target)
-          ) {
-            notificationDropdown.classList.add("hidden");
-          }
-        });
-        // Tab switching functionality
-        const tabButtons = document.querySelectorAll("[data-tab]");
-        tabButtons.forEach((button) => {
-          button.addEventListener("click", function () {
-            const tab = this.getAttribute("data-tab");
-            // Remove active class from all tabs
-            tabButtons.forEach((btn) => {
-              btn.classList.remove("border-primary", "text-primary");
-              btn.classList.add("border-transparent", "text-gray-500");
+                    return div;
+                }
+
+                function clearFilters() {
+                    dateFilter.value = "all";
+                    typeFilter.value = "all";
+                    filterFiles();
+                }
+
+                dateFilter.addEventListener("change", filterFiles);
+                typeFilter.addEventListener("change", filterFiles);
+                // Initial filter
+                filterFiles();
+                // User dropdown toggle
+                const userMenuBtn = document.getElementById("user-menu-btn");
+                const userDropdown = document.getElementById("user-dropdown");
+                userMenuBtn.addEventListener("click", function () {
+                    userDropdown.classList.toggle("hidden");
+                    // Hide notification dropdown when user dropdown is shown
+                    if (!notificationDropdown.classList.contains("hidden")) {
+                        notificationDropdown.classList.add("hidden");
+                    }
+                });
+                // Notification dropdown toggle
+                const notificationBtn = document.getElementById("notification-btn");
+                const notificationDropdown = document.getElementById("notification-dropdown");
+                notificationBtn.addEventListener("click", function () {
+                    notificationDropdown.classList.toggle("hidden");
+                    // Hide user dropdown when notification dropdown is shown
+                    if (!userDropdown.classList.contains("hidden")) {
+                        userDropdown.classList.add("hidden");
+                    }
+                });
+                // Close dropdowns when clicking outside
+                document.addEventListener("click", function (event) {
+                    if (
+                        !userMenuBtn.contains(event.target) &&
+                        !userDropdown.contains(event.target)
+                    ) {
+                        userDropdown.classList.add("hidden");
+                    }
+                    if (
+                        !notificationBtn.contains(event.target) &&
+                        !notificationDropdown.contains(event.target)
+                    ) {
+                        notificationDropdown.classList.add("hidden");
+                    }
+                });
+                // Tab switching functionality
+                const tabButtons = document.querySelectorAll("[data-tab]");
+                tabButtons.forEach((button) => {
+                    button.addEventListener("click", function () {
+                        const tab = this.getAttribute("data-tab");
+                        // Remove active class from all tabs
+                        tabButtons.forEach((btn) => {
+                            btn.classList.remove("border-primary", "text-primary");
+                            btn.classList.add("border-transparent", "text-gray-500");
+                        });
+                        // Add active class to clicked tab
+                        this.classList.remove("border-transparent", "text-gray-500");
+                        this.classList.add("border-primary", "text-primary");
+                        // Hide all sections first
+                        document
+                            .querySelectorAll('[id$="-files"]')
+                            .forEach((el) => el.classList.add("hidden"));
+                        // Show the selected section
+                        const selectedSection = document.getElementById(`${tab}-files`);
+                        if (selectedSection) {
+                            selectedSection.classList.remove("hidden");
+                            // Check if the section should show table or empty state
+                            const table = selectedSection.querySelector("table");
+                            const tbody = table ? table.querySelector("tbody") : null;
+                            const visibleRows = tbody
+                                ? Array.from(tbody.querySelectorAll("tr")).filter(
+                                    (row) => row.style.display !== "none",
+                                ).length
+                                : 0;
+                            if (visibleRows === 0) {
+                                showEmptyState(tab, table, selectedSection);
+                            } else {
+                                showTable(tab, table, selectedSection);
+                            }
+                        }
+                        // Keep current filter values and apply them to the new tab
+                        const searchInput = document.getElementById("search-input");
+                        filterFiles(searchInput.value.toLowerCase());
+                    });
+                });
+                // Add event listener for Enter key in search input
+                document
+                    .getElementById("search-input")
+                    .addEventListener("keypress", function (e) {
+                        if (e.key === "Enter") {
+                            searchFiles();
+                        }
+                    });
             });
-            // Add active class to clicked tab
-            this.classList.remove("border-transparent", "text-gray-500");
-            this.classList.add("border-primary", "text-primary");
-            // Hide all sections first
-            document
-              .querySelectorAll('[id$="-files"]')
-              .forEach((el) => el.classList.add("hidden"));
-            // Show the selected section
-            const selectedSection = document.getElementById(`${tab}-files`);
-            if (selectedSection) {
-              selectedSection.classList.remove("hidden");
-              // Check if the section should show table or empty state
-              const table = selectedSection.querySelector("table");
-              const tbody = table ? table.querySelector("tbody") : null;
-              const visibleRows = tbody
-                ? Array.from(tbody.querySelectorAll("tr")).filter(
-                    (row) => row.style.display !== "none",
-                  ).length
-                : 0;
-              if (visibleRows === 0) {
-                showEmptyState(tab, table, selectedSection);
-              } else {
-                showTable(tab, table, selectedSection);
-              }
-            }
-            // Keep current filter values and apply them to the new tab
-            const searchInput = document.getElementById("search-input");
-            filterFiles(searchInput.value.toLowerCase());
-          });
-        });
-        // Add event listener for Enter key in search input
-        document
-          .getElementById("search-input")
-          .addEventListener("keypress", function (e) {
-            if (e.key === "Enter") {
-              searchFiles();
-            }
-          });
-      });
-    </script>
-  </body>
+            document.querySelectorAll('.ts').forEach(el => {
+                const ts = parseInt(el.dataset.ts);
+                const date = new Date(ts);
+                el.innerText = date.toLocaleString();  // 或自己格式化
+            });
+        </script>
+    {% endblock %}
+</body>
 </html>

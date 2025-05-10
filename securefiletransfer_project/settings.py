@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 from pathlib import Path
+
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,16 @@ SECRET_KEY = "django-insecure-zr(i3qyisc&e*o&#-9ml8j1lwui-s*#uqzt%qg=tx#228zxk)e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 # DEBUG = False
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'safesend.me',
+    'www.safesend.me',
+    'your_elastic_ip_address', # 添加你的 Elastic IP
+    'ec2-54-206-113-215.ap-southeast-2.compute.amazonaws.com',
+    '54.206.113.215',
+    'localhost',
+    '127.0.0.1',
+    '3.105.66.133',
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -34,14 +44,29 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "transfer",  
-    "rest_framework", 
-    "corsheaders",  
+    "transfer",
+    # "transfer.apps.TransferTimerConfig",
+    "account",
+    "rest_framework",
+    "corsheaders",
 ]
 
+# 使用数据库存储 session（替代 Redis）
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# 可选：如果你有多个子模块共用登录
+# SESSION_COOKIE_NAME = "sso_sessionid"
+# SESSION_COOKIE_DOMAIN = None    # 仅当需要跨子域名共享时设置 TMD 踩了大雷了!!!!!!!!!!
+SESSION_COOKIE_AGE = 3600  # 1 hour
+SESSION_SAVE_EVERY_REQUEST = True  # 每次请求都刷新 cookie 有效期
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False
+
+LOGIN_URL = '/login_page/'
+LOGIN_REDIRECT_URL = '/after_user_login_page/'  # 登录后跳转页面
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",  
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -150,7 +175,7 @@ ACCESS_CODE_EXPIRE_MINUTES = 15
 # Media files configuration
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # In securefiletransfer_project/settings.py
 
 # logging configuration
@@ -182,10 +207,26 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'transfer': {  
+        'transfer': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG',
             'propagate': True,
         },
     },
 }
+# Google SSO Service
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Replace these with your actual credentials
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '869578916535-m187ukrnu0brq8gnors88vo7p9q91fnf.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+
+# Wayne's setting
+AUTH_USER_MODEL = 'transfer.UserProfile'
+File_EXPIRED_DAYS = 3
+File_EXPIRED_Alert_DAYS = 1
+# Time zone perception
+USE_TZ = False
