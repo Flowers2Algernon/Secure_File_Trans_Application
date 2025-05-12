@@ -1,0 +1,109 @@
+image: python:3.12
+
+definitions:
+  caches:
+    pip: ~/.cache/pip
+    npm: ~/.npm
+  
+  steps:
+    - step: &python-lint
+        name: Python Linting
+        caches:
+          - pip
+        script:
+          - pip install flake8 black
+          - flake8 --max-line-length=100
+          - black --check --line-length 100 .
+        
+    - step: &django-test
+        name: Django Backend Tests
+        caches:
+          - pip
+        services:
+          - postgres
+        script:
+          - pip install -r requirements.txt
+          - python manage.py collectstatic --no-input
+          - python manage.py test transfer --keepdb
+          - pip install coverage
+          - coverage run --source=transfer manage.py test transfer
+          - coverage report
+          - coverage xml
+        artifacts:
+          - coverage.xml
+        
+    - step: &node-test
+        name: Frontend Tests
+        image: node:18
+        caches:
+          - npm
+        script:
+          - cd transfer/static
+          - npm install
+          - npm run test
+          - npm run test:coverage
+        artifacts:
+          - transfer/static/coverage/**
+          
+    - step: &security-scan
+        name: Security Scan
+        script:
+          - pip install safety bandit
+          - safety check -r requirements.txt
+          - bandit -r . -x "*/tests/**"
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: test_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+pipelines:
+  default:
+    - parallel:
+      - step: *python-lint
+      - step: *django-test
+      - step: *node-test
+      
+  branches:
+    development:
+      - parallel:
+        - step: *python-lint
+        - step: *django-test
+        - step: *node-test
+        - step: *security-scan
+      
+  pull-requests:
+    '**':
+      - parallel:
+        - step: *python-lint
+        - step: *django-test
+        - step: *node-test
+        - step: *security-scan
+  
+  custom:
+    security-scan:
+      - step: *security-scan
+      
+    deploy-staging:
+      - step:
+          name: Deploy to Staging
+          deployment: staging
+          script:
+            - pip install -r requirements.txt
+            - python manage.py test transfer
+            - echo "Deploying to staging environment..."
+            # Add your deployment commands here
+            
+    deploy-production:
+      - step:
+          name: Deploy to Production
+          deployment: production
+          trigger: manual
+          script:
+            - pip install -r requirements.txt
+            - python manage.py test transfer
+            - echo "Deploying to production environment..."
+            # Add your production deployment commands here
