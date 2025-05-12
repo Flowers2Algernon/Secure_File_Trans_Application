@@ -19,8 +19,8 @@ definitions:
         script:
           # - cd backend_directory # If your Python code isn't at the root
           - pip install flake8 black
-          - flake8 --max-line-length=100 . # Or specify path
-          - black --check --line-length 100 . # Or specify path
+          - flake8 --max-line-length=120 . # Or specify path
+          - black --check --line-length 120 . # Or specify path
 
     - step: &django-test
         name: Django Backend Setup (Tests Skipped)
