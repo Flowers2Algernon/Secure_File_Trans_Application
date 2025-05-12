@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include  # Ensure 'include' is imported
-from transfer.views import GetEncryptedFileView  # Import the view for the API endpoint
+# Import the view for the API endpoint
 
 urlpatterns = [
     path("admin/", admin.site.urls),

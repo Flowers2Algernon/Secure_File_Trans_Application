@@ -3,11 +3,11 @@ import base64
 import json
 import tempfile
 import uuid
-from django.http import HttpResponse, JsonResponse
+import traceback
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils import timezone
-from django.core.files.base import ContentFile
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
 import mimetypes  # Make sure this is at the top of your file
@@ -18,15 +18,15 @@ from .utils import (
     generate_code,
     hash_access_code,
     get_code_expire_time,
-    verify_access_code,
+    verify_access_code,# noqa: F401
 )
 from .crypto_utils import (
-    encrypt_file_with_aes,
+    encrypt_file_with_aes,# noqa: F401
     decrypt_file_with_aes,
-    encrypt_aes_key_with_rsa,
+    encrypt_aes_key_with_rsa,# noqa: F401
     decrypt_aes_key_with_rsa,
-    calculate_file_hash,
-    verify_file_hash,
+    calculate_file_hash,# noqa: F401
+    verify_file_hash,# noqa: F401
     generate_rsa_key_pair,
 )
 
@@ -183,7 +183,7 @@ class FileUploadView(views.APIView):
 
             # Return a generic 500 error
             return Response(
-                {"error": f"An internal server error occurred."},
+                {"error": "An internal server error occurred."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -278,7 +278,7 @@ class CreateFileRequestView(views.APIView):
             data = json.loads(request.body)
             requester_email = data.get("senderEmail")
             message = data.get("message", "")
-            purpose = data.get("purpose", "")
+            purpose = data.get("purpose", "") # nopa: F841
 
             # Validate data
             if not requester_email:

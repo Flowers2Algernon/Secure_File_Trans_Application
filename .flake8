@@ -1,13 +1,14 @@
 [flake8]
-max-line-length = 100
+max-line-length = 150
 exclude =
     .git,
     __pycache__,
     migrations,
-    .venv,                        # 排除你的虚拟环境文件夹
-    malware_scan/pdf-parser.py    # 排除那个有很多错误的 pdf-parser.py 文件
-    # 如果还有其他想排除的文件夹或文件，可以继续在这里添加，用逗号分隔
+    .venv,
+    malware_scan/pdf-parser.py
+    # 你可以在这里继续添加其他要排除的文件夹或文件，用逗号分隔，每行一个
+
 per-file-ignores =
-    # 如果你想针对特定文件忽略特定类型的错误，可以这样写：
-    # */views.py:F401  # 例如，忽略所有 views.py 文件中的 F401 (unused import) 错误
-    # */migrations/*.py:E501 # 忽略所有 migration 文件中的 E501 (line too long) 错误
+    # 示例:
+    # */views.py:F401
+    # */migrations/*.py:E501

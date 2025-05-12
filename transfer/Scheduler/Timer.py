@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from django.apps import AppConfig
+
 from django_apscheduler.jobstores import DjangoJobStore
 
 from transfer.views import delete_expired_file

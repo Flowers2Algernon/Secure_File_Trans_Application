@@ -1,8 +1,7 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout, user_logged_in
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from django.dispatch import receiver
 from django.shortcuts import render, redirect
 from django.db.utils import IntegrityError
 

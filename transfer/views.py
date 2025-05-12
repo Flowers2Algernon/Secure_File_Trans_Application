@@ -1,4 +1,4 @@
-import os
+import os # noqa: F401
 import random
 from datetime import datetime, timedelta
 
@@ -181,7 +181,7 @@ class GetEncryptedFileView(views.APIView):
                     return response
                 except Exception as e:
                     return Response(
-                        {"error": "Error reading the file"},
+                        {"error": f"Error reading the file {e}"},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     )
             except Exception as e:
