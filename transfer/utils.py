@@ -1,5 +1,5 @@
-import secrets # noqa: F401
-import string # noqa: F401
+import secrets  # noqa: F401
+import string  # noqa: F401
 import hashlib
 from datetime import timedelta
 from django.conf import settings

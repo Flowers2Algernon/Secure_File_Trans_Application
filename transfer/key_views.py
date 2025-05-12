@@ -1,4 +1,4 @@
-from django.http import JsonResponse # noqa: F401
+from django.http import JsonResponse  # noqa: F401
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework import status, views
