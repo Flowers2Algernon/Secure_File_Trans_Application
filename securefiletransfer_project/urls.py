@@ -14,14 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include  # Ensure 'include' is imported
 from transfer.views import GetEncryptedFileView  # Import the view for the API endpoint
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('', include('transfer.urls')),
+    path("", include("transfer.urls")),
     # google sso
-    path('auth/', include('social_django.urls', namespace='social')),
-    path('', include('account.urls')),  # 引入登录功能
+    path("auth/", include("social_django.urls", namespace="social")),
+    path("", include("account.urls")),  # 引入登录功能
 ]

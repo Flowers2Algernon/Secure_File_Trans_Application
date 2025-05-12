@@ -20,21 +20,22 @@ from .utils import generate_code, hash_access_code, verify_access_code
 
 @csrf_exempt  # Disable CSRF protection for this view
 def generate_code_api(request):
-    if request.method == 'POST':  # Only allow POST requests for code generation
+    if request.method == "POST":  # Only allow POST requests for code generation
         code = generate_code()
         # Don't save to database since we don't have a file yet
-        return JsonResponse({'code': code})  # Return the code as a JSON response
+        return JsonResponse({"code": code})  # Return the code as a JSON response
     else:
-        return JsonResponse({'error': 'Method not allowed'},
-                            status=405)  # Respond with 405 Method Not Allowed for GET or other methods
+        return JsonResponse(
+            {"error": "Method not allowed"}, status=405
+        )  # Respond with 405 Method Not Allowed for GET or other methods
 
 
 def index(request):
-    return render(request, 'front_end/index.html')
+    return render(request, "front_end/index.html")
 
 
 # In views.py or api_views.py
-@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name="dispatch")
 class FileUploadView(views.APIView):
     parser_classes = [parsers.MultiPartParser]
 
@@ -48,12 +49,15 @@ class FileUploadView(views.APIView):
 
         except Exception as e:
             import traceback
+
             print("==== ERROR IN FILE UPLOAD ====")
             print(f"Error type: {type(e).__name__}")
             print(f"Error message: {str(e)}")
             print("Traceback:")
             print(traceback.format_exc())
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 def upload_page(request):
@@ -79,6 +83,7 @@ def delete_expired_file():
 
     return deleted_count
 
+
 """
     query the files are about expired, it will call delete_expired_file before query
 """
@@ -88,13 +93,16 @@ def query_approach_expired_files_count():
     delete_expired_file()
     now = datetime.now()
     one_day_later = now + timedelta(days=1)
-    files = EncrptedFile.objects.filter(code_expire__lte=one_day_later, code_expire__gt=now)
+    files = EncrptedFile.objects.filter(
+        code_expire__lte=one_day_later, code_expire__gt=now
+    )
     return files.count()
 
 
 def file_list(request):
     Files = EncrptedFile.objects.all()
-    return render(request, "front_end/file_list.html", {'files': Files})
+    return render(request, "front_end/file_list.html", {"files": Files})
+
 
 @login_required
 def query_files_by_user(request):
@@ -112,60 +120,83 @@ def ai_monitor_access_code_request(request_data):
         return "normal", "AI detected normal activity in access code request."
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name="dispatch")
 class GetEncryptedFileView(views.APIView):
     def post(self, request, *args, **kwargs):
-        access_code = request.data.get('access_code')
+        access_code = request.data.get("access_code")
 
         if not access_code:
-            return Response({'error': 'Access code is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Access code is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
         # prepare data for AI
         request_data_for_ai = {
             "timestamp": datetime.now(),
-            "ipaddress": request.META.get('REMOTE_ADDR'),
+            "ipaddress": request.META.get("REMOTE_ADDR"),
             "access_code": access_code,
-            "user_agent": request.META.get('HTTP_USER_AGENT'),
+            "user_agent": request.META.get("HTTP_USER_AGENT"),
         }
 
         ai_decision, ai_reason = ai_monitor_access_code_request(request_data_for_ai)
 
         if ai_decision == "suspicious":
             print(f"AI detected suspicious activity: {ai_reason}")
-            return Response({'error': 'Suspicious activity detected. Access denied.'}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "Suspicious activity detected. Access denied."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         elif ai_decision == "normal":
             hashed_code = hash_access_code(access_code)  # hash the access code
             try:
                 # search for the file using the hashed code in database
                 file_instance = None
                 for enc_file in EncrptedFile.objects.all():
-                    if verify_access_code(enc_file.code_hash,
-                                          hashed_code):  # compare the hashed code with the stored hash
+                    if verify_access_code(
+                        enc_file.code_hash, hashed_code
+                    ):  # compare the hashed code with the stored hash
                         file_instance = enc_file
                         break
 
                 if file_instance is None:
-                    return Response({'error': 'Invalid access code'}, status=status.HTTP_404_NOT_FOUND)
+                    return Response(
+                        {"error": "Invalid access code"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
                 if file_instance.code_expire < timezone.now():
-                    return Response({'error': 'Access code expired'}, status=status.HTTP_410_GONE)
+                    return Response(
+                        {"error": "Access code expired"}, status=status.HTTP_410_GONE
+                    )
 
                 # Access code is valid and not expired, serve the ENCRYPTED file
                 try:
-                    with file_instance.uploaded_file.open('rb') as f:
+                    with file_instance.uploaded_file.open("rb") as f:
                         encrypted_file_content = f.read()
 
-                    response = HttpResponse(encrypted_file_content, content_type='application/octet-stream')
-                    response[
-                        'Content-Disposition'] = f"attachment; filename=\"{file_instance.uploaded_file.name.split('/')[-1]}\""
+                    response = HttpResponse(
+                        encrypted_file_content, content_type="application/octet-stream"
+                    )
+                    response["Content-Disposition"] = (
+                        f"attachment; filename=\"{file_instance.uploaded_file.name.split('/')[-1]}\""
+                    )
                     return response
                 except Exception as e:
-                    return Response({'error': 'Error reading the file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    return Response(
+                        {"error": "Error reading the file"},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
             except Exception as e:
                 print(f"Download error: {str(e)}")  # Log the actual error
-                return Response({'error': f'Error processing download request: {str(e)}'},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(
+                    {"error": f"Error processing download request: {str(e)}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
         else:  # unknown decision for ai
-            return Response({'error': 'Error processing download request due to AI monitoring - unknown decision.'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {
+                    "error": "Error processing download request due to AI monitoring - unknown decision."
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 def download_page(request):
@@ -177,16 +208,22 @@ def request_send_page(request):
 
 
 def after_user_login_page(request):
-    count = request.session.pop('approach_expired_count', 0)
+    count = request.session.pop("approach_expired_count", 0)
     files = query_files_by_user(request)
-    return render(request, "front_end/after_user_login_page.html", {"approach_expired_count": count, "files": files})
+    return render(
+        request,
+        "front_end/after_user_login_page.html",
+        {"approach_expired_count": count, "files": files},
+    )
 
-def delete_file(request,file_id):
+
+def delete_file(request, file_id):
     if request.method == "POST":
         file = get_object_or_404(EncrptedFile, file_id=file_id)
         file.delete()
-        messages.success(request, 'File deleted successfully.')
-    return redirect('transfer:after_user_login_page')  # 修改为你的dashboard路由名
+        messages.success(request, "File deleted successfully.")
+    return redirect("transfer:after_user_login_page")  # 修改为你的dashboard路由名
+
 
 def search_encrypted_files(request):
     query = request.GET.get("query", "").lower()
