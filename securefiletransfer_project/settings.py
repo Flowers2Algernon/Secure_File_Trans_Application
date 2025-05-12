@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "account",
     "rest_framework",
     "corsheaders",
+    'social_django',
 ]
 
 # 使用数据库存储 session（替代 Redis）
@@ -160,6 +161,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'transfer/static'),
+    BASE_DIR / 'static',  
 ]
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
