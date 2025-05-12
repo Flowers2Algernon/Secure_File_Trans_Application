@@ -18,15 +18,15 @@ from .utils import (
     generate_code,
     hash_access_code,
     get_code_expire_time,
-    #verify_access_code,  # noqa: F401
+    # verify_access_code,  # noqa: F401
 )
 from .crypto_utils import (
-    #encrypt_file_with_aes,  # noqa: F401
+    # encrypt_file_with_aes,  # noqa: F401
     decrypt_file_with_aes,
-    #encrypt_aes_key_with_rsa,  # noqa: F401
+    # encrypt_aes_key_with_rsa,  # noqa: F401
     decrypt_aes_key_with_rsa,
-    #calculate_file_hash,  # noqa: F401
-    #verify_file_hash,  # noqa: F401
+    # calculate_file_hash,  # noqa: F401
+    # verify_file_hash,  # noqa: F401
     generate_rsa_key_pair,
 )
 
@@ -278,7 +278,7 @@ class CreateFileRequestView(views.APIView):
             data = json.loads(request.body)
             requester_email = data.get("senderEmail")
             message = data.get("message", "")
-            #purpose = data.get("purpose", "")  # nopa: F841
+            # purpose = data.get("purpose", "")  # nopa: F841
 
             # Validate data
             if not requester_email:
