@@ -110,6 +110,21 @@ pipelines:
         - step: *django-test
         - step: *node-test
         - step: *security-scan
+  branches:
+    main:
+      - step: # 可能有一些最终的检查或构建
+          name: 'Final Checks for Production'
+          script:
+            - echo "Running final checks for production..."
+            # 例如，运行生产模式的测试，构建最终的生产包
+      - step:
+          name: 'Deploy to Production'
+          deployment: production
+          trigger: manual # 关键！手动触发生产部署
+          script:
+            - echo "Starting deployment to PRODUCTION..."
+            # - ./deploy_to_production.sh # 你的生产部署脚本
+            - echo "Deployment to PRODUCTION complete."
 
   pull-requests:
     '**':
