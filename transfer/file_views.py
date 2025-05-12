@@ -1,6 +1,8 @@
 import os
 import base64
 import json
+import tempfile
+import uuid
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -9,7 +11,7 @@ from django.core.files.base import ContentFile
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
 import mimetypes  # Make sure this is at the top of your file
-
+from malware_scan.malware_detector import scan_pdf
 
 from .models import EncrptedFile, FileLog, FileRequest  # Added FileRequest import
 from .utils import generate_code, hash_access_code, get_code_expire_time, verify_access_code
@@ -22,27 +24,58 @@ from .crypto_utils import (
 @method_decorator(csrf_exempt, name='dispatch')
 class FileUploadView(views.APIView):
     parser_classes = [parsers.MultiPartParser]
-    
+
     def post(self, request):
         try:
-            print("FileUploadView.post() called")
-            print(f"Request FILES: {request.FILES}")
-            print(f"Request POST: {request.POST}")
-            
-            # Get the uploaded file
             uploaded_file = request.FILES.get('file')
             if not uploaded_file:
-                print("No file uploaded")
                 return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            print(f"Uploaded file: {uploaded_file.name}, size: {uploaded_file.size}")
+
+            # === Create a secure temp file location
+            temp_dir = os.path.join(tempfile.gettempdir(), "pdf_uploads")
+            os.makedirs(temp_dir, exist_ok=True)
+
+            unique_name = str(uuid.uuid4()) + "_" + uploaded_file.name
+            saved_path = os.path.join(temp_dir, unique_name)
+
+            # === Save uploaded file
+            with open(saved_path, 'wb+') as destination:
+                for chunk in uploaded_file.chunks():
+                    destination.write(chunk)
+
+            print(f"File temporarily saved to: {saved_path}")
+
+            # === Scan the file using your model
+            prediction, score = scan_pdf(saved_path)
+
+            # === Clean up (delete the file)
+            os.remove(saved_path)
+
+            # === Result logic
+            print(f"[DEBUG] Prediction: {prediction}, Score: {score}")
+
+            if prediction == 1:
+                return Response({
+                    "status": "blocked",
+                    "message": "Malicious file detected!",
+                    "malicious_score": round(score, 3)
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({
+                "status": "safe",
+                "message": "File is clean and accepted.",
+                "filename": uploaded_file.name
+            })
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
             # Get the recipient's public key
             recipient_public_key = request.POST.get('recipient_public_key')
             encrypted_aes_key_b64 = request.POST.get('encrypted_aes_key')
             iv_b64 = request.POST.get('iv')
             file_hash = request.POST.get('file_hash')
-            
+
             print(f"Recipient public key: {recipient_public_key is not None}")
             print(f"Encrypted AES key: {encrypted_aes_key_b64 is not None}")
             print(f"IV: {iv_b64 is not None}")
