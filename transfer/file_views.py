@@ -26,111 +26,132 @@ class FileUploadView(views.APIView):
     parser_classes = [parsers.MultiPartParser]
 
     def post(self, request):
+        saved_path = None # Initialize path for cleanup in case of errors
         try:
+            print("FileUploadView.post() called")
             uploaded_file = request.FILES.get('file')
             if not uploaded_file:
+                print("No file uploaded")
                 return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # === Create a secure temp file location
+            print(f"Received file: {uploaded_file.name}, size: {uploaded_file.size}")
+
+            # === Step 1: Create a secure temp file location and save for scanning ===
             temp_dir = os.path.join(tempfile.gettempdir(), "pdf_uploads")
             os.makedirs(temp_dir, exist_ok=True)
-
-            unique_name = str(uuid.uuid4()) + "_" + uploaded_file.name
+            # Use a unique name for the temp file, sanitize original name
+            unique_name = str(uuid.uuid4()) + "_" + os.path.basename(uploaded_file.name)
             saved_path = os.path.join(temp_dir, unique_name)
 
-            # === Save uploaded file
+            print(f"Saving file temporarily to: {saved_path}")
             with open(saved_path, 'wb+') as destination:
                 for chunk in uploaded_file.chunks():
                     destination.write(chunk)
+            print("Temporary save complete.")
 
-            print(f"File temporarily saved to: {saved_path}")
+            # === Step 2: Scan the temporarily saved file ===
+            print(f"Scanning file: {saved_path}")
+            prediction, score = scan_pdf(saved_path) # Call the scan function
+            print(f"[DEBUG] Scan Result - Prediction: {prediction}, Score: {score}")
 
-            # === Scan the file using your model
-            prediction, score = scan_pdf(saved_path)
+            # === Step 3: Clean up the temporary file AFTER scanning ===
+            print(f"Removing temporary file: {saved_path}")
+            if os.path.exists(saved_path):
+                 os.remove(saved_path)
+            saved_path = None # Reset path after deletion
 
-            # === Clean up (delete the file)
-            os.remove(saved_path)
-
-            # === Result logic
-            print(f"[DEBUG] Prediction: {prediction}, Score: {score}")
-
+            # === Step 4: Handle MALICIOUS file ===
             if prediction == 1:
+                print("Malicious file detected! Rejecting upload.")
                 return Response({
                     "status": "blocked",
                     "message": "Malicious file detected!",
                     "malicious_score": round(score, 3)
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({
-                "status": "safe",
-                "message": "File is clean and accepted.",
-                "filename": uploaded_file.name
-            })
+            # === Step 5: If file is CLEAN, proceed with saving metadata and file ===
+            print("File scan passed. Processing request...")
 
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
-            # Get the recipient's public key
+            # Get the rest of the POST data needed for saving
             recipient_public_key = request.POST.get('recipient_public_key')
             encrypted_aes_key_b64 = request.POST.get('encrypted_aes_key')
             iv_b64 = request.POST.get('iv')
             file_hash = request.POST.get('file_hash')
 
-            print(f"Recipient public key: {recipient_public_key is not None}")
-            print(f"Encrypted AES key: {encrypted_aes_key_b64 is not None}")
-            print(f"IV: {iv_b64 is not None}")
-            print(f"File hash: {file_hash is not None}")
-            
+            print(f"Recipient public key received: {recipient_public_key is not None}")
+            print(f"Encrypted AES key received: {encrypted_aes_key_b64 is not None}")
+            print(f"IV received: {iv_b64 is not None}")
+            print(f"File hash received: {file_hash is not None}")
+
+            # --- Optional: Validate that required metadata was received ---
+            if not all([recipient_public_key, encrypted_aes_key_b64, iv_b64, file_hash]):
+                 print("Missing required encryption metadata in POST request.")
+                 # Consider if this case should be 400 or 500
+                 return Response({'error': 'Missing required encryption metadata after successful scan.'}, status=status.HTTP_400_BAD_REQUEST)
+
             # Generate an access code
+            # Replace with your actual implementation:
             access_code = generate_code()
             hashed_code = hash_access_code(access_code)
             expiry_time = get_code_expire_time()
-            
+            print("Generated access code and expiry.")
+
             # Create a new encrypted file object
             encrypted_file = EncrptedFile()
             encrypted_file.original_filename = uploaded_file.name
             encrypted_file.file_size = uploaded_file.size
             encrypted_file.code_hash = hashed_code
             encrypted_file.code_expire = expiry_time
-            
-            # If encryption metadata is provided, store it
-            if recipient_public_key:
-                encrypted_file.recipient_public_key = recipient_public_key
-            
-            if encrypted_aes_key_b64 and iv_b64:
-                try:
-                    # Convert base64 to binary
-                    encrypted_aes_key = base64.b64decode(encrypted_aes_key_b64)
-                    iv = base64.b64decode(iv_b64)
-                    
-                    encrypted_file.encrypted_aes_key = encrypted_aes_key
-                    encrypted_file.iv = iv
-                    encrypted_file.encryption_algorithm = "AES-256-GCM"
-                except Exception as e:
-                    print(f"Error decoding base64: {str(e)}")
-                    return Response({'error': f'Error decoding base64: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            if file_hash:
-                encrypted_file.file_hash = file_hash
-            
-            # Save the file
-            print("Saving file...")
+            encrypted_file.recipient_public_key = recipient_public_key
+            encrypted_file.file_hash = file_hash
+            encrypted_file.encryption_algorithm = "AES-256-GCM" # Set algorithm
+
+            print("Populated basic EncrptedFile fields.")
+
+            # Decode and store binary fields
+            try:
+                print("Attempting base64 decode...")
+                encrypted_file.encrypted_aes_key = base64.b64decode(encrypted_aes_key_b64)
+                encrypted_file.iv = base64.b64decode(iv_b64)
+                print("Base64 decode successful.")
+            except Exception as e:
+                print(f"Error decoding base64: {str(e)}")
+                # This indicates a client-side data format error
+                return Response({'error': f'Invalid base64 encoding for keys/IV: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Assign the *original* uploaded file (in memory or temp) to the FileField.
+            # Django's FileField handling will save it to the correct 'uploaded_files/' location.
+            print("Assigning uploaded file to model field...")
             encrypted_file.uploaded_file = uploaded_file
+
+            # Save the model instance (which also saves the file to storage)
+            print("Attempting encrypted_file.save()...")
             encrypted_file.save()
-            print(f"File saved with ID: {encrypted_file.file_id}")
-            
-            # Return the file ID and access code
+            print(f"File and metadata saved with ID: {encrypted_file.file_id}")
+
+            # Return the success response with details needed by the client
             return Response({
                 'file_id': str(encrypted_file.file_id),
                 'access_code': access_code,
-                'expires_at': expiry_time.isoformat()
-            }, status=status.HTTP_201_CREATED)
-            
+                'expires_at': expiry_time.isoformat(),
+                'message': 'File uploaded and encrypted successfully.' # Add success message
+            }, status=status.HTTP_201_CREATED) # Use 201 Created status
+
         except Exception as e:
-            import traceback
+            # Catch-all for unexpected errors
             print(f"Error in FileUploadView.post(): {str(e)}")
             print(traceback.format_exc())
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Ensure temp file is cleaned up if error occurs after it was created
+            if saved_path and os.path.exists(saved_path):
+                 try:
+                     print(f"Cleaning up temporary file due to error: {saved_path}")
+                     os.remove(saved_path)
+                 except OSError as cleanup_error:
+                     print(f"Error removing temporary file during cleanup: {cleanup_error}")
+
+            # Return a generic 500 error
+            return Response({'error': f'An internal server error occurred.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 @method_decorator(csrf_exempt, name='dispatch')
