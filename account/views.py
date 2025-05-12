@@ -25,14 +25,10 @@ def sso_login(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
-            request.session["approach_expired_count"] = (
-                query_approach_expired_files_count()
-            )
+            request.session["approach_expired_count"] = query_approach_expired_files_count()
             return redirect("transfer:after_user_login_page")
         else:
-            messages.error(
-                request, "Invalid username or password."
-            )  # ✔️ Clearer message ✔️
+            messages.error(request, "Invalid username or password.")  # ✔️ Clearer message ✔️
 
     return render(request, "login.html")
 
@@ -83,12 +79,8 @@ def register(request):
 
         try:
             password_hash = make_password(password)
-            UserProfile.objects.create(
-                username=username, password=password_hash, email=email
-            )
-            messages.success(
-                request, "Registration successful. You can now log in."
-            )  # ✔️
+            UserProfile.objects.create(username=username, password=password_hash, email=email)
+            messages.success(request, "Registration successful. You can now log in.")  # ✔️
             return redirect("account:login")  # ✔️
         except IntegrityError:
             messages.error(request, "A database error occurred. Please try again.")

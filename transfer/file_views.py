@@ -42,9 +42,7 @@ class FileUploadView(views.APIView):
             uploaded_file = request.FILES.get("file")
             if not uploaded_file:
                 print("No file uploaded")
-                return Response(
-                    {"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST
-                )
+                return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
 
             print(f"Received file: {uploaded_file.name}, size: {uploaded_file.size}")
 
@@ -99,15 +97,11 @@ class FileUploadView(views.APIView):
             print(f"File hash received: {file_hash is not None}")
 
             # --- Optional: Validate that required metadata was received ---
-            if not all(
-                [recipient_public_key, encrypted_aes_key_b64, iv_b64, file_hash]
-            ):
+            if not all([recipient_public_key, encrypted_aes_key_b64, iv_b64, file_hash]):
                 print("Missing required encryption metadata in POST request.")
                 # Consider if this case should be 400 or 500
                 return Response(
-                    {
-                        "error": "Missing required encryption metadata after successful scan."
-                    },
+                    {"error": "Missing required encryption metadata after successful scan."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -133,9 +127,7 @@ class FileUploadView(views.APIView):
             # Decode and store binary fields
             try:
                 print("Attempting base64 decode...")
-                encrypted_file.encrypted_aes_key = base64.b64decode(
-                    encrypted_aes_key_b64
-                )
+                encrypted_file.encrypted_aes_key = base64.b64decode(encrypted_aes_key_b64)
                 encrypted_file.iv = base64.b64decode(iv_b64)
                 print("Base64 decode successful.")
             except Exception as e:
@@ -177,9 +169,7 @@ class FileUploadView(views.APIView):
                     print(f"Cleaning up temporary file due to error: {saved_path}")
                     os.remove(saved_path)
                 except OSError as cleanup_error:
-                    print(
-                        f"Error removing temporary file during cleanup: {cleanup_error}"
-                    )
+                    print(f"Error removing temporary file during cleanup: {cleanup_error}")
 
             # Return a generic 500 error
             return Response(
@@ -210,13 +200,9 @@ class GetEncryptedFileView(views.APIView):
             file_instance = EncrptedFile.objects.filter(code_hash=hashed_code).first()
 
             if not file_instance:
-                return Response(
-                    {"error": "Invalid access code"}, status=status.HTTP_404_NOT_FOUND
-                )
+                return Response({"error": "Invalid access code"}, status=status.HTTP_404_NOT_FOUND)
             if file_instance.code_expire and file_instance.code_expire < timezone.now():
-                return Response(
-                    {"error": "This file has expired"}, status=status.HTTP_410_GONE
-                )
+                return Response({"error": "This file has expired"}, status=status.HTTP_410_GONE)
 
             # Logging the download
             FileLog.objects.create(
@@ -233,9 +219,7 @@ class GetEncryptedFileView(views.APIView):
 
                 with file_instance.uploaded_file.open("rb") as f:
                     encrypted_file_data = f.read()
-                decrypted_file_data = decrypt_file_with_aes(
-                    encrypted_file_data, aes_key, iv
-                )
+                decrypted_file_data = decrypt_file_with_aes(encrypted_file_data, aes_key, iv)
 
                 # Determine content type
                 filename = file_instance.original_filename
@@ -255,17 +239,11 @@ class GetEncryptedFileView(views.APIView):
 
         except Exception as e:
             print(f"Error in GetEncryptedFileView: {str(e)}")
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get_client_ip(self, request):
         x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-        return (
-            x_forwarded_for.split(",")[0]
-            if x_forwarded_for
-            else request.META.get("REMOTE_ADDR")
-        )
+        return x_forwarded_for.split(",")[0] if x_forwarded_for else request.META.get("REMOTE_ADDR")
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -295,9 +273,7 @@ class CreateFileRequestView(views.APIView):
             expiry_date = timezone.now() + timezone.timedelta(days=7)
             file_request = FileRequest.objects.create(
                 requester_email=requester_email,
-                requester_name=requester_email.split("@")[
-                    0
-                ],  # Use email username as name
+                requester_name=requester_email.split("@")[0],  # Use email username as name
                 request_message=message,
                 public_key=key_pair["public_key"],
                 expires_at=expiry_date,

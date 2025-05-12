@@ -78,9 +78,7 @@ def encrypt_aes_key_with_rsa(aes_key, public_key_pem):
 def decrypt_aes_key_with_rsa(encrypted_aes_key, private_key_pem):
     """Decrypt an AES key with an RSA private key"""
     # Load the private key
-    private_key = serialization.load_pem_private_key(
-        private_key_pem.encode("utf-8"), password=None
-    )
+    private_key = serialization.load_pem_private_key(private_key_pem.encode("utf-8"), password=None)
 
     # Decrypt the AES key
     decrypted_key = private_key.decrypt(

@@ -49,9 +49,7 @@ class GenerateKeyPairView(views.APIView):
             )
 
         except Exception as e:
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -64,15 +62,9 @@ class GetPublicKeyView(views.APIView):
             key_pair = KeyPair.objects.get(id=key_id)
 
             # Return the public key
-            return Response(
-                {"public_key": key_pair.public_key}, status=status.HTTP_200_OK
-            )
+            return Response({"public_key": key_pair.public_key}, status=status.HTTP_200_OK)
 
         except KeyPair.DoesNotExist:
-            return Response(
-                {"error": "Key pair not found"}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"error": "Key pair not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -223,9 +223,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # Replace these with your actual credentials
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
-    "869578916535-m187ukrnu0brq8gnors88vo7p9q91fnf.apps.googleusercontent.com"
-)
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "869578916535-m187ukrnu0brq8gnors88vo7p9q91fnf.apps.googleusercontent.com"
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"
 
 # Wayne's setting

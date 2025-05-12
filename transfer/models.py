@@ -9,16 +9,10 @@ class KeyPair(models.Model):
     """Model to store RSA key pairs for users"""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     public_key = models.TextField()  # Store PEM encoded public key
-    private_key_salt = models.BinaryField(
-        null=True, blank=True
-    )  # Salt for private key encryption
-    encrypted_private_key = models.BinaryField(
-        null=True, blank=True
-    )  # Encrypted private key
+    private_key_salt = models.BinaryField(null=True, blank=True)  # Salt for private key encryption
+    encrypted_private_key = models.BinaryField(null=True, blank=True)  # Encrypted private key
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -26,12 +20,8 @@ class KeyPair(models.Model):
 
 
 class EncrptedFile(models.Model):
-    file_id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, unique=True
-    )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
-    )
+    file_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     original_filename = models.CharField(max_length=100)
     uploaded_file = models.FileField(upload_to="uploaded_files/")
     file_size = models.IntegerField(default=0)
@@ -40,12 +30,8 @@ class EncrptedFile(models.Model):
     # Encryption fields
     encrypted_aes_key = models.BinaryField(null=True, blank=True)
     iv = models.BinaryField(null=True, blank=True)
-    auth_tag = models.BinaryField(
-        null=True, blank=True
-    )  # Add this if you're using AES-GCM
-    encryption_algorithm = models.CharField(
-        max_length=20, default="AES-256-GCM", null=True, blank=True
-    )
+    auth_tag = models.BinaryField(null=True, blank=True)  # Add this if you're using AES-GCM
+    encryption_algorithm = models.CharField(max_length=20, default="AES-256-GCM", null=True, blank=True)
     file_hash = models.CharField(max_length=64, null=True, blank=True)
     recipient_public_key = models.TextField(null=True, blank=True)
 
@@ -58,9 +44,7 @@ class EncrptedFile(models.Model):
 
 
 class FileLog(models.Model):
-    encrptedFile = models.ForeignKey(
-        EncrptedFile, on_delete=models.CASCADE, related_name="logs", db_column="file_id"
-    )
+    encrptedFile = models.ForeignKey(EncrptedFile, on_delete=models.CASCADE, related_name="logs", db_column="file_id")
     download_time = models.IntegerField(default=0)
     download_final_datetime = models.DateTimeField(null=True, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)

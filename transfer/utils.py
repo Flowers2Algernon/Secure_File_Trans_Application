@@ -13,9 +13,7 @@ def generate_code():
 
 
 def hash_access_code(code):
-    return hashlib.sha256(
-        code.encode("utf-8")
-    ).hexdigest()  # Corrected to call .hexdigest() on the hash object
+    return hashlib.sha256(code.encode("utf-8")).hexdigest()  # Corrected to call .hexdigest() on the hash object
 
 
 def verify_access_code(stored_hash, entered_hash):

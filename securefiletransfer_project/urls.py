@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include  # Ensure 'include' is imported
+
 # Import the view for the API endpoint
 
 urlpatterns = [

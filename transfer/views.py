@@ -55,9 +55,7 @@ class FileUploadView(views.APIView):
             print(f"Error message: {str(e)}")
             print("Traceback:")
             print(traceback.format_exc())
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def upload_page(request):
@@ -93,9 +91,7 @@ def query_approach_expired_files_count():
     delete_expired_file()
     now = datetime.now()
     one_day_later = now + timedelta(days=1)
-    files = EncrptedFile.objects.filter(
-        code_expire__lte=one_day_later, code_expire__gt=now
-    )
+    files = EncrptedFile.objects.filter(code_expire__lte=one_day_later, code_expire__gt=now)
     return files.count()
 
 
@@ -126,9 +122,7 @@ class GetEncryptedFileView(views.APIView):
         access_code = request.data.get("access_code")
 
         if not access_code:
-            return Response(
-                {"error": "Access code is required"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": "Access code is required"}, status=status.HTTP_400_BAD_REQUEST)
         # prepare data for AI
         request_data_for_ai = {
             "timestamp": datetime.now(),
@@ -163,18 +157,14 @@ class GetEncryptedFileView(views.APIView):
                         status=status.HTTP_404_NOT_FOUND,
                     )
                 if file_instance.code_expire < timezone.now():
-                    return Response(
-                        {"error": "Access code expired"}, status=status.HTTP_410_GONE
-                    )
+                    return Response({"error": "Access code expired"}, status=status.HTTP_410_GONE)
 
                 # Access code is valid and not expired, serve the ENCRYPTED file
                 try:
                     with file_instance.uploaded_file.open("rb") as f:
                         encrypted_file_content = f.read()
 
-                    response = HttpResponse(
-                        encrypted_file_content, content_type="application/octet-stream"
-                    )
+                    response = HttpResponse(encrypted_file_content, content_type="application/octet-stream")
                     response["Content-Disposition"] = (
                         f"attachment; filename=\"{file_instance.uploaded_file.name.split('/')[-1]}\""
                     )
@@ -192,9 +182,7 @@ class GetEncryptedFileView(views.APIView):
                 )
         else:  # unknown decision for ai
             return Response(
-                {
-                    "error": "Error processing download request due to AI monitoring - unknown decision."
-                },
+                {"error": "Error processing download request due to AI monitoring - unknown decision."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
