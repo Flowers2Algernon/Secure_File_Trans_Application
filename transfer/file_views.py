@@ -276,50 +276,66 @@ class GetEncryptedFileView(views.APIView):
                 if not filename or filename.strip() == "":
                     filename = "decrypted_file"
 
-                # 清理文件名中的非法字符，但保留扩展名
+                # 清理文件名
                 import re
-                import urllib.parse
+                from urllib.parse import quote
 
-                # 移除或替换非法字符
+                # 移除非法字符但保留扩展名
                 safe_filename = re.sub(r'[<>:"/\\|?*]', '_', filename)
+                safe_filename = safe_filename.strip()
 
-                # 确保文件名不为空
-                if not safe_filename.strip():
+                if not safe_filename:
                     safe_filename = "decrypted_file"
 
-                print(f"🔍 [DEBUG] Final filename: '{safe_filename}'")
+                print(f"🔍 [DEBUG] Original filename from DB: '{file_instance.original_filename}'")
+                print(f"🔍 [DEBUG] Cleaned safe filename: '{safe_filename}'")
 
                 # 确定内容类型
                 content_type, _ = mimetypes.guess_type(safe_filename)
                 content_type = content_type or "application/octet-stream"
-                print(f"🔍 [DEBUG] Content type: {content_type}")
 
                 # 创建响应
                 response = HttpResponse(decrypted_file_data, content_type=content_type)
 
-                # 使用更兼容的文件名设置方式
-                # 方法1: 标准的 Content-Disposition
+                # 多种方式设置文件名，提高兼容性
                 try:
-                    # 对文件名进行URL编码以处理特殊字符
-                    encoded_filename = urllib.parse.quote(safe_filename)
-                    response["Content-Disposition"] = f'attachment; filename="{safe_filename}"; filename*=UTF-8\'\'{encoded_filename}'
+                    # 方法1: ASCII文件名（用于兼容性）
+                    ascii_filename = safe_filename.encode('ascii', 'ignore').decode('ascii')
+                    if not ascii_filename:
+                        ascii_filename = "decrypted_file"
+                    
+                    # 方法2: UTF-8编码文件名（用于国际化支持）
+                    utf8_filename = quote(safe_filename.encode('utf-8'))
+                    
+                    # 设置多种Content-Disposition格式
+                    disposition = f'attachment; filename="{ascii_filename}"; filename*=UTF-8\'\'{utf8_filename}'
+                    response["Content-Disposition"] = disposition
+                    
+                    print(f"🔍 [DEBUG] ASCII filename: '{ascii_filename}'")
+                    print(f"🔍 [DEBUG] UTF-8 filename: '{utf8_filename}'")
+                    print(f"🔍 [DEBUG] Content-Disposition: {disposition}")
+                    
                 except Exception as e:
-                    print(f"Warning: Could not set encoded filename: {e}")
+                    print(f"⚠️ Warning: Error setting advanced filename: {e}")
+                    # 降级到简单文件名
                     response["Content-Disposition"] = f'attachment; filename="{safe_filename}"'
 
-                # 设置其他有用的响应头
+                # 设置额外的下载提示头
+                response["Content-Transfer-Encoding"] = "binary"
                 response["Content-Length"] = str(len(decrypted_file_data))
-                response["Content-Description"] = "File Transfer"
-                response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+
+                # 强制下载相关的头
+                response["Cache-Control"] = "no-cache, no-store, must-revalidate, private"
                 response["Pragma"] = "no-cache"
                 response["Expires"] = "0"
 
-                print(f"🔍 [DEBUG] Response headers set:")
-                print(f"🔍 [DEBUG] - Content-Disposition: {response['Content-Disposition']}")
-                print(f"🔍 [DEBUG] - Content-Length: {response['Content-Length']}")
-                print(f"🔍 [DEBUG] - Content-Type: {response['Content-Type']}")
+                # 添加自定义头来帮助调试
+                response["X-Original-Filename"] = safe_filename
+                response["X-File-Size"] = str(len(decrypted_file_data))
 
-                print("✅ [DEBUG] File decryption and response preparation completed successfully")
+                print(f"🔍 [DEBUG] All response headers:")
+                for header, value in response.items():
+                    print(f"🔍 [DEBUG] - {header}: {value}")
 
                 return response
 
