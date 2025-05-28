@@ -406,6 +406,59 @@
     </div>
 
     <script defer>
+
+        // 1. 定义下载错误类型和消息
+        const DOWNLOAD_ERROR_MESSAGES = {
+                ACCESS_CODE_NOT_FOUND: {
+                    title: "Access Code Not Found",
+                    message: "The 6-digit access code you entered doesn't exist. Please double-check the code provided by the sender.",
+                    icon: "ri-search-line",
+                    type: "warning"
+                },
+                ACCESS_CODE_EXPIRED: {
+                    title: "Access Code Expired",
+                    message: "This access code has expired. Access codes are valid for 7 days from upload. Please contact the sender to request a new file transfer.",
+                    icon: "ri-time-line",
+                    type: "warning"
+                },
+                INVALID_PRIVATE_KEY: {
+                    title: "Incorrect Private Key",
+                    message: "The private key you provided doesn't match this file. Please ensure you're using the correct private key that corresponds to the public key used for encryption.",
+                    icon: "ri-key-line",
+                    type: "warning"
+                },
+                DECRYPTION_FAILED: {
+                    title: "Decryption Failed",
+                    message: "Unable to decrypt the file. This usually means the private key doesn't match the public key used for encryption, or the key format is incorrect.",
+                    icon: "ri-lock-unlock-line",
+                    type: "error"
+                },
+                PRIVATE_KEY_FORMAT_ERROR: {
+                    title: "Invalid Private Key Format",
+                    message: "The private key format is incorrect. Please ensure you've copied the complete RSA private key including the -----BEGIN PRIVATE KEY----- and -----END PRIVATE KEY----- lines.",
+                    icon: "ri-file-code-line",
+                    type: "warning"
+                },
+                ACCESS_BLOCKED: {
+                    title: "Access Temporarily Blocked",
+                    message: "Access has been temporarily blocked due to too many failed attempts. Please wait a few minutes before trying again.",
+                    icon: "ri-shield-cross-line",
+                    type: "error"
+                },
+                NETWORK_ERROR: {
+                    title: "Connection Error",
+                    message: "Unable to connect to the server. Please check your internet connection and try again.",
+                    icon: "ri-wifi-off-line",
+                    type: "error"
+                },
+                SERVER_ERROR: {
+                    title: "Server Error",
+                    message: "An unexpected error occurred on our servers. Please try again in a few moments.",
+                    icon: "ri-server-line",
+                    type: "error"
+                }
+            };
+
         document.addEventListener('DOMContentLoaded', function () {
             // Element references
             const codeDigits = document.querySelectorAll('.code-digit');
@@ -418,7 +471,597 @@
             const progressBar = document.querySelector('.bg-primary.h-2\\.5');
             const downloadPercentage = document.getElementById('download-percentage');
             const faqToggles = document.querySelectorAll('.faq-toggle');
+
+            console.log("🔐 Download page script loaded");
+            console.log("Elements found:", {
+                codeDigits: codeDigits.length,
+                downloadForm: !!downloadForm,
+                downloadBtn: !!downloadBtn
+            });
+
+            // CSS布局问题调试和修复
+
+            // 1. 详细的布局调试函数
+            function debugLayoutIssue() {
+                console.log("=== CSS LAYOUT DEBUG ===");
+                console.log("Window size:", window.innerWidth, "x", window.innerHeight);
+                
+                // 检查关键元素的布局信息
+                const criticalElements = [
+                    'download-form',
+                    'download-error', 
+                    'privateKey',
+                    'download-btn'
+                ];
+                
+                // 查找访问码容器
+                const accessCodeContainer = document.querySelector('.access-code-input');
+                if (accessCodeContainer) {
+                    criticalElements.push('access-code-input');
+                }
+                
+                criticalElements.forEach(id => {
+                    const element = document.getElementById(id) || document.querySelector(`.${id}`);
+                    if (element) {
+                        const rect = element.getBoundingClientRect();
+                        const style = window.getComputedStyle(element);
+                        
+                        console.log(`${id}:`, {
+                            position: {
+                                top: rect.top,
+                                left: rect.left,
+                                right: rect.right,
+                                bottom: rect.bottom,
+                                width: rect.width,
+                                height: rect.height
+                            },
+                            css: {
+                                position: style.position,
+                                display: style.display,
+                                visibility: style.visibility,
+                                zIndex: style.zIndex,
+                                overflow: style.overflow,
+                                flexGrow: style.flexGrow,
+                                flexShrink: style.flexShrink
+                            },
+                            viewport: {
+                                inViewport: rect.top >= 0 && rect.left >= 0 && 
+                                        rect.bottom <= window.innerHeight && 
+                                        rect.right <= window.innerWidth,
+                                visible: rect.width > 0 && rect.height > 0
+                            }
+                        });
+                    } else {
+                        console.log(`${id}: NOT FOUND`);
+                    }
+                });
+                
+                console.log("=== END DEBUG ===");
+            }
+
+            // 2. 强制修复布局的函数
+            function forceFixLayout() {
+                console.log("Force fixing layout...");
+                
+                const downloadError = document.getElementById('download-error');
+                const downloadForm = document.getElementById('download-form');
+                const privateKeyInput = document.getElementById('privateKey');
+                const downloadBtn = document.getElementById('download-btn');
+                
+                // 修复错误容器的CSS属性
+                if (downloadError && !downloadError.classList.contains('hidden')) {
+                    // 防止错误容器占用过多空间
+                    downloadError.style.position = 'relative';
+                    downloadError.style.zIndex = '10';
+                    downloadError.style.width = '100%';
+                    downloadError.style.maxWidth = '100%';
+                    downloadError.style.overflow = 'visible';
+                    downloadError.style.flex = 'none';
+                    downloadError.style.flexGrow = '0';
+                    downloadError.style.flexShrink = '0';
+                }
+                
+                // 确保表单容器正确显示
+                if (downloadForm) {
+                    downloadForm.style.display = 'block';
+                    downloadForm.style.position = 'relative';
+                    downloadForm.style.zIndex = '1';
+                    downloadForm.style.width = '100%';
+                    downloadForm.style.visibility = 'visible';
+                    downloadForm.style.overflow = 'visible';
+                    
+                    // 检查表单的父容器
+                    let parent = downloadForm.parentElement;
+                    while (parent && parent !== document.body) {
+                        parent.style.display = '';
+                        parent.style.visibility = 'visible';
+                        parent.style.overflow = 'visible';
+                        parent.classList.remove('hidden');
+                        parent = parent.parentElement;
+                    }
+                }
+                
+                // 修复私钥输入框
+                if (privateKeyInput) {
+                    privateKeyInput.style.display = 'block';
+                    privateKeyInput.style.visibility = 'visible';
+                    privateKeyInput.style.position = 'relative';
+                    privateKeyInput.style.zIndex = '1';
+                    
+                    // 修复私钥输入框的容器
+                    let parent = privateKeyInput.parentElement;
+                    while (parent && parent !== downloadForm) {
+                        parent.style.display = '';
+                        parent.style.visibility = 'visible';
+                        parent.classList.remove('hidden');
+                        parent = parent.parentElement;
+                    }
+                }
+                
+                // 修复访问码输入区域
+                const accessCodeContainer = document.querySelector('.access-code-input');
+                if (accessCodeContainer) {
+                    accessCodeContainer.style.display = 'flex';
+                    accessCodeContainer.style.visibility = 'visible';
+                    
+                    // 修复访问码输入框的父容器
+                    let parent = accessCodeContainer.parentElement;
+                    while (parent && parent !== downloadForm) {
+                        parent.style.display = '';
+                        parent.style.visibility = 'visible';
+                        parent.classList.remove('hidden');
+                        parent = parent.parentElement;
+                    }
+                }
+                
+                // 修复每个访问码数字输入框
+                codeDigits.forEach(digit => {
+                    if (digit) {
+                        digit.style.display = '';
+                        digit.style.visibility = 'visible';
+                    }
+                });
+                
+                // 修复下载按钮
+                if (downloadBtn) {
+                    downloadBtn.style.display = '';
+                    downloadBtn.style.visibility = 'visible';
+                    downloadBtn.style.position = 'relative';
+                    downloadBtn.style.zIndex = '1';
+                    
+                    let parent = downloadBtn.parentElement;
+                    while (parent && parent !== downloadForm) {
+                        parent.style.display = '';
+                        parent.style.visibility = 'visible';
+                        parent.classList.remove('hidden');
+                        parent = parent.parentElement;
+                    }
+                }
+                
+                console.log("Layout fix completed");
+            }
+
+            // 3. 修复后的错误显示函数
+            function showDownloadErrorFixed(errorType, customMessage = null) {
+                const error = DOWNLOAD_ERROR_MESSAGES[errorType];
+                const errorContainer = document.getElementById('download-error');
+                const errorMessageElement = document.getElementById('error-message');
+                
+                console.log('Showing download error with layout fix:', errorType);
+                
+                if (errorContainer && errorMessageElement) {
+                    const fullMessage = customMessage || error.message;
+                    
+                    errorMessageElement.innerHTML = `
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 flex items-center justify-center ${getErrorIconColor(error.type)} mt-0.5">
+                                <i class="${error.icon}"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="font-medium ${getErrorTextColor(error.type)}">${error.title}</h4>
+                                <p class="text-sm ${getErrorDescColor(error.type)} mt-1">${fullMessage}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 设置错误容器样式，确保不影响布局
+                    errorContainer.className = `mb-6 p-4 rounded-md border ${getErrorStyles(error.type)}`;
+                    errorContainer.style.position = 'relative';
+                    errorContainer.style.zIndex = '10';
+                    errorContainer.style.width = '100%';
+                    errorContainer.style.flex = 'none';
+                    
+                    // 显示错误
+                    errorContainer.classList.remove('hidden');
+                    
+                    // 立即进行布局修复
+                    setTimeout(() => {
+                        forceFixLayout();
+                        debugLayoutIssue();
+                    }, 50);
+                    
+                    // 再次修复（有时需要延迟修复）
+                    setTimeout(() => {
+                        forceFixLayout();
+                    }, 200);
+                    
+                    // 滚动到错误位置
+                    setTimeout(() => {
+                        errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                }
+            }
+
+            // 4. 窗口大小改变时的处理
+            function handleResize() {
+                console.log("Window resized:", window.innerWidth, "x", window.innerHeight);
+                
+                setTimeout(() => {
+                    const errorVisible = !document.getElementById('download-error').classList.contains('hidden');
+                    if (errorVisible) {
+                        forceFixLayout();
+                        debugLayoutIssue();
+                    }
+                }, 100);
+            }
+
+            // 5. 添加CSS样式修复
+            function addLayoutFixCSS() {
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    /* 紧急布局修复CSS */
+                    #download-form {
+                        display: block !important;
+                        visibility: visible !important;
+                        position: relative !important;
+                        z-index: 1 !important;
+                    }
+                    
+                    #download-error {
+                        position: relative !important;
+                        z-index: 10 !important;
+                        flex: none !important;
+                        flex-grow: 0 !important;
+                        flex-shrink: 0 !important;
+                    }
+                    
+                    .access-code-input {
+                        display: flex !important;
+                        visibility: visible !important;
+                    }
+                    
+                    #privateKey {
+                        display: block !important;
+                        visibility: visible !important;
+                    }
+                    
+                    #download-btn {
+                        display: inline-flex !important;
+                        visibility: visible !important;
+                    }
+                    
+                    /* 防止父容器隐藏子元素 */
+                    .main-content-container > * {
+                        overflow: visible !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            // 6. 初始化修复
+            document.addEventListener('DOMContentLoaded', function() {
+                // 添加CSS修复
+                addLayoutFixCSS();
+                
+                // 添加窗口大小改变监听器
+                window.addEventListener('resize', handleResize);
+                
+                // 替换原来的showDownloadError函数
+                window.showDownloadError = showDownloadErrorFixed;
+                
+                // 初始布局检查
+                setTimeout(() => {
+                    debugLayoutIssue();
+                }, 1000);
+            });
+
+            // 7. 手动触发调试（在控制台中使用）
+            window.debugLayout = debugLayoutIssue;
+            window.fixLayout = forceFixLayout;
+
+            // 2. 错误样式辅助函数
+            function getErrorStyles(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'bg-red-50 border-red-200';
+                    case 'warning': 
+                        return 'bg-yellow-50 border-yellow-200';
+                    case 'error':
+                    default:
+                        return 'bg-red-50 border-red-200';
+                }
+            }
+
+            function getErrorIconColor(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'text-red-500';
+                    case 'warning':
+                        return 'text-yellow-500';
+                    case 'error':
+                    default:
+                        return 'text-red-500';
+                }
+            }
+
+            function getErrorTextColor(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'text-red-800';
+                    case 'warning':
+                        return 'text-yellow-800';
+                    case 'error':
+                    default:
+                        return 'text-red-800';
+                }
+            }
+
+            function getErrorDescColor(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'text-red-700';
+                    case 'warning':
+                        return 'text-yellow-700';
+                    case 'error':
+                    default:
+                        return 'text-red-700';
+                }
+            }
         
+            // 3. 下载错误分类函数
+            function categorizeDownloadError(response, errorData) {
+                const status = response.status;
+                const message = errorData?.error || errorData?.message || '';
+                
+                console.log('Categorizing download error:', { status, message, errorData });
+                
+                // 优先检查错误消息内容，而不是仅依赖状态码
+                if (message.includes('private key') || message.includes('Private key') || 
+                    message.includes('Decryption failed') || message.includes('decrypt')) {
+                    return 'INVALID_PRIVATE_KEY';
+                }
+
+                if (message.includes('access code') && message.includes('expired')) {
+                    return 'ACCESS_CODE_EXPIRED';
+                }
+                
+                if (message.includes('access code') && (message.includes('not found') || message.includes('Invalid'))) {
+                    return 'ACCESS_CODE_NOT_FOUND';
+                }
+
+                if (status === 404) {
+                    if (message.includes('access code') || message.includes('Invalid access code')) {
+                        return 'ACCESS_CODE_NOT_FOUND';
+                    }
+                } else if (status === 410) {
+                    // 410状态码可能是访问码过期，也可能是其他原因
+                    // 如果没有明确的过期消息，可能是解密失败
+                    return 'DECRYPTION_FAILED';
+                } else if (status === 403) {
+                    if (message.includes('blocked') || message.includes('suspicious')) {
+                        return 'ACCESS_BLOCKED';
+                    }
+                } else if (status === 400) {
+                    if (message.includes('private key') || message.includes('Private key')) {
+                        return 'INVALID_PRIVATE_KEY';
+                    }
+                } else if (status === 500) {
+                    if (message.includes('Decryption failed') || message.includes('decrypt')) {
+                        return 'DECRYPTION_FAILED';
+                    }
+                    return 'SERVER_ERROR';
+                } else if (status === 0 || status >= 502) {
+                    return 'NETWORK_ERROR';
+                }
+                
+                return 'SERVER_ERROR'; // 默认错误
+            }
+
+            // 4. 显示下载错误信息的函数
+            function showDownloadError(errorType, customMessage = null) {
+                const error = DOWNLOAD_ERROR_MESSAGES[errorType];
+                const errorContainer = document.getElementById('download-error');
+                const errorMessageElement = document.getElementById('error-message');
+                
+                console.log('Showing download error:', errorType, error);
+                
+                if (errorContainer && errorMessageElement) {
+                    const fullMessage = customMessage || error.message;
+                    
+                    errorMessageElement.innerHTML = `
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 flex items-center justify-center ${getErrorIconColor(error.type)} mt-0.5">
+                                <i class="${error.icon}"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="font-medium ${getErrorTextColor(error.type)}">${error.title}</h4>
+                                <p class="text-sm ${getErrorDescColor(error.type)} mt-1">${fullMessage}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 设置错误容器样式
+                    errorContainer.className = `mb-6 p-4 rounded-md border ${getErrorStyles(error.type)}`;
+                    
+                    // 显示错误
+                    errorContainer.classList.remove('hidden');
+                    
+                    // 确保关键元素仍然可见
+                    setTimeout(() => {
+                        ensureFormElementsVisible();
+                    }, 100);
+                    setTimeout(() => forceFixLayout(), 5);
+                    setTimeout(() => forceFixLayout(), 100);
+                    setTimeout(() => forceFixLayout(), 300);
+
+                    // 滚动到错误位置
+                    errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+        function ensureFormElementsVisible() {
+            console.log("Ensuring form elements are visible...");
+            
+            // 关键元素列表
+            const criticalElements = [
+                { element: downloadForm, name: 'downloadForm' },
+                { element: downloadBtn, name: 'downloadBtn' },
+                { element: document.getElementById('privateKey'), name: 'privateKey' },
+            ];
+            
+            // 检查访问码输入框
+            const accessCodeContainer = document.querySelector('.access-code-input');
+            if (accessCodeContainer) {
+                criticalElements.push({ element: accessCodeContainer, name: 'accessCodeContainer' });
+            }
+            
+            // 检查所有访问码数字输入框
+            codeDigits.forEach((digit, index) => {
+                criticalElements.push({ element: digit, name: `codeDigit${index}` });
+            });
+            
+            criticalElements.forEach(({ element, name }) => {
+                if (element) {
+                    // 检查元素是否可见
+                    const isVisible = element.offsetParent !== null;
+                    console.log(`${name} visible:`, isVisible);
+                    
+                    if (!isVisible) {
+                        console.warn(`${name} is hidden, attempting to restore...`);
+                        
+                        // 修复元素本身
+                        element.style.display = '';
+                        element.style.visibility = 'visible';
+                        element.style.opacity = '1';
+                        element.classList.remove('hidden');
+                        
+                        // 修复父容器链
+                        let parent = element.parentElement;
+                        let level = 1;
+                        while (parent && parent !== document.body && level <= 5) {
+                            const parentStyle = window.getComputedStyle(parent);
+                            
+                            if (parentStyle.display === 'none' || parent.classList.contains('hidden')) {
+                                console.warn(`Parent ${level} of ${name} is hidden, fixing...`);
+                                parent.style.display = '';
+                                parent.style.visibility = 'visible';
+                                parent.classList.remove('hidden');
+                            }
+                            
+                            parent = parent.parentElement;
+                            level++;
+                        }
+                    }
+                } else {
+                    console.warn(`${name} element not found`);
+                }
+            });
+            
+            console.log("Form elements visibility check completed");
+        }
+
+
+            // 5. 处理下载错误的主函数
+            function handleDownloadError(error, response = null) {
+                console.log('Handling download error:', error, response);
+                
+                // 检查网络错误
+                if (!response || error.message.includes('fetch')) {
+                    showDownloadError('NETWORK_ERROR');
+                    return;
+                }
+                
+                // 尝试解析服务器错误响应
+                if (response && typeof response.json === 'function') {
+                    response.json().then(errorData => {
+                        const errorType = categorizeDownloadError(response, errorData);
+                        showDownloadError(errorType);
+                    }).catch(() => {
+                        showDownloadError('SERVER_ERROR');
+                    });
+                } else {
+                    // 如果已经有错误数据
+                    const errorType = categorizeDownloadError(response, error);
+                    showDownloadError(errorType);
+                }
+            }
+
+            function validateFormBeforeSubmit(accessCode, privateKey) {
+                console.log('Validating form before submit:', {
+                    accessCodeLength: accessCode.length,
+                    privateKeyLength: privateKey.length
+                });
+                
+                // 验证访问码
+                if (accessCode.length !== 6 || !/^\d{6}$/.test(accessCode)) {
+                    showDownloadError('ACCESS_CODE_NOT_FOUND', 'Please enter a valid 6-digit access code.');
+                    return false;
+                }
+                
+                // 验证私钥
+                if (!privateKey) {
+                    showDownloadError('INVALID_PRIVATE_KEY', 'Please paste your private key to proceed.');
+                    return false;
+                }
+                
+                // 详细的私钥格式验证
+                if (!validatePrivateKeyFormat(privateKey)) {
+                    return false; // 错误已在validatePrivateKeyFormat中显示
+                }
+                
+                return true;
+            }
+
+            // 6. 验证私钥格式的函数
+            function validatePrivateKeyFormat(privateKey) {
+                const trimmedKey = privateKey.trim();
+                
+                console.log('Validating private key format:', {
+                length: trimmedKey.length,
+                hasBegin: trimmedKey.includes('-----BEGIN'),
+                hasEnd: trimmedKey.includes('-----END'),
+                hasPrivateKey: trimmedKey.includes('PRIVATE KEY')
+            });
+            
+            // 检查是否包含基本的私钥结构
+            const hasBeginHeader = trimmedKey.includes('-----BEGIN') && 
+                                (trimmedKey.includes('PRIVATE KEY') || trimmedKey.includes('RSA PRIVATE KEY'));
+            const hasEndFooter = trimmedKey.includes('-----END') && 
+                                (trimmedKey.includes('PRIVATE KEY') || trimmedKey.includes('RSA PRIVATE KEY'));
+            
+            // 检查是否有实际的密钥内容（不只是头尾）
+            const lines = trimmedKey.split('\n').filter(line => line.trim());
+            const hasContent = lines.length > 2; // 至少有开始行、内容行、结束行
+            
+            if (!hasBeginHeader || !hasEndFooter || !hasContent) {
+                showDownloadError('PRIVATE_KEY_FORMAT_ERROR');
+                return false;
+            }
+            
+            // 检查是否看起来像是占位符文本
+            const isPlaceholder = trimmedKey.includes('and edae') || 
+                                trimmedKey.includes('your private key here') ||
+                                trimmedKey.length < 100; // 真实私钥应该比较长
+            
+            if (isPlaceholder) {
+                showDownloadError('PRIVATE_KEY_FORMAT_ERROR', 
+                    'Please paste your actual private key, not placeholder text. The private key should be much longer and contain the actual cryptographic data.');
+                return false;
+            }
+            
+            return true;
+            }
+
             // Auto-focus and input behavior for access code digits
             codeDigits.forEach((digit, index) => {
                 digit.addEventListener('input', function () {
@@ -455,8 +1098,10 @@
         
             // Handle form submission
             if (downloadForm) {
+                console.log("Adding form submit listener");
                 downloadForm.addEventListener('submit', function (e) {
                     e.preventDefault();
+                    console.log("Form submitted");
         
                     let accessCode = '';
                     codeDigits.forEach(digit => {
@@ -464,21 +1109,33 @@
                     });
         
                     const privateKey = document.getElementById("privateKey").value.trim();
+                    
+                    console.log("Access code:", accessCode, "Private key length:", privateKey.length);
         
                     if (accessCode.length !== 6 || !/^\d{6}$/.test(accessCode)) {
-                        downloadError.classList.remove('hidden');
-                        errorMessage.textContent = 'Please enter a valid 6-digit access code.';
+                        showDownloadError('ACCESS_CODE_NOT_FOUND', 'Please enter a valid 6-digit access code.');
                         return;
                     }
         
                     if (!privateKey) {
-                        downloadError.classList.remove('hidden');
-                        errorMessage.textContent = 'Please paste your private key to proceed.';
+                        showDownloadError('INVALID_PRIVATE_KEY', 'Please paste your private key to proceed.');
                         return;
                     }
+                    
+                    // 添加私钥格式验证
+                    if (!validatePrivateKeyFormat(privateKey)) {
+                        return; // 错误已在validatePrivateKeyFormat中显示
+                    }
         
-                    downloadError.classList.add('hidden');
-                    loadingState.classList.remove('hidden');
+                    // 隐藏之前的错误
+                    if (downloadError) {
+                        downloadError.classList.add('hidden');
+                    }
+                    
+                    // 显示加载状态
+                    if (loadingState) {
+                        loadingState.classList.remove('hidden');
+                    }
         
                     if (downloadBtn) {
                         downloadBtn.disabled = true;
@@ -491,125 +1148,138 @@
                         `;
                     }
         
+                    console.log("Sending download request...");
+        
                     // 发送请求获取加密文件
                     fetch('/api/files/get_encrypted_file_api/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ accessCode, privateKey })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        if (response.status === 404) {
-                            throw new Error('Invalid access code. Please check and try again.');
-                        } else if (response.status === 403) {
-                            throw new Error('Access blocked. Too many failed attempts.');
-                        } else if (response.status === 410) {
-                            throw new Error('This file has expired and is no longer available.');
-                        } else {
-                            throw new Error('An error occurred. Please try again later.');
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ accessCode, privateKey })
+                    })
+                    .then(response => {
+                        console.log("Response received:", response.status);
+                        
+                        if (!response.ok) {
+                            // 使用新的错误处理系统
+                            return response.json().then(errorData => {
+                                console.log("Error data:", errorData);
+                                const errorType = categorizeDownloadError(response, errorData);
+                                showDownloadError(errorType);
+                                throw new Error('Download failed');
+                            });
                         }
-                    }
-                    
-                    // 保存响应对象以便获取头信息
-                    const responseData = {
-                        blob: response.blob(),
-                        headers: response.headers
-                    };
-                    
-                    return Promise.all([responseData.blob, Promise.resolve(responseData.headers)]);
-                })
-                .then(([blob, headers]) => {
-                    let progress = 0;
-                    const interval = setInterval(() => {
-                        progress += 5;
-                        if (progress > 100) {
-                            clearInterval(interval);
-                            return;
-                        }
-                        if (progressBar) progressBar.style.width = `${progress}%`;
-                        if (downloadPercentage) downloadPercentage.textContent = `${progress}%`;
+                        
+                        // 保存响应对象以便获取头信息
+                        const responseData = {
+                            blob: response.blob(),
+                            headers: response.headers
+                        };
+                        
+                        return Promise.all([responseData.blob, Promise.resolve(responseData.headers)]);
+                    })
+                    .then(([blob, headers]) => {
+                        console.log("Blob received, starting download...");
+                        
+                        let progress = 0;
+                        const interval = setInterval(() => {
+                            progress += 5;
+                            if (progress > 100) {
+                                clearInterval(interval);
+                                return;
+                            }
+                            if (progressBar) progressBar.style.width = `${progress}%`;
+                            if (downloadPercentage) downloadPercentage.textContent = `${progress}%`;
 
-                        if (progress === 100) {
-                            clearInterval(interval);
-                            setTimeout(() => {
-                                loadingState.classList.add('hidden');
-                                downloadSuccess.classList.remove('hidden');
+                            if (progress === 100) {
+                                clearInterval(interval);
+                                setTimeout(() => {
+                                    if (loadingState) loadingState.classList.add('hidden');
+                                    if (downloadSuccess) downloadSuccess.classList.remove('hidden');
 
-                                const url = window.URL.createObjectURL(blob);
-                                const downloadLink = document.createElement('a');
-                                downloadLink.href = url;
-                                
-                                // 从服务器响应头中提取文件名
-                                let filename = 'decrypted_file'; // 默认文件名
-                                let foundFilename = false; // 标记是否找到了文件名
-                                
-                                const contentDisposition = headers.get('content-disposition');
-                                console.log('Content-Disposition header:', contentDisposition);
-                                
-                                if (contentDisposition) {
-                                    // 尝试匹配 filename="..." 格式
-                                    const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
-                                    if (filenameMatch && filenameMatch[1]) {
-                                        filename = filenameMatch[1];
-                                        foundFilename = true;
-                                        console.log('Extracted filename from header:', filename);
-                                    } else {
-                                        // 尝试匹配 filename*=UTF-8''... 格式
-                                        const utf8FilenameMatch = contentDisposition.match(/filename\*=UTF-8''([^;]+)/);
-                                        if (utf8FilenameMatch && utf8FilenameMatch[1]) {
-                                            filename = decodeURIComponent(utf8FilenameMatch[1]);
+                                    const url = window.URL.createObjectURL(blob);
+                                    const downloadLink = document.createElement('a');
+                                    downloadLink.href = url;
+                                    
+                                    // 从服务器响应头中提取文件名
+                                    let filename = 'decrypted_file'; // 默认文件名
+                                    let foundFilename = false; // 标记是否找到了文件名
+                                    
+                                    const contentDisposition = headers.get('content-disposition');
+                                    console.log('Content-Disposition header:', contentDisposition);
+                                    
+                                    if (contentDisposition) {
+                                        // 尝试匹配 filename="..." 格式
+                                        const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+                                        if (filenameMatch && filenameMatch[1]) {
+                                            filename = filenameMatch[1];
                                             foundFilename = true;
-                                            console.log('Extracted UTF-8 filename from header:', filename);
+                                            console.log('Extracted filename from header:', filename);
+                                        } else {
+                                            // 尝试匹配 filename*=UTF-8''... 格式
+                                            const utf8FilenameMatch = contentDisposition.match(/filename\*=UTF-8''([^;]+)/);
+                                            if (utf8FilenameMatch && utf8FilenameMatch[1]) {
+                                                filename = decodeURIComponent(utf8FilenameMatch[1]);
+                                                foundFilename = true;
+                                                console.log('Extracted UTF-8 filename from header:', filename);
+                                            }
                                         }
                                     }
-                                }
-                                
-                                // 从自定义头中获取文件名（备用方案）
-                                const customFilename = headers.get('x-original-filename');
-                                if (customFilename && !foundFilename) {
-                                    filename = customFilename;
-                                    console.log('Using custom filename header:', filename);
-                                }
-                                
-                                console.log('Final filename for download:', filename);
-                                downloadLink.download = filename;
-                                
-                                document.body.appendChild(downloadLink);
-                                downloadLink.click();
-                                document.body.removeChild(downloadLink);
-                                
-                                // 清理URL对象
-                                window.URL.revokeObjectURL(url);
+                                    
+                                    // 从自定义头中获取文件名（备用方案）
+                                    const customFilename = headers.get('x-original-filename');
+                                    if (customFilename && !foundFilename) {
+                                        filename = customFilename;
+                                        console.log('Using custom filename header:', filename);
+                                    }
+                                    
+                                    console.log('Final filename for download:', filename);
+                                    downloadLink.download = filename;
+                                    
+                                    document.body.appendChild(downloadLink);
+                                    downloadLink.click();
+                                    document.body.removeChild(downloadLink);
+                                    
+                                    // 清理URL对象
+                                    window.URL.revokeObjectURL(url);
 
-                                if (downloadBtn) {
-                                    downloadBtn.disabled = false;
-                                    downloadBtn.innerHTML = `
-                                        <div class="w-5 h-5 flex items-center justify-center mr-2">
-                                            <i class="ri-download-2-line"></i>
-                                        </div>
-                                        Decrypt & Download File
-                                    `;
-                                }
-                            }, 500);
+                                    // 重置按钮
+                                    if (downloadBtn) {
+                                        downloadBtn.disabled = false;
+                                        downloadBtn.innerHTML = `
+                                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                                <i class="ri-download-2-line"></i>
+                                            </div>
+                                            Decrypt & Download File
+                                        `;
+                                    }
+                                }, 500);
+                            }
+                        }, 100);
+                    })
+                    .catch(error => {
+                        console.log("Catch block:", error.message);
+                        
+                        if (loadingState) loadingState.classList.add('hidden');
+        
+                        // 只有在没有已经处理的错误时才调用这里
+                        if (!error.message.includes('Download failed')) {
+                            handleDownloadError(error);
                         }
-                    }, 100);
-                })
-                .catch(error => {
-                    loadingState.classList.add('hidden');
-                    downloadError.classList.remove('hidden');
-                    errorMessage.textContent = error.message;
 
-                    if (downloadBtn) {
-                        downloadBtn.disabled = false;
-                        downloadBtn.innerHTML = `
-                            <div class="w-5 h-5 flex items-center justify-center mr-2">
-                                <i class="ri-download-2-line"></i>
-                            </div>
-                            Decrypt & Download File
-                        `;
-                    }
+                        // 重置按钮
+                        if (downloadBtn) {
+                            downloadBtn.disabled = false;
+                            downloadBtn.innerHTML = `
+                                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                    <i class="ri-download-2-line"></i>
+                                </div>
+                                Decrypt & Download File
+                            `;
+                        }
+                    });
                 });
-                });
+            } else {
+                console.error("Download form not found!");
             }
         
             // FAQ toggle behavior
@@ -654,7 +1324,7 @@
                 faqToggles[0].click();
             }
         });
-    </script>
+</script>
 
 {% endblock %}
 </body>

@@ -110,7 +110,7 @@ def query_files_by_user(request):
 def ai_monitor_access_code_request(request_data):
     # This function is a placeholder for AI monitoring of access code requests.
     # for now, simulate a random response
-    if random.random() < 0.05:  # 5% chance of suspicious activity
+    if random.random() < 0.05:  # 5% chance of suspicious activity - just for test use
         return "suspicious", "AI detected suspicious activity in access code request."
     else:
         return "normal", "AI detected normal activity in access code request."

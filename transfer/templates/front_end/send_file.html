@@ -559,6 +559,201 @@
     </div>
 
     <script defer>
+
+        // 1. 定义错误类型和对应的用户友好消息
+        const UPLOAD_ERROR_MESSAGES = {
+                INVALID_PUBLIC_KEY: {
+                    title: "Invalid Public Key",
+                    message: "The public key format is incorrect. Please ensure you've copied the complete RSA public key including the -----BEGIN PUBLIC KEY----- and -----END PUBLIC KEY----- lines.",
+                    icon: "ri-key-2-line",
+                    type: "warning"
+                },
+                MALWARE_DETECTED: {
+                    title: "Security Threat Detected",
+                    message: "Our security system has detected potential malware in this PDF file. For your safety, this file cannot be uploaded.",
+                    icon: "ri-shield-cross-line",
+                    type: "danger"
+                },
+                FILE_TOO_LARGE: {
+                    title: "File Too Large",
+                    message: "The selected file exceeds the 100MB limit. Please choose a smaller file or compress it before uploading.",
+                    icon: "ri-file-warning-line",
+                    type: "warning"
+                },
+                ENCRYPTION_FAILED: {
+                    title: "Encryption Failed",
+                    message: "Unable to encrypt the file with the provided public key. Please verify the key format and try again.",
+                    icon: "ri-lock-line",
+                    type: "error"
+                },
+                INVALID_BASE64: {
+                    title: "Data Encoding Error",
+                    message: "There was an issue processing your public key. Please copy the key again and ensure it's complete.",
+                    icon: "ri-code-line",
+                    type: "error"
+                },
+                NETWORK_ERROR: {
+                    title: "Connection Error",
+                    message: "Unable to connect to the server. Please check your internet connection and try again.",
+                    icon: "ri-wifi-off-line",
+                    type: "error"
+                },
+                SERVER_ERROR: {
+                    title: "Server Error",
+                    message: "An unexpected error occurred on our servers. Please try again in a few moments.",
+                    icon: "ri-server-line",
+                    type: "error"
+                }
+            };
+
+            // 2. 错误检测和分类函数
+            function categorizeUploadError(response, errorData) {
+                const status = response.status;
+                const message = errorData?.error || errorData?.message || '';
+                
+                console.log('Categorizing upload error:', { status, message, errorData });
+                
+                if (status === 400) {
+                    if (message.includes('public key') || message.includes('Invalid base64')) {
+                        return 'INVALID_PUBLIC_KEY';
+                    } else if (message.includes('Malicious') || message.includes('virus') || message.includes('malware') || 
+                            message.includes('dangerous content') || errorData?.status === 'blocked') {
+                        return 'MALWARE_DETECTED';
+                    } else if (message.includes('size') || message.includes('100MB') || message.includes('exceeds')) {
+                        return 'FILE_TOO_LARGE';
+                    } else if (message.includes('base64') || message.includes('encoding')) {
+                        return 'INVALID_BASE64';
+                    }
+                } else if (status === 500) {
+                    if (message.includes('Encryption') || message.includes('crypto')) {
+                        return 'ENCRYPTION_FAILED';
+                    }
+                    return 'SERVER_ERROR';
+                } else if (status === 0 || status >= 502) {
+                    return 'NETWORK_ERROR';
+                }
+                
+                return 'SERVER_ERROR'; // 默认错误
+            }
+
+            // 3. 显示错误信息的函数
+            function showUploadError(errorType, customMessage = null, extraData = null) {
+                const error = UPLOAD_ERROR_MESSAGES[errorType];
+                const errorContainer = document.getElementById('upload-error');
+                const errorMessageElement = document.getElementById('error-message');
+                
+                if (errorContainer && errorMessageElement) {
+                    let fullMessage = customMessage || error.message;
+                    
+                    // 为恶意软件检测添加额外信息
+                    if (errorType === 'MALWARE_DETECTED' && extraData?.malicious_score) {
+                        fullMessage += ` (Threat Score: ${extraData.malicious_score})`;
+                    }
+                    
+                    errorMessageElement.innerHTML = `
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 flex items-center justify-center ${getErrorIconColor(error.type)} mt-0.5">
+                                <i class="${error.icon}"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="font-medium ${getErrorTextColor(error.type)}">${error.title}</h4>
+                                <p class="text-sm ${getErrorDescColor(error.type)} mt-1">${fullMessage}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 根据错误类型设置样式
+                    errorContainer.className = `mb-6 p-4 rounded-md border ${getErrorStyles(error.type)}`;
+                    
+                    // 显示错误
+                    errorContainer.classList.remove('hidden');
+                    
+                    // 滚动到错误位置
+                    errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            // 4. 获取错误样式的辅助函数
+            function getErrorStyles(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'bg-red-50 border-red-200';
+                    case 'warning': 
+                        return 'bg-yellow-50 border-yellow-200';
+                    case 'error':
+                    default:
+                        return 'bg-red-50 border-red-200';
+                }
+            }
+
+            function getErrorIconColor(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'text-red-500';
+                    case 'warning':
+                        return 'text-yellow-500';
+                    case 'error':
+                    default:
+                        return 'text-red-500';
+                }
+            }
+
+            function getErrorTextColor(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'text-red-800';
+                    case 'warning':
+                        return 'text-yellow-800';
+                    case 'error':
+                    default:
+                        return 'text-red-800';
+                }
+            }
+
+            function getErrorDescColor(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'text-red-700';
+                    case 'warning':
+                        return 'text-yellow-700';
+                    case 'error':
+                    default:
+                        return 'text-red-700';
+                }
+            }
+
+            // 5. 处理上传错误的主函数
+            function handleUploadError(error, response = null) {
+                console.log('Handling upload error:', error, response);
+                
+                // 首先检查是否是前端加密错误
+                if (error.name === 'DataError' || error.name === 'DOMException' || error.message.includes('SubtleCrypto')) {
+                    showUploadError('INVALID_PUBLIC_KEY', 'The public key format is invalid or incompatible. Please ensure you\'re using a valid RSA public key.');
+                    return;
+                }
+                
+                // 检查网络错误
+                if (!response || error.message.includes('fetch')) {
+                    showUploadError('NETWORK_ERROR');
+                    return;
+                }
+                
+                // 尝试解析服务器错误响应
+                if (response && typeof response.json === 'function') {
+                    response.json().then(errorData => {
+                        const errorType = categorizeUploadError(response, errorData);
+                        showUploadError(errorType, null, errorData);
+                    }).catch(() => {
+                        showUploadError('SERVER_ERROR');
+                    });
+                } else {
+                    // 如果响应已经是JSON数据
+                    const errorType = categorizeUploadError(response, error);
+                    showUploadError(errorType, null, error);
+                }
+            }
+
+
         document.addEventListener("DOMContentLoaded", function () {
             // Elements
             const fileInput = document.getElementById("file-input");
@@ -584,6 +779,7 @@
             const progressBar = document.querySelector(".progress-bar");
             const faqToggles = document.querySelectorAll('.faq-toggle');
 
+            
             console.log("🔐 Secure upload script loaded");
 
             // Drag & Drop handlers
@@ -649,21 +845,18 @@
                 e.preventDefault();
 
                 if (!fileInput.files.length) {
-                    uploadError.classList.remove("hidden");
-                    errorMessage.textContent = "Please select a file to upload.";
+                    showUploadError('FILE_TOO_LARGE', 'Please select a file to upload.');
                     return;
                 }
 
                 if (!recipientPublicKey.value.trim()) {
-                    uploadError.classList.remove("hidden");
-                    errorMessage.textContent = "Please enter the recipient's public key.";
+                    showUploadError('INVALID_PUBLIC_KEY', 'Please enter the recipient\'s public key.');
                     return;
                 }
 
                 const currentFile = fileInput.files[0];
                 if (currentFile.size > 100 * 1024 * 1024) {
-                    uploadError.classList.remove("hidden");
-                    errorMessage.textContent = "File size exceeds 100MB.";
+                    showUploadError('FILE_TOO_LARGE');
                     return;
                 }
 
@@ -733,23 +926,73 @@
                     uploadPercentage.textContent = "100%";
 
                     const data = await response.json();
-                    if (!response.ok) throw new Error(data.error || "Upload failed");
-
-                    setTimeout(() => {
-                        uploadStatus.classList.add("hidden");
-                        uploadSuccess.classList.remove("hidden");
-                        accessCode.textContent = data.access_code;
-                    }, 500);
+                    
+                    if (!response.ok) {
+                        // 使用新的错误处理系统
+                        const errorType = categorizeUploadError(response, data);
+                        showUploadError(errorType, null, data);
+                    } else {
+                        setTimeout(() => {
+                            uploadStatus.classList.add("hidden");
+                            uploadSuccess.classList.remove("hidden");
+                            accessCode.textContent = data.access_code;
+                        }, 500);
+                    }
 
                 } catch (err) {
                     console.error("❌ Upload error:", err);
                     uploadStatus.classList.add("hidden");
-                    uploadError.classList.remove("hidden");
-                    errorMessage.textContent = err.message || "Upload failed.";
+                    
+                    // 使用新的错误处理系统
+                    handleUploadError(err);
                 }
 
+                // 重置按钮状态
                 uploadBtn.disabled = false;
                 uploadBtn.innerHTML = `<div class="w-5 h-5 flex items-center justify-center mr-2"><i class="ri-upload-2-line"></i></div>Upload & Encrypt File`;
+            });
+
+            // 修复 retry 和 cancel 按钮
+            retryUpload.addEventListener("click", simpleTryAgain);
+            function simpleTryAgain() {
+                console.log("Simple try again - reloading page");
+                
+                // 保存数据到 sessionStorage
+                if (recipientPublicKey && recipientPublicKey.value.trim()) {
+                    sessionStorage.setItem('tempPublicKey', recipientPublicKey.value);
+                }
+                
+                // 刷新页面
+                window.location.reload();
+            }
+
+            // 6. 页面加载时恢复数据
+            function restoreDataOnLoad() {
+                const savedPublicKey = sessionStorage.getItem('tempPublicKey');
+                const savedFileName = sessionStorage.getItem('tempFileName');
+                
+                if (savedPublicKey && recipientPublicKey) {
+                    recipientPublicKey.value = savedPublicKey;
+                    console.log('Restored public key from session storage');
+                    
+                    // 清除临时数据
+                    sessionStorage.removeItem('tempPublicKey');
+                    sessionStorage.removeItem('tempFileName');
+                    sessionStorage.removeItem('tempFileSize');
+                    
+                    if (savedFileName) {
+                        // 提示用户重新选择文件
+                        setTimeout(() => {
+                            alert(`Please re-select your file: ${savedFileName}`);
+                        }, 500);
+                    }
+                }
+            }
+
+            // Cancel - 刷新页面
+            cancelBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.location.reload();
             });
 
             copyCodeBtn.addEventListener("click", function () {
@@ -760,8 +1003,6 @@
                 });
             });
 
-            retryUpload.addEventListener("click", () => uploadError.classList.add("hidden"));
-            cancelBtn.addEventListener("click", () => window.location.href = "#");
 
             // FAQ toggle behavior
             faqToggles.forEach(toggle => {

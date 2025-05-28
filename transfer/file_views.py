@@ -87,9 +87,10 @@ class FileUploadView(views.APIView):
                 print(f"Malicious file detected! Score: {score}")
                 return Response({
                     "status": "blocked", 
-                    "message": f"Malicious PDF file detected! This file appears to contain dangerous content.",
+                    "message": f"Security threat detected in this {file_ext} file. Our AI security system has identified potential malware with a confidence score of {score:.3f}.",
                     "malicious_score": round(score, 3),
-                    "file_type": "PDF"
+                    "file_type": "PDF",
+                    "error_type": "MALWARE_DETECTED"
                 }, status=status.HTTP_400_BAD_REQUEST)
             else:
                 if score == 0.0:
@@ -165,9 +166,14 @@ class FileUploadView(views.APIView):
                 print("Base64 decode successful.")
             except Exception as e:
                 print(f"Error decoding base64: {str(e)}")
+                error_message = "Invalid encryption data format. This usually indicates an issue with the public key used for encryption."
+                if "Invalid base64" in str(e):
+                    error_message = "Invalid public key format. Please ensure you've copied the complete RSA public key correctly."
                 return Response({
-                    "error": f"Invalid base64 encoding for keys/IV: {str(e)}"
+                    "error": error_message,
+                    "error_type": "INVALID_PUBLIC_KEY"
                 }, status=status.HTTP_400_BAD_REQUEST)
+
 
             # 确保文件指针在开头再保存
             uploaded_file.seek(0)
@@ -217,9 +223,16 @@ class GetEncryptedFileView(views.APIView):
             file_instance = EncrptedFile.objects.filter(code_hash=hashed_code).first()
 
             if not file_instance:
-                return Response({"error": "Invalid access code"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({
+                    "error": "Access code not found. Please verify the 6-digit code provided by the sender.",
+                    "error_type": "ACCESS_CODE_NOT_FOUND"
+                }, status=status.HTTP_404_NOT_FOUND)
+
             if file_instance.code_expire and file_instance.code_expire < timezone.now():
-                return Response({"error": "This file has expired"}, status=status.HTTP_410_GONE)
+                return Response({
+                    "error": "This access code has expired. Access codes are valid for 7 days from upload.",
+                    "error_type": "ACCESS_CODE_EXPIRED"
+                }, status=status.HTTP_410_GONE)
 
             # Logging the download
             FileLog.objects.create(
@@ -242,8 +255,28 @@ class GetEncryptedFileView(views.APIView):
                 print(f"🔍 [DEBUG] IV length: {len(iv) if iv else 'None'}")
 
                 # 解密AES密钥
-                aes_key = decrypt_aes_key_with_rsa(encrypted_aes_key, private_key_pem)
-                print(f"🔍 [DEBUG] Decrypted AES key length: {len(aes_key)}")
+                try:
+                    # 解密AES密钥时的错误处理
+                    aes_key = decrypt_aes_key_with_rsa(encrypted_aes_key, private_key_pem)
+                    print(f"🔍 [DEBUG] Decrypted AES key length: {len(aes_key)}")
+                except ValueError as e:
+                    print(f"❌ [ERROR] RSA decryption failed: {str(e)}")
+                    if "Decryption failed" in str(e) or "Invalid key" in str(e):
+                        return Response({
+                            "error": "The private key doesn't match this file. Please ensure you're using the correct private key.",
+                            "error_type": "INVALID_PRIVATE_KEY"
+                        }, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        return Response({
+                            "error": "Private key format error. Please check that your private key is complete and valid.",
+                            "error_type": "PRIVATE_KEY_FORMAT_ERROR"
+                        }, status=status.HTTP_400_BAD_REQUEST)
+                except Exception as e:
+                    print(f"❌ [ERROR] Unexpected RSA decryption error: {str(e)}")
+                    return Response({
+                        "error": "Unable to process the private key. Please verify the key format and try again.",
+                        "error_type": "DECRYPTION_FAILED"
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                 # 读取存储的加密文件数据
                 with file_instance.uploaded_file.open("rb") as f:
@@ -263,10 +296,18 @@ class GetEncryptedFileView(views.APIView):
                     print("⚠️ [DEBUG] Hash mismatch - stored data may be corrupted")
 
                 # 解密文件数据
-                print(f"🔍 [DEBUG] Attempting AES decryption...")
-                decrypted_file_data = decrypt_file_with_aes(encrypted_file_data, aes_key, iv)
-                print(f"🔍 [DEBUG] Decrypted file data length: {len(decrypted_file_data)}")
-                
+                try:
+                    # AES解密时的错误处理
+                    print(f"🔍 [DEBUG] Attempting AES decryption...")
+                    decrypted_file_data = decrypt_file_with_aes(encrypted_file_data, aes_key, iv)
+                    print(f"🔍 [DEBUG] Decrypted file data length: {len(decrypted_file_data)}")
+                except Exception as e:
+                    print(f"❌ [ERROR] AES decryption failed: {str(e)}")
+                    return Response({
+                        "error": "File decryption failed. This usually means the private key doesn't match the public key used for encryption.",
+                        "error_type": "DECRYPTION_FAILED"
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                                
                 # 计算解密后数据的哈希用于调试
                 decrypted_hash = hashlib.sha256(decrypted_file_data).hexdigest()
                 print(f"🔍 [DEBUG] Decrypted file SHA256: {decrypted_hash}")
