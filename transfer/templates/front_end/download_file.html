@@ -5,29 +5,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download Encrypted File</title>
+    <title>Decrypt & Download File</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
     <script src="/static/js/navbar.js" defer></script>
-    <script>tailwind.config = {theme: {extend: {colors: {primary: '#17c3b2', secondary: '#227c9d'},
-                borderRadius: {
-                    'none': '0px',
-                    'sm': '4px',
-                    DEFAULT: '8px',
-                    'md': '12px',
-                    'lg': '16px',
-                    'xl': '20px',
-                    '2xl': '24px',
-                    '3xl': '32px',
-                    'full': '9999px',
-                    'button': '8px'
-                }
-            }
-        }
-    }</script>
+    <script>tailwind.config = { theme: { extend: { colors: { primary: '#17c3b2', secondary: '#227c9d' }, borderRadius: { 'none': '0px', 'sm': '4px', DEFAULT: '8px', 'md': '12px', 'lg': '16px', 'xl': '20px', '2xl': '24px', '3xl': '32px', 'full': '9999px', 'button': '8px' } } } }</script>
     <style>
         :where([class^="ri-"])::before {
             content: "\f3c2";
@@ -41,6 +26,72 @@
 
         input[type="number"] {
             -moz-appearance: textfield;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes pulseAnimation {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 0.2;
+            }
+        }
+
+        @keyframes floatAnimation {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        ::selection {
+            background: rgba(23, 195, 178, 0.2);
+            color: #17c3b2;
+        }
+
+        ::-moz-selection {
+            background: rgba(23, 195, 178, 0.2);
+            color: #17c3b2;
+        }
+
+        .glass-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+            transform: rotate(45deg);
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .glass-card:hover::before {
+            opacity: 1;
         }
 
         .access-code-input {
@@ -62,269 +113,316 @@
             outline: none;
             box-shadow: 0 0 0 2px rgba(23, 195, 178, 0.2);
         }
+
+        .faq-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 
-<body class="min-h-screen bg-[#fef9ef]">
+<body class="min-h-screen" style="position: relative; overflow-x: hidden;">
+    <div class="fixed inset-0 z-0 overflow-hidden">
+        <div class="absolute inset-0"
+            style="background: linear-gradient(-45deg, rgba(23, 195, 178, 0.3), rgba(34, 124, 157, 0.3), rgba(147, 51, 234, 0.3), rgba(236, 72, 153, 0.3)); background-size: 400% 400%; animation: gradientAnimation 20s ease infinite;">
+        </div>
+        <div class="absolute inset-0"
+            style="background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%); animation: pulseAnimation 8s ease-in-out infinite;">
+        </div>
+        <div class="absolute inset-0 opacity-30"
+            style="background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvc3ZnPg==');">
+        </div>
+        <div class="absolute -inset-[100%] animate-[spin_100s_linear_infinite]"
+            style="background: radial-gradient(circle at center, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);">
+        </div>
+    </div>
+
 {% block content %}
-    {% include "front_end/user_navbar.html" %}
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-8">
-        <div class="max-w-3xl mx-auto">
-            <!-- Page Title -->
-            <div class="mb-8 text-center">
-                <h2 class="text-3xl font-bold text-gray-800">Download Encrypted File</h2>
-                <p class="text-gray-600 mt-2">Enter your access code to download the encrypted file</p>
-            </div>
+    <div class="relative z-10">
+        <div class="min-h-screen flex flex-col">
+            {% include "front_end/user_navbar.html" %}
+            
+            <!-- Main Content -->
+            <main class="flex-grow container mx-auto px-4 py-8">
+                <div class="max-w-3xl mx-auto">
+                    <!-- Page Title -->
+                    <div class="mb-12 text-center relative">
+                        <h2 class="text-4xl font-bold text-gray-800 mb-3"
+                            style="background: linear-gradient(135deg, #17c3b2, #227c9d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            Decrypt & Download File</h2>
+                        <p class="text-gray-600 mt-2 text-lg">Enter your access code to download the encrypted file</p>
+                    </div>
 
-            <!-- Main Form -->
-            <div class="bg-white rounded shadow-md p-8 mb-8"
-                 style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
-                 <form id="download-form">
-                    <!-- Access Code Input -->
-                    <div class="mb-8">
-                        <label class="block text-gray-700 font-medium mb-4 text-center">Enter 6-Digit Access Code</label>
-                        <div class="access-code-input justify-center mb-2">
-                            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit" autofocus>
-                            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
-                            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
-                            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
-                            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
-                            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
-                        </div>
-                        <p class="text-center text-sm text-gray-500">The access code was provided by the sender</p>
-                    </div>
-                
-                    <!-- Private Key Input -->
-                    <div class="mb-8">
-                        <label for="privateKey" class="block text-gray-700 font-medium mb-2 text-center">Paste Your Private Key</label>
-                        <textarea id="privateKey"
-                                  class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary"
-                                  rows="6"
-                                  placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----" required></textarea>
-                    </div>
-                
-                    <!-- Security Information -->
-                    <div class="p-4 rounded mb-8"
-                         style="background-color: rgba(23, 195, 178, 0.1); border: 1px solid rgba(23, 195, 178, 0.2);">
-                        <div class="flex items-start">
-                            <div class="w-6 h-6 flex items-center justify-center text-primary mt-0.5">
-                                <i class="ri-shield-check-line"></i>
+                    <!-- Main Form -->
+                    <div class="rounded-xl shadow-md p-8 mb-8 glass-card"
+                        style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(254, 249, 239, 0.9)), radial-gradient(circle at top left, rgba(23, 195, 178, 0.1), transparent 50%), radial-gradient(circle at bottom right, rgba(34, 124, 157, 0.1), transparent 50%); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 20px 40px rgba(34, 124, 157, 0.12), inset 0 0 80px rgba(255, 255, 255, 0.5); backdrop-filter: blur(20px);">
+                         <form id="download-form">
+                            <!-- Access Code Input -->
+                            <div class="mb-8">
+                                <label class="block text-gray-700 font-medium mb-4 text-center">Enter 6-Digit Access Code</label>
+                                <div class="access-code-input justify-center mb-2">
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit" autofocus>
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+                                </div>
+                                <p class="text-center text-sm text-gray-500">The access code was provided by the sender</p>
                             </div>
-                            <div class="ml-2">
-                                <h4 class="font-medium text-gray-800">End-to-End Encryption</h4>
-                                <p class="text-sm text-gray-600">
-                                    This file is encrypted with your public key. Only you can decrypt it using your private key.
-                                </p>
+                        
+                            <!-- Private Key Input -->
+                            <div class="mb-8">
+                                <label for="privateKey" class="block text-gray-700 font-medium mb-2 text-center">Paste Your Private Key</label>
+                                <textarea id="privateKey"
+                                          class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary"
+                                          rows="6"
+                                          placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----" required></textarea>
                             </div>
-                        </div>
+                        
+                            <!-- Security Information -->
+                            <div class="p-6 rounded-xl mb-6"
+                                 style="background: linear-gradient(135deg, rgba(23, 195, 178, 0.1), rgba(34, 124, 157, 0.05)); border: 1px solid rgba(23, 195, 178, 0.2); backdrop-filter: blur(10px);">
+                                <div class="flex items-start">
+                                    <div class="w-6 h-6 flex items-center justify-center text-primary mt-0.5">
+                                        <i class="ri-shield-check-line"></i>
+                                    </div>
+                                    <div class="ml-2">
+                                        <h4 class="font-medium text-gray-800">End-to-End Encryption</h4>
+                                        <p class="text-sm text-gray-600">
+                                            This file is encrypted with your public key. Only you can decrypt it using your private key.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Loading State -->
+                            <div id="loading-state" class="hidden mb-6">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2 text-center">Downloading encrypted file... <span id="download-percentage">0%</span></p>
+                            </div>
+                        
+                            <!-- Success Message -->
+                            <div id="download-success" class="hidden mb-6 p-4 rounded-md bg-green-50 border border-green-200">
+                                <div class="flex items-start">
+                                    <div class="w-6 h-6 flex items-center justify-center text-green-500 mt-0.5">
+                                        <i class="ri-check-line"></i>
+                                    </div>
+                                    <div class="ml-2">
+                                        <h4 class="font-medium text-green-800">File Downloaded Successfully!</h4>
+                                        <p class="text-sm text-green-700">Your encrypted file has been downloaded and decrypted.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Error Message -->
+                            <div id="download-error" class="hidden mb-6 p-4 rounded-md bg-red-50 border border-red-200">
+                                <div class="flex items-start">
+                                    <div class="w-6 h-6 flex items-center justify-center text-red-500 mt-0.5">
+                                        <i class="ri-error-warning-line"></i>
+                                    </div>
+                                    <div class="ml-2">
+                                        <h4 class="font-medium text-red-800">Download Failed</h4>
+                                        <p class="text-sm text-red-700" id="error-message">Invalid access code. Please check and try again.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Submit Button -->
+                            <div class="flex justify-center">
+                                <button type="submit" id="download-btn"
+                                        class="px-8 py-3.5 bg-gradient-to-r from-primary to-[#227c9d] text-white rounded font-medium hover:opacity-90 transition-all duration-300 transform hover:scale-[1.02] !rounded-button whitespace-nowrap flex items-center justify-center shadow-lg shadow-primary/20">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                        <i class="ri-download-2-line"></i>
+                                    </div>
+                                    Decrypt & Download File
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                
-                    <!-- Loading State -->
-                    <div id="loading-state" class="hidden mb-6">
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
-                        </div>
-                        <p class="text-sm text-gray-600 mt-2 text-center">Downloading encrypted file... <span id="download-percentage">0%</span></p>
-                    </div>
-                
-                    <!-- Success Message -->
-                    <div id="download-success" class="hidden mb-6 p-4 rounded-md bg-green-50 border border-green-200">
-                        <div class="flex items-start">
-                            <div class="w-6 h-6 flex items-center justify-center text-green-500 mt-0.5">
-                                <i class="ri-check-line"></i>
-                            </div>
-                            <div class="ml-2">
-                                <h4 class="font-medium text-green-800">File Downloaded Successfully!</h4>
-                                <p class="text-sm text-green-700">Your encrypted file has been downloaded and decrypted.</p>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <!-- Error Message -->
-                    <div id="download-error" class="hidden mb-6 p-4 rounded-md bg-red-50 border border-red-200">
-                        <div class="flex items-start">
-                            <div class="w-6 h-6 flex items-center justify-center text-red-500 mt-0.5">
-                                <i class="ri-error-warning-line"></i>
-                            </div>
-                            <div class="ml-2">
-                                <h4 class="font-medium text-red-800">Download Failed</h4>
-                                <p class="text-sm text-red-700" id="error-message">Invalid access code. Please check and try again.</p>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <!-- Submit Button -->
-                    <div class="flex justify-center">
-                        <button type="submit" id="download-btn"
-                                class="px-6 py-3 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button whitespace-nowrap flex items-center justify-center">
-                            <div class="w-5 h-5 flex items-center justify-center mr-2">
-                                <i class="ri-download-2-line"></i>
-                            </div>
-                            Decrypt & Download File
-                        </button>
-                    </div>
-                </form>
-                
-            </div>
 
-            <!-- FAQ Section -->
-            <div class="bg-white rounded shadow-md p-6"
-                 style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Frequently Asked Questions</h3>
-                <div class="space-y-4">
-                    <div class="border rounded !rounded-button overflow-hidden"
-                         style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-                        <button
-                                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-                            <span>What is an access code?</span>
-                            <div class="w-5 h-5 flex items-center justify-center text-gray-500">
-                                <i class="ri-arrow-down-s-line faq-icon"></i>
+                    <!-- FAQ Section -->
+                    <div class="rounded-xl shadow-md p-8 glass-card"
+                         style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(254, 249, 239, 0.9)); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 20px 40px rgba(34, 124, 157, 0.12); backdrop-filter: blur(20px);">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <div class="w-6 h-6 flex items-center justify-center text-primary mr-2">
+                                <i class="ri-questionnaire-line"></i>
                             </div>
-                        </button>
-                        <div class="faq-content hidden px-4 pb-4 pt-0">
-                            <p class="text-gray-600 text-sm">The access code is a unique 6-digit number provided by the
-                                sender that
-                                allows you to download the encrypted file. This code adds an extra layer of security to
-                                ensure only
-                                the intended recipient can access the file.</p>
+                            Frequently Asked Questions
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="faq-item group transition-all duration-300">
+                                <button
+                                    class="faq-toggle w-full flex items-center justify-between p-5 text-left font-medium text-gray-800 rounded-xl !rounded-button hover:bg-gradient-to-r hover:from-primary/5 hover:to-secondary/5 focus:outline-none transition-all duration-300"
+                                    style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(23, 195, 178, 0.15);">
+                                    <span class="flex items-center">
+                                        <div class="w-5 h-5 flex items-center justify-center text-primary mr-3 opacity-75">
+                                            <i class="ri-key-2-line"></i>
+                                        </div>
+                                        What is an access code?
+                                    </span>
+                                    <div class="w-5 h-5 flex items-center justify-center text-primary/70 transition-transform duration-300">
+                                        <i class="ri-arrow-down-s-line faq-icon"></i>
+                                    </div>
+                                </button>
+                                <div class="faq-content hidden px-5 pb-5 pt-2 text-gray-600">
+                                    <div class="pl-8 border-l-2" style="border-color: rgba(23, 195, 178, 0.2);">
+                                        The access code is a unique 6-digit number provided by the sender that allows you to download the encrypted file. This code adds an extra layer of security to ensure only the intended recipient can access the file.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="faq-item group transition-all duration-300">
+                                <button
+                                    class="faq-toggle w-full flex items-center justify-between p-5 text-left font-medium text-gray-800 rounded-xl !rounded-button hover:bg-gradient-to-r hover:from-primary/5 hover:to-secondary/5 focus:outline-none transition-all duration-300"
+                                    style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(23, 195, 178, 0.15);">
+                                    <span class="flex items-center">
+                                        <div class="w-5 h-5 flex items-center justify-center text-primary mr-3 opacity-75">
+                                            <i class="ri-lock-unlock-line"></i>
+                                        </div>
+                                        How do I decrypt the file when downloading?
+                                    </span>
+                                    <div class="w-5 h-5 flex items-center justify-center text-primary/70 transition-transform duration-300">
+                                        <i class="ri-arrow-down-s-line faq-icon"></i>
+                                    </div>
+                                </button>
+                                <div class="faq-content hidden px-5 pb-5 pt-2 text-gray-600">
+                                    <div class="pl-8 border-l-2" style="border-color: rgba(23, 195, 178, 0.2);">
+                                        When downloading, you'll need to use your private key to decrypt the file. 
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="faq-item group transition-all duration-300">
+                                <button
+                                    class="faq-toggle w-full flex items-center justify-between p-5 text-left font-medium text-gray-800 rounded-xl !rounded-button hover:bg-gradient-to-r hover:from-primary/5 hover:to-secondary/5 focus:outline-none transition-all duration-300"
+                                    style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(23, 195, 178, 0.15);">
+                                    <span class="flex items-center">
+                                        <div class="w-5 h-5 flex items-center justify-center text-primary mr-3 opacity-75">
+                                            <i class="ri-key-line"></i>
+                                        </div>
+                                        What if I don't have the access code?
+                                    </span>
+                                    <div class="w-5 h-5 flex items-center justify-center text-primary/70 transition-transform duration-300">
+                                        <i class="ri-arrow-down-s-line faq-icon"></i>
+                                    </div>
+                                </button>
+                                <div class="faq-content hidden px-5 pb-5 pt-2 text-gray-600">
+                                    <div class="pl-8 border-l-2" style="border-color: rgba(23, 195, 178, 0.2);">
+                                        If you don't have the access code, you'll need to contact the sender and ask them to provide it to you. For security reasons, we cannot bypass this requirement or recover access codes.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="faq-item group transition-all duration-300">
+                                <button
+                                    class="faq-toggle w-full flex items-center justify-between p-5 text-left font-medium text-gray-800 rounded-xl !rounded-button hover:bg-gradient-to-r hover:from-primary/5 hover:to-secondary/5 focus:outline-none transition-all duration-300"
+                                    style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(23, 195, 178, 0.15);">
+                                    <span class="flex items-center">
+                                        <div class="w-5 h-5 flex items-center justify-center text-primary mr-3 opacity-75">
+                                            <i class="ri-time-line"></i>
+                                        </div>
+                                        How long is the access code valid?
+                                    </span>
+                                    <div class="w-5 h-5 flex items-center justify-center text-primary/70 transition-transform duration-300">
+                                        <i class="ri-arrow-down-s-line faq-icon"></i>
+                                    </div>
+                                </button>
+                                <div class="faq-content hidden px-5 pb-5 pt-2 text-gray-600">
+                                    <div class="pl-8 border-l-2" style="border-color: rgba(23, 195, 178, 0.2);">
+                                        Access codes are valid for 7 days from the time the file was uploaded. After this period, the file and access code will expire, and you'll need to request a new file transfer from the sender.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="border rounded !rounded-button overflow-hidden"
-                         style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-                        <button
-                                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-                            <span>How do I decrypt the file after downloading?</span>
-                            <div class="w-5 h-5 flex items-center justify-center text-gray-500">
-                                <i class="ri-arrow-down-s-line faq-icon"></i>
-                            </div>
-                        </button>
-                        <div class="faq-content hidden px-4 pb-4 pt-0">
-                            <p class="text-gray-600 text-sm">After downloading, you'll need to use your private key to
-                                decrypt the
-                                file. If you received the file through a file request, your browser has stored your
-                                private key. The
-                                file will be automatically decrypted when you open it through our system.</p>
-                        </div>
-                    </div>
-                    <div class="border rounded !rounded-button overflow-hidden"
-                         style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-                        <button
-                                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-                            <span>What if I don't have the access code?</span>
-                            <div class="w-5 h-5 flex items-center justify-center text-gray-500">
-                                <i class="ri-arrow-down-s-line faq-icon"></i>
-                            </div>
-                        </button>
-                        <div class="faq-content hidden px-4 pb-4 pt-0">
-                            <p class="text-gray-600 text-sm">If you don't have the access code, you'll need to contact
-                                the sender
-                                and ask them to provide it to you. For security reasons, we cannot bypass this
-                                requirement or recover
-                                access codes.</p>
-                        </div>
-                    </div>
-                    <div class="border rounded !rounded-button overflow-hidden"
-                         style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-                        <button
-                                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-                            <span>How long is the access code valid?</span>
-                            <div class="w-5 h-5 flex items-center justify-center text-gray-500">
-                                <i class="ri-arrow-down-s-line faq-icon"></i>
-                            </div>
-                        </button>
-                        <div class="faq-content hidden px-4 pb-4 pt-0">
-                            <p class="text-gray-600 text-sm">Access codes are valid for 7 days from the time the file
-                                was uploaded.
-                                After this period, the file and access code will expire, and you'll need to request a
-                                new file
-                                transfer from the sender.</p>
+                        <div class="mt-8 flex justify-center">
+                            <a href="#"
+                                class="group flex items-center px-6 py-3 text-primary hover:text-white bg-transparent hover:bg-primary rounded-full !rounded-button transition-all duration-300"
+                                style="border: 1px dashed rgba(23, 195, 178, 0.5);">
+                                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                    <i class="ri-customer-service-2-line"></i>
+                                </div>
+                                <span class="whitespace-nowrap">Need more help? Contact our support team</span>
+                            </a>
                         </div>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-center">
-                    <a href="#" class="text-primary flex items-center hover:underline">
-                        <div class="w-5 h-5 flex items-center justify-center mr-1">
-                            <i class="ri-customer-service-2-line"></i>
+            </main>
+
+            <!-- Footer -->
+            <footer class="py-8"
+                    style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(254, 249, 239, 0.9)); border-top: 1px solid rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px);">
+                <div class="container mx-auto px-4">
+                    <div class="flex flex-col md:flex-row justify-between items-center">
+                        <div class="mb-4 md:mb-0">
+                            <p class="text-gray-600 text-sm">© 2025 Secure File Transfer. All rights reserved.</p>
                         </div>
-                        Need more help? Contact our support team
-                    </a>
+                        <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
+                            <div class="flex space-x-6">
+                                <a href="#" class="flex items-center text-gray-600 hover:text-primary">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                        <i class="ri-file-upload-line"></i>
+                                    </div>
+                                    <span class="text-sm">Send File</span>
+                                </a>
+                                <a href="#" class="flex items-center text-primary">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                        <i class="ri-file-download-line"></i>
+                                    </div>
+                                    <span class="text-sm">Download File</span>
+                                </a>
+                                <a href="/request_send/" class="flex items-center text-gray-600 hover:text-primary">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                        <i class="ri-send-plane-line"></i>
+                                    </div>
+                                    <span class="text-sm">Request File</span>
+                                </a>
+                            </div>
+                            <div class="flex space-x-6">
+                                <a href="/upload/" class="flex items-center text-gray-600 hover:text-primary">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                        <i class="ri-file-upload-line"></i>
+                                    </div>
+                                    <span class="text-sm">Send File</span>
+                                </a>
+                                <a href="/download/" class="flex items-center text-primary">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                        <i class="ri-file-download-line"></i>
+                                    </div>
+                                    <span class="text-sm">Download File</span>
+                                </a>
+                                <a href="/request_send/" class="flex items-center text-gray-600 hover:text-primary">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                        <i class="ri-send-plane-line"></i>
+                                    </div>
+                                    <span class="text-sm">Request File</span>
+                                </a>
+                            </div>
+                            <div class="flex space-x-6">
+                                <a href="#" class="text-gray-500 hover:text-gray-700">
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-shield-keyhole-line"></i>
+                                    </div>
+                                </a>
+                                <a href="#" class="text-gray-500 hover:text-gray-700">
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-file-list-3-line"></i>
+                                    </div>
+                                </a>
+                                <a href="#" class="text-gray-500 hover:text-gray-700">
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-question-line"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </footer>
         </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="py-6"
-            style="background: linear-gradient(to right, #ffffff, #fef9ef); border-top: 1px solid rgba(255, 203, 119, 0.3);">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-4 md:mb-0">
-                    <p class="text-gray-600 text-sm">© 2025 Secure File Transfer. All rights reserved.</p>
-                </div>
-                <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
-                    <div class="flex space-x-6">
-                        <a href="#" class="flex items-center text-gray-600 hover:text-primary">
-                            <div class="w-5 h-5 flex items-center justify-center mr-1">
-                                <i class="ri-file-upload-line"></i>
-                            </div>
-                            <span class="text-sm">Send File</span>
-                        </a>
-                        <a href="#" class="flex items-center text-primary">
-                            <div class="w-5 h-5 flex items-center justify-center mr-1">
-                                <i class="ri-file-download-line"></i>
-                            </div>
-                            <span class="text-sm">Download File</span>
-                        </a>
-                        <a href="/request_send/" class="flex items-center text-gray-600 hover:text-primary">
-                            <div class="w-5 h-5 flex items-center justify-center mr-1">
-                                <i class="ri-send-plane-line"></i>
-                            </div>
-                            <span class="text-sm">Request File</span>
-                        </a>
-                    </div>
-                    <!-- Footer links -->
-                    <div class="flex space-x-6">
-                        <a href="/upload/" class="flex items-center text-gray-600 hover:text-primary">
-                            <div class="w-5 h-5 flex items-center justify-center mr-1">
-                                <i class="ri-file-upload-line"></i>
-                            </div>
-                            <span class="text-sm">Send File</span>
-                        </a>
-                        <a href="/download/" class="flex items-center text-primary">
-                            <div class="w-5 h-5 flex items-center justify-center mr-1">
-                                <i class="ri-file-download-line"></i>
-                            </div>
-                            <span class="text-sm">Download File</span>
-                        </a>
-                        <a href="/request_send/" class="flex items-center text-gray-600 hover:text-primary">
-                            <div class="w-5 h-5 flex items-center justify-center mr-1">
-                                <i class="ri-send-plane-line"></i>
-                            </div>
-                            <span class="text-sm">Request File</span>
-                        </a>
-                    </div>
-                    <div class="flex space-x-6">
-                        <a href="#" class="text-gray-500 hover:text-gray-700">
-                            <div class="w-5 h-5 flex items-center justify-center">
-                                <i class="ri-shield-keyhole-line"></i>
-                            </div>
-                        </a>
-                        <a href="#" class="text-gray-500 hover:text-gray-700">
-                            <div class="w-5 h-5 flex items-center justify-center">
-                                <i class="ri-file-list-3-line"></i>
-                            </div>
-                        </a>
-                        <a href="#" class="text-gray-500 hover:text-gray-700">
-                            <div class="w-5 h-5 flex items-center justify-center">
-                                <i class="ri-question-line"></i>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
     </div>
 
     <script defer>
@@ -340,7 +438,6 @@
             const progressBar = document.querySelector('.bg-primary.h-2\\.5');
             const downloadPercentage = document.getElementById('download-percentage');
             const faqToggles = document.querySelectorAll('.faq-toggle');
-            const privateKey = document.getElementById("privateKey").value.trim();  // ✅ Private key textarea
         
             // Auto-focus and input behavior for access code digits
             codeDigits.forEach((digit, index) => {
@@ -386,7 +483,7 @@
                         accessCode += digit.value.trim();
                     });
         
-                    const privateKey = document.getElementById("privateKey").value.trim();  // ✅ get private key
+                    const privateKey = document.getElementById("privateKey").value.trim();
         
                     if (accessCode.length !== 6 || !/^\d{6}$/.test(accessCode)) {
                         downloadError.classList.remove('hidden');
@@ -417,7 +514,7 @@
                     fetch('/api/files/get_encrypted_file_api/', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ accessCode, privateKey })  // ✅ include both
+                        body: JSON.stringify({ accessCode, privateKey })
                     })
                     .then(response => {
                         if (!response.ok) {
@@ -431,7 +528,7 @@
                                 throw new Error('An error occurred. Please try again later.');
                             }
                         }
-                        return response.blob();  // ✅ Expect blob, not JSON
+                        return response.blob();
                     })
                     .then(blob => {
                         let progress = 0;
@@ -453,7 +550,7 @@
                                     const url = window.URL.createObjectURL(blob);
                                     const downloadLink = document.createElement('a');
                                     downloadLink.href = url;
-                                    downloadLink.download = 'decrypted_file';  // Optional: use original name if you pass it
+                                    downloadLink.download = 'decrypted_file';
                                     document.body.appendChild(downloadLink);
                                     downloadLink.click();
                                     document.body.removeChild(downloadLink);
@@ -464,7 +561,7 @@
                                             <div class="w-5 h-5 flex items-center justify-center mr-2">
                                                 <i class="ri-download-2-line"></i>
                                             </div>
-                                            Download Encrypted File
+                                            Decrypt & Download File
                                         `;
                                     }
                                 }, 500);
@@ -482,7 +579,7 @@
                                 <div class="w-5 h-5 flex items-center justify-center mr-2">
                                     <i class="ri-download-2-line"></i>
                                 </div>
-                                Download Encrypted File
+                                Decrypt & Download File
                             `;
                         }
                     });
@@ -494,11 +591,14 @@
                 toggle.addEventListener('click', function () {
                     const content = this.nextElementSibling;
                     const icon = this.querySelector('.faq-icon');
+                    const isHidden = content.classList.contains('hidden');
         
+                    // Close all other FAQs
                     faqToggles.forEach(otherToggle => {
                         if (otherToggle !== toggle) {
-                            otherToggle.nextElementSibling.classList.add('hidden');
+                            const otherContent = otherToggle.nextElementSibling;
                             const otherIcon = otherToggle.querySelector('.faq-icon');
+                            otherContent.classList.add('hidden');
                             if (otherIcon) {
                                 otherIcon.classList.remove('ri-arrow-up-s-line');
                                 otherIcon.classList.add('ri-arrow-down-s-line');
@@ -506,14 +606,18 @@
                         }
                     });
         
-                    content.classList.toggle('hidden');
-                    if (icon) {
-                        if (content.classList.contains('hidden')) {
-                            icon.classList.remove('ri-arrow-up-s-line');
-                            icon.classList.add('ri-arrow-down-s-line');
-                        } else {
+                    // Toggle current FAQ
+                    if (isHidden) {
+                        content.classList.remove('hidden');
+                        if (icon) {
                             icon.classList.remove('ri-arrow-down-s-line');
                             icon.classList.add('ri-arrow-up-s-line');
+                        }
+                    } else {
+                        content.classList.add('hidden');
+                        if (icon) {
+                            icon.classList.remove('ri-arrow-up-s-line');
+                            icon.classList.add('ri-arrow-down-s-line');
                         }
                     }
                 });
@@ -524,8 +628,7 @@
                 faqToggles[0].click();
             }
         });
-        </script>
-        
+    </script>
 
 {% endblock %}
 </body>
