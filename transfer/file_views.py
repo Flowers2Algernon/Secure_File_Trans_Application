@@ -4,6 +4,7 @@ import json
 import tempfile
 import uuid
 import traceback
+import hashlib
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -36,7 +37,7 @@ class FileUploadView(views.APIView):
     parser_classes = [parsers.MultiPartParser]
 
     def post(self, request):
-        saved_path = None  # Initialize path for cleanup in case of errors
+        saved_path = None
         try:
             print("FileUploadView.post() called")
             uploaded_file = request.FILES.get("file")
@@ -46,54 +47,82 @@ class FileUploadView(views.APIView):
 
             print(f"Received file: {uploaded_file.name}, size: {uploaded_file.size}")
 
+            # === 关键修复：在使用uploaded_file之前，先保存文件指针位置 ===
+            original_position = uploaded_file.tell()
+            print(f"Original file pointer position: {original_position}")
+
             # === Step 1: Create a secure temp file location and save for scanning ===
             temp_dir = os.path.join(tempfile.gettempdir(), "pdf_uploads")
             os.makedirs(temp_dir, exist_ok=True)
-            # Use a unique name for the temp file, sanitize original name
             unique_name = str(uuid.uuid4()) + "_" + os.path.basename(uploaded_file.name)
             saved_path = os.path.join(temp_dir, unique_name)
 
             print(f"Saving file temporarily to: {saved_path}")
+            
+            # 确保从文件开头读取
+            uploaded_file.seek(0)
             with open(saved_path, "wb+") as destination:
                 for chunk in uploaded_file.chunks():
                     destination.write(chunk)
             print("Temporary save complete.")
 
+            # === 重要：重置文件指针到原始位置 ===
+            uploaded_file.seek(original_position)
+            print(f"Reset file pointer to position: {uploaded_file.tell()}")
+
             # === Step 2: Scan the temporarily saved file ===
             print(f"Scanning file: {saved_path}")
-            prediction, score = scan_file(saved_path)  # Call the scan function
+            prediction, score = scan_file(saved_path)
             print(f"[DEBUG] Scan Result - Prediction: {prediction}, Score: {score}")
 
             # === Step 3: Clean up the temporary file AFTER scanning ===
             print(f"Removing temporary file: {saved_path}")
             if os.path.exists(saved_path):
                 os.remove(saved_path)
-            saved_path = None  # Reset path after deletion
+            saved_path = None
 
-            # === Step 4: Handle MALICIOUS file ===
             # === Step 4: Handle scan results ===
             if prediction == 1:
                 file_ext = os.path.splitext(uploaded_file.name)[1].lower()
                 print(f"Malicious file detected! Score: {score}")
-                return Response(
-                    {
-                        "status": "blocked", 
-                        "message": f"Malicious PDF file detected! This file appears to contain dangerous content.",
-                        "malicious_score": round(score, 3),
-                        "file_type": "PDF"
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                return Response({
+                    "status": "blocked", 
+                    "message": f"Malicious PDF file detected! This file appears to contain dangerous content.",
+                    "malicious_score": round(score, 3),
+                    "file_type": "PDF"
+                }, status=status.HTTP_400_BAD_REQUEST)
             else:
                 if score == 0.0:
                     print("Non-PDF file approved without scanning.")
                 else:
                     print(f"PDF file approved. Safety score: {1-score:.3f}")
 
-            # === Step 5: If file is CLEAN, proceed with saving metadata and file ===
+            # === Step 5: 在保存到数据库之前，验证文件数据完整性 ===
             print("File scan passed. Processing request...")
 
-            # Get the rest of the POST data needed for saving
+            # 验证uploaded_file当前状态
+            uploaded_file.seek(0)
+            current_file_data = uploaded_file.read()
+            uploaded_file.seek(0)  # 重置供后续使用
+            
+            print(f"Current uploaded_file data length: {len(current_file_data)}")
+            
+            # 验证这个数据的哈希是否与前端发送的匹配
+            current_hash = base64.b64encode(hashlib.sha256(current_file_data).digest()).decode()
+            expected_hash = request.POST.get("file_hash")
+            
+            print(f"Current file data hash: {current_hash}")
+            print(f"Expected hash from frontend: {expected_hash}")
+            
+            if current_hash != expected_hash:
+                print("❌ ERROR: File data integrity check failed!")
+                return Response({
+                    "error": "File data corruption detected during processing."
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                print("✅ File data integrity verified")
+
+            # 获取其他POST数据
             recipient_public_key = request.POST.get("recipient_public_key")
             encrypted_aes_key_b64 = request.POST.get("encrypted_aes_key")
             iv_b64 = request.POST.get("iv")
@@ -104,23 +133,19 @@ class FileUploadView(views.APIView):
             print(f"IV received: {iv_b64 is not None}")
             print(f"File hash received: {file_hash is not None}")
 
-            # --- Optional: Validate that required metadata was received ---
             if not all([recipient_public_key, encrypted_aes_key_b64, iv_b64, file_hash]):
                 print("Missing required encryption metadata in POST request.")
-                # Consider if this case should be 400 or 500
-                return Response(
-                    {"error": "Missing required encryption metadata after successful scan."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                return Response({
+                    "error": "Missing required encryption metadata after successful scan."
+                }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Generate an access code
-            # Replace with your actual implementation:
+            # 生成访问码
             access_code = generate_code()
             hashed_code = hash_access_code(access_code)
             expiry_time = get_code_expire_time()
             print("Generated access code and expiry.")
 
-            # Create a new encrypted file object
+            # 创建加密文件对象
             encrypted_file = EncrptedFile()
             encrypted_file.original_filename = uploaded_file.name
             encrypted_file.file_size = uploaded_file.size
@@ -128,11 +153,11 @@ class FileUploadView(views.APIView):
             encrypted_file.code_expire = expiry_time
             encrypted_file.recipient_public_key = recipient_public_key
             encrypted_file.file_hash = file_hash
-            encrypted_file.encryption_algorithm = "AES-256-GCM"  # Set algorithm
+            encrypted_file.encryption_algorithm = "AES-256-GCM"
 
             print("Populated basic EncrptedFile fields.")
 
-            # Decode and store binary fields
+            # 解码二进制字段
             try:
                 print("Attempting base64 decode...")
                 encrypted_file.encrypted_aes_key = base64.b64decode(encrypted_aes_key_b64)
@@ -140,38 +165,31 @@ class FileUploadView(views.APIView):
                 print("Base64 decode successful.")
             except Exception as e:
                 print(f"Error decoding base64: {str(e)}")
-                # This indicates a client-side data format error
-                return Response(
-                    {"error": f"Invalid base64 encoding for keys/IV: {str(e)}"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                return Response({
+                    "error": f"Invalid base64 encoding for keys/IV: {str(e)}"
+                }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Assign the *original* uploaded file (in memory or temp) to the FileField.
-            # Django's FileField handling will save it to the correct 'uploaded_files/' location.
+            # 确保文件指针在开头再保存
+            uploaded_file.seek(0)
+            print(f"File pointer before saving: {uploaded_file.tell()}")
             print("Assigning uploaded file to model field...")
             encrypted_file.uploaded_file = uploaded_file
 
-            # Save the model instance (which also saves the file to storage)
+            # 保存模型实例
             print("Attempting encrypted_file.save()...")
             encrypted_file.save()
             print(f"File and metadata saved with ID: {encrypted_file.file_id}")
 
-            # Return the success response with details needed by the client
-            return Response(
-                {
-                    "file_id": str(encrypted_file.file_id),
-                    "access_code": access_code,
-                    "expires_at": expiry_time.isoformat(),
-                    "message": "File uploaded and encrypted successfully.",  # Add success message
-                },
-                status=status.HTTP_201_CREATED,
-            )  # Use 201 Created status
+            return Response({
+                "file_id": str(encrypted_file.file_id),
+                "access_code": access_code,
+                "expires_at": expiry_time.isoformat(),
+                "message": "File uploaded and encrypted successfully.",
+            }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            # Catch-all for unexpected errors
             print(f"Error in FileUploadView.post(): {str(e)}")
             print(traceback.format_exc())
-            # Ensure temp file is cleaned up if error occurs after it was created
             if saved_path and os.path.exists(saved_path):
                 try:
                     print(f"Cleaning up temporary file due to error: {saved_path}")
@@ -179,12 +197,9 @@ class FileUploadView(views.APIView):
                 except OSError as cleanup_error:
                     print(f"Error removing temporary file during cleanup: {cleanup_error}")
 
-            # Return a generic 500 error
-            return Response(
-                {"error": "An internal server error occurred."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
+            return Response({
+                "error": "An internal server error occurred."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GetEncryptedFileView(views.APIView):
@@ -194,15 +209,9 @@ class GetEncryptedFileView(views.APIView):
             private_key_pem = request.data.get("privateKey")
 
             if not access_code:
-                return Response(
-                    {"error": "Access code is required"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                return Response({"error": "Access code is required"}, status=status.HTTP_400_BAD_REQUEST)
             if not private_key_pem:
-                return Response(
-                    {"error": "Private key is required"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                return Response({"error": "Private key is required"}, status=status.HTTP_400_BAD_REQUEST)
 
             hashed_code = hash_access_code(access_code)
             file_instance = EncrptedFile.objects.filter(code_hash=hashed_code).first()
@@ -221,34 +230,115 @@ class GetEncryptedFileView(views.APIView):
             )
 
             try:
+                print(f"🔍 [DEBUG] Starting decryption process...")
+                print(f"🔍 [DEBUG] Original filename: '{file_instance.original_filename}'")
+                print(f"🔍 [DEBUG] File size in DB: {file_instance.file_size}")
+                print(f"🔍 [DEBUG] Stored file hash: {file_instance.file_hash}")
+                
                 encrypted_aes_key = file_instance.encrypted_aes_key
                 iv = file_instance.iv
-                aes_key = decrypt_aes_key_with_rsa(encrypted_aes_key, private_key_pem)
+                
+                print(f"🔍 [DEBUG] Encrypted AES key length: {len(encrypted_aes_key) if encrypted_aes_key else 'None'}")
+                print(f"🔍 [DEBUG] IV length: {len(iv) if iv else 'None'}")
 
+                # 解密AES密钥
+                aes_key = decrypt_aes_key_with_rsa(encrypted_aes_key, private_key_pem)
+                print(f"🔍 [DEBUG] Decrypted AES key length: {len(aes_key)}")
+
+                # 读取存储的加密文件数据
                 with file_instance.uploaded_file.open("rb") as f:
                     encrypted_file_data = f.read()
+                
+                print(f"🔍 [DEBUG] Read encrypted file data length: {len(encrypted_file_data)}")
+                
+                # 验证存储的加密数据哈希
+                
+                stored_encrypted_hash = base64.b64encode(hashlib.sha256(encrypted_file_data).digest()).decode()
+                print(f"🔍 [DEBUG] Calculated hash of stored encrypted data: {stored_encrypted_hash}")
+                print(f"🔍 [DEBUG] Expected hash from upload: {file_instance.file_hash}")
+                
+                if stored_encrypted_hash == file_instance.file_hash:
+                    print("✅ [DEBUG] Stored encrypted data hash matches - storage integrity confirmed")
+                else:
+                    print("⚠️ [DEBUG] Hash mismatch - stored data may be corrupted")
+
+                # 解密文件数据
+                print(f"🔍 [DEBUG] Attempting AES decryption...")
                 decrypted_file_data = decrypt_file_with_aes(encrypted_file_data, aes_key, iv)
+                print(f"🔍 [DEBUG] Decrypted file data length: {len(decrypted_file_data)}")
+                
+                # 计算解密后数据的哈希用于调试
+                decrypted_hash = hashlib.sha256(decrypted_file_data).hexdigest()
+                print(f"🔍 [DEBUG] Decrypted file SHA256: {decrypted_hash}")
 
-                # Determine content type
+                # 确保文件名正确
                 filename = file_instance.original_filename
-                content_type, _ = mimetypes.guess_type(filename)
-                content_type = content_type or "application/octet-stream"
+                if not filename or filename.strip() == "":
+                    filename = "decrypted_file"
 
+                # 清理文件名中的非法字符，但保留扩展名
+                import re
+                import urllib.parse
+
+                # 移除或替换非法字符
+                safe_filename = re.sub(r'[<>:"/\\|?*]', '_', filename)
+
+                # 确保文件名不为空
+                if not safe_filename.strip():
+                    safe_filename = "decrypted_file"
+
+                print(f"🔍 [DEBUG] Final filename: '{safe_filename}'")
+
+                # 确定内容类型
+                content_type, _ = mimetypes.guess_type(safe_filename)
+                content_type = content_type or "application/octet-stream"
+                print(f"🔍 [DEBUG] Content type: {content_type}")
+
+                # 创建响应
                 response = HttpResponse(decrypted_file_data, content_type=content_type)
-                response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+                # 使用更兼容的文件名设置方式
+                # 方法1: 标准的 Content-Disposition
+                try:
+                    # 对文件名进行URL编码以处理特殊字符
+                    encoded_filename = urllib.parse.quote(safe_filename)
+                    response["Content-Disposition"] = f'attachment; filename="{safe_filename}"; filename*=UTF-8\'\'{encoded_filename}'
+                except Exception as e:
+                    print(f"Warning: Could not set encoded filename: {e}")
+                    response["Content-Disposition"] = f'attachment; filename="{safe_filename}"'
+
+                # 设置其他有用的响应头
+                response["Content-Length"] = str(len(decrypted_file_data))
+                response["Content-Description"] = "File Transfer"
+                response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+                response["Pragma"] = "no-cache"
+                response["Expires"] = "0"
+
+                print(f"🔍 [DEBUG] Response headers set:")
+                print(f"🔍 [DEBUG] - Content-Disposition: {response['Content-Disposition']}")
+                print(f"🔍 [DEBUG] - Content-Length: {response['Content-Length']}")
+                print(f"🔍 [DEBUG] - Content-Type: {response['Content-Type']}")
+
+                print("✅ [DEBUG] File decryption and response preparation completed successfully")
+
                 return response
 
             except Exception as e:
-                print(f"Decryption failed: {str(e)}")
+                print(f"❌ [ERROR] Decryption failed: {str(e)}")
+                import traceback
+                print(f"❌ [ERROR] Full traceback:")
+                print(traceback.format_exc())
                 return Response(
                     {"error": f"Decryption failed: {str(e)}"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
         except Exception as e:
-            print(f"Error in GetEncryptedFileView: {str(e)}")
+            print(f"❌ [ERROR] Error in GetEncryptedFileView: {str(e)}")
+            import traceback
+            print(traceback.format_exc())
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+    
     def get_client_ip(self, request):
         x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
         return x_forwarded_for.split(",")[0] if x_forwarded_for else request.META.get("REMOTE_ADDR")
