@@ -491,78 +491,124 @@
                         `;
                     }
         
+                    // 发送请求获取加密文件
                     fetch('/api/files/get_encrypted_file_api/', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ accessCode, privateKey })
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            if (response.status === 404) {
-                                throw new Error('Invalid access code. Please check and try again.');
-                            } else if (response.status === 403) {
-                                throw new Error('Access blocked. Too many failed attempts.');
-                            } else if (response.status === 410) {
-                                throw new Error('This file has expired and is no longer available.');
-                            } else {
-                                throw new Error('An error occurred. Please try again later.');
-                            }
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accessCode, privateKey })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error('Invalid access code. Please check and try again.');
+                        } else if (response.status === 403) {
+                            throw new Error('Access blocked. Too many failed attempts.');
+                        } else if (response.status === 410) {
+                            throw new Error('This file has expired and is no longer available.');
+                        } else {
+                            throw new Error('An error occurred. Please try again later.');
                         }
-                        return response.blob();
-                    })
-                    .then(blob => {
-                        let progress = 0;
-                        const interval = setInterval(() => {
-                            progress += 5;
-                            if (progress > 100) {
-                                clearInterval(interval);
-                                return;
-                            }
-                            if (progressBar) progressBar.style.width = `${progress}%`;
-                            if (downloadPercentage) downloadPercentage.textContent = `${progress}%`;
-        
-                            if (progress === 100) {
-                                clearInterval(interval);
-                                setTimeout(() => {
-                                    loadingState.classList.add('hidden');
-                                    downloadSuccess.classList.remove('hidden');
-        
-                                    const url = window.URL.createObjectURL(blob);
-                                    const downloadLink = document.createElement('a');
-                                    downloadLink.href = url;
-                                    downloadLink.download = 'decrypted_file';
-                                    document.body.appendChild(downloadLink);
-                                    downloadLink.click();
-                                    document.body.removeChild(downloadLink);
-        
-                                    if (downloadBtn) {
-                                        downloadBtn.disabled = false;
-                                        downloadBtn.innerHTML = `
-                                            <div class="w-5 h-5 flex items-center justify-center mr-2">
-                                                <i class="ri-download-2-line"></i>
-                                            </div>
-                                            Decrypt & Download File
-                                        `;
+                    }
+                    
+                    // 保存响应对象以便获取头信息
+                    const responseData = {
+                        blob: response.blob(),
+                        headers: response.headers
+                    };
+                    
+                    return Promise.all([responseData.blob, Promise.resolve(responseData.headers)]);
+                })
+                .then(([blob, headers]) => {
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 5;
+                        if (progress > 100) {
+                            clearInterval(interval);
+                            return;
+                        }
+                        if (progressBar) progressBar.style.width = `${progress}%`;
+                        if (downloadPercentage) downloadPercentage.textContent = `${progress}%`;
+
+                        if (progress === 100) {
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                loadingState.classList.add('hidden');
+                                downloadSuccess.classList.remove('hidden');
+
+                                const url = window.URL.createObjectURL(blob);
+                                const downloadLink = document.createElement('a');
+                                downloadLink.href = url;
+                                
+                                // 从服务器响应头中提取文件名
+                                let filename = 'decrypted_file'; // 默认文件名
+                                let foundFilename = false; // 标记是否找到了文件名
+                                
+                                const contentDisposition = headers.get('content-disposition');
+                                console.log('Content-Disposition header:', contentDisposition);
+                                
+                                if (contentDisposition) {
+                                    // 尝试匹配 filename="..." 格式
+                                    const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+                                    if (filenameMatch && filenameMatch[1]) {
+                                        filename = filenameMatch[1];
+                                        foundFilename = true;
+                                        console.log('Extracted filename from header:', filename);
+                                    } else {
+                                        // 尝试匹配 filename*=UTF-8''... 格式
+                                        const utf8FilenameMatch = contentDisposition.match(/filename\*=UTF-8''([^;]+)/);
+                                        if (utf8FilenameMatch && utf8FilenameMatch[1]) {
+                                            filename = decodeURIComponent(utf8FilenameMatch[1]);
+                                            foundFilename = true;
+                                            console.log('Extracted UTF-8 filename from header:', filename);
+                                        }
                                     }
-                                }, 500);
-                            }
-                        }, 100);
-                    })
-                    .catch(error => {
-                        loadingState.classList.add('hidden');
-                        downloadError.classList.remove('hidden');
-                        errorMessage.textContent = error.message;
-        
-                        if (downloadBtn) {
-                            downloadBtn.disabled = false;
-                            downloadBtn.innerHTML = `
-                                <div class="w-5 h-5 flex items-center justify-center mr-2">
-                                    <i class="ri-download-2-line"></i>
-                                </div>
-                                Decrypt & Download File
-                            `;
+                                }
+                                
+                                // 从自定义头中获取文件名（备用方案）
+                                const customFilename = headers.get('x-original-filename');
+                                if (customFilename && !foundFilename) {
+                                    filename = customFilename;
+                                    console.log('Using custom filename header:', filename);
+                                }
+                                
+                                console.log('Final filename for download:', filename);
+                                downloadLink.download = filename;
+                                
+                                document.body.appendChild(downloadLink);
+                                downloadLink.click();
+                                document.body.removeChild(downloadLink);
+                                
+                                // 清理URL对象
+                                window.URL.revokeObjectURL(url);
+
+                                if (downloadBtn) {
+                                    downloadBtn.disabled = false;
+                                    downloadBtn.innerHTML = `
+                                        <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                            <i class="ri-download-2-line"></i>
+                                        </div>
+                                        Decrypt & Download File
+                                    `;
+                                }
+                            }, 500);
                         }
-                    });
+                    }, 100);
+                })
+                .catch(error => {
+                    loadingState.classList.add('hidden');
+                    downloadError.classList.remove('hidden');
+                    errorMessage.textContent = error.message;
+
+                    if (downloadBtn) {
+                        downloadBtn.disabled = false;
+                        downloadBtn.innerHTML = `
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-download-2-line"></i>
+                            </div>
+                            Decrypt & Download File
+                        `;
+                    }
+                });
                 });
             }
         
