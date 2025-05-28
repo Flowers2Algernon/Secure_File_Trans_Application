@@ -11,7 +11,7 @@ from django.utils import timezone
 from rest_framework import status, views, parsers
 from rest_framework.response import Response
 import mimetypes  # Make sure this is at the top of your file
-from malware_scan.malware_detector import scan_pdf
+from malware_scan.malware_detector import scan_file
 
 from .models import EncrptedFile, FileLog, FileRequest  # Added FileRequest import
 from .utils import (
@@ -61,7 +61,7 @@ class FileUploadView(views.APIView):
 
             # === Step 2: Scan the temporarily saved file ===
             print(f"Scanning file: {saved_path}")
-            prediction, score = scan_pdf(saved_path)  # Call the scan function
+            prediction, score = scan_file(saved_path)  # Call the scan function
             print(f"[DEBUG] Scan Result - Prediction: {prediction}, Score: {score}")
 
             # === Step 3: Clean up the temporary file AFTER scanning ===
@@ -71,16 +71,24 @@ class FileUploadView(views.APIView):
             saved_path = None  # Reset path after deletion
 
             # === Step 4: Handle MALICIOUS file ===
+            # === Step 4: Handle scan results ===
             if prediction == 1:
-                print("Malicious file detected! Rejecting upload.")
+                file_ext = os.path.splitext(uploaded_file.name)[1].lower()
+                print(f"Malicious file detected! Score: {score}")
                 return Response(
                     {
-                        "status": "blocked",
-                        "message": "Malicious file detected!",
+                        "status": "blocked", 
+                        "message": f"Malicious PDF file detected! This file appears to contain dangerous content.",
                         "malicious_score": round(score, 3),
+                        "file_type": "PDF"
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+            else:
+                if score == 0.0:
+                    print("Non-PDF file approved without scanning.")
+                else:
+                    print(f"PDF file approved. Safety score: {1-score:.3f}")
 
             # === Step 5: If file is CLEAN, proceed with saving metadata and file ===
             print("File scan passed. Processing request...")
