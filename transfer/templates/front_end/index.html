@@ -567,20 +567,7 @@
                         </div>
                     </div>
                 </div>
-                <div
-                    class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 hidden items-center justify-center demo-modal">
-                    <div class="relative w-full max-w-5xl mx-4">
-                        <button
-                            class="absolute -top-12 right-0 text-white/80 hover:text-white transition-colors close-modal">
-                            <i class="ri-close-line text-3xl"></i>
-                        </button>
-                        <div class="aspect-w-16 aspect-h-9 bg-black rounded-2xl overflow-hidden">
-                            <div
-                                class="w-full h-full bg-[url('https://readdy.ai/api/search-image?query=modern%20secure%20file%20transfer%20interface%20mockup%2C%20dark%20theme%20UI%20design%2C%20glowing%20data%20visualization%2C%20premium%203D%20render%2C%20professional%20lighting%2C%20depth%20of%20field%2C%20ultra%20high%20quality&width=1920&height=1080&seq=4&orientation=landscape')] bg-cover bg-center">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
             </section>
             <!-- Main Actions Section -->
             <section class="py-24 bg-gradient-to-br from-white via-[#f8fcff] to-white relative overflow-hidden">
@@ -1139,11 +1126,19 @@
     </div>
     <script>
 
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('videoFrame');
+            iframe.src = ''; // 停止播放
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // 恢复滚动
+        }
+
         function openVideoModal() {
             const modal = document.getElementById('videoModal');
             const iframe = document.getElementById('videoFrame');
             // 将YouTube链接转换为嵌入格式
-            const videoUrl = 'https://www.youtube.com/embed/1EbckrebQC8?autoplay=1';
+            const videoUrl = 'https://echo360.net.au/media/d78b7a9e-7cde-4a1e-879f-14aad81501c8/public';
             iframe.src = videoUrl;
             modal.classList.remove('hidden');
         }
@@ -1156,10 +1151,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Demo video modal
-            const demoModal = document.querySelector('.demo-modal');
-            const playButtons = document.querySelectorAll('.play-demo-btn, .play-demo-trigger');
-            const closeModal = document.querySelector('.close-modal');
             playButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     demoModal.classList.remove('hidden');

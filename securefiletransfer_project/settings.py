@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+from decouple import config
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -222,9 +223,9 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
 
-# Replace these with your actual credentials
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "869578916535-m187ukrnu0brq8gnors88vo7p9q91fnf.apps.googleusercontent.com"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
 # Wayne's setting
 AUTH_USER_MODEL = "transfer.UserProfile"
