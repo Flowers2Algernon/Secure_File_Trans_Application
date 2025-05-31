@@ -1,519 +1,1332 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Download Encrypted File</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
-  <script>tailwind.config = { theme: { extend: { colors: { primary: '#17c3b2', secondary: '#227c9d' }, borderRadius: { 'none': '0px', 'sm': '4px', DEFAULT: '8px', 'md': '12px', 'lg': '16px', 'xl': '20px', '2xl': '24px', '3xl': '32px', 'full': '9999px', 'button': '8px' } } } }</script>
-  <style>
-    :where([class^="ri-"])::before {
-      content: "\f3c2";
-    }
-
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    input[type="number"] {
-      -moz-appearance: textfield;
-    }
-
-    .access-code-input {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .access-code-input input {
-      width: 3rem;
-      height: 3.5rem;
-      font-size: 1.5rem;
-      text-align: center;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-    }
-
-    .access-code-input input:focus {
-      border-color: #17c3b2;
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(23, 195, 178, 0.2);
-    }
-  </style>
-</head>
-
-<body class="min-h-screen bg-[#fef9ef]">
-  <div class="min-h-screen flex flex-col">
-    <!-- Header -->
-    <header class="bg-white shadow-sm py-4"
-      style="background: linear-gradient(to right, #ffffff, #fef9ef); box-shadow: 0 4px 12px rgba(23, 195, 178, 0.08);">
-      <div class="container mx-auto px-4 flex items-center justify-between">
-        <div class="flex items-center">
-          <h1 class="text-2xl font-['Pacifico'] text-primary mr-8">Secure File Transfer</h1>
-          <nav class="hidden md:flex space-x-6">
-            <a href="/upload/" class="flex items-center text-gray-700 hover:text-primary">
-              <div class="w-5 h-5 flex items-center justify-center mr-1">
-                <i class="ri-file-upload-line"></i>
-              </div>
-              <span>Send File</span>
-            </a>
-            <a href="/download/" class="flex items-center text-primary font-medium border-b-2 border-primary">
-              <div class="w-5 h-5 flex items-center justify-center mr-1">
-                <i class="ri-file-download-line"></i>
-              </div>
-              <span>Download File</span>
-            </a>
-            <a href="/request_send/" class="flex items-center text-gray-700 hover:text-primary">
-              <div class="w-5 h-5 flex items-center justify-center mr-1">
-                <i class="ri-send-plane-line"></i>
-              </div>
-              <span>Request File</span>
-            </a>
-          </nav>
-        </div>
-        <div class="flex items-center space-x-4">
-          <div class="flex items-center text-primary">
-            <div class="w-6 h-6 flex items-center justify-center">
-              <i class="ri-lock-line"></i>
-            </div>
-            <span class="ml-1 text-sm">Secure Connection</span>
-          </div>
-          <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-            <div class="w-6 h-6 flex items-center justify-center">
-              <i class="ri-user-line"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-8">
-      <div class="max-w-3xl mx-auto">
-        <!-- Page Title -->
-        <div class="mb-8 text-center">
-          <h2 class="text-3xl font-bold text-gray-800">Download Encrypted File</h2>
-          <p class="text-gray-600 mt-2">Enter your access code to download the encrypted file</p>
-        </div>
-
-        <!-- Main Form -->
-        <div class="bg-white rounded shadow-md p-8 mb-8"
-          style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
-          <form id="download-form">
-            <div class="mb-8">
-              <label class="block text-gray-700 font-medium mb-4 text-center">Enter 6-Digit Access Code</label>
-              <div class="access-code-input justify-center mb-2">
-                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit" autofocus>
-                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
-                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
-                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
-                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
-                <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
-              </div>
-              <p class="text-center text-sm text-gray-500">The access code was provided by the sender</p>
-            </div>
-
-            <!-- Security Information -->
-            <div class="p-4 rounded mb-8"
-              style="background-color: rgba(23, 195, 178, 0.1); border: 1px solid rgba(23, 195, 178, 0.2);">
-              <div class="flex items-start">
-                <div class="w-6 h-6 flex items-center justify-center text-primary mt-0.5">
-                  <i class="ri-shield-check-line"></i>
-                </div>
-                <div class="ml-2">
-                  <h4 class="font-medium text-gray-800">End-to-End Encryption</h4>
-                  <p class="text-sm text-gray-600">This file is encrypted with your public key. Only you can decrypt it
-                    using your private key.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Loading State -->
-            <div id="loading-state" class="hidden mb-6">
-              <div class="w-full bg-gray-200 rounded-full h-2.5">
-                <div class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
-              </div>
-              <p class="text-sm text-gray-600 mt-2 text-center">Downloading encrypted file... <span
-                  id="download-percentage">0%</span></p>
-            </div>
-
-            <!-- Success Message -->
-            <div id="download-success" class="hidden mb-6 p-4 rounded-md bg-green-50 border border-green-200">
-              <div class="flex items-start">
-                <div class="w-6 h-6 flex items-center justify-center text-green-500 mt-0.5">
-                  <i class="ri-check-line"></i>
-                </div>
-                <div class="ml-2">
-                  <h4 class="font-medium text-green-800">File Downloaded Successfully!</h4>
-                  <p class="text-sm text-green-700">Your encrypted file has been downloaded. Use your private key to
-                    decrypt it.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Error Message -->
-            <div id="download-error" class="hidden mb-6 p-4 rounded-md bg-red-50 border border-red-200">
-              <div class="flex items-start">
-                <div class="w-6 h-6 flex items-center justify-center text-red-500 mt-0.5">
-                  <i class="ri-error-warning-line"></i>
-                </div>
-                <div class="ml-2">
-                  <h4 class="font-medium text-red-800">Download Failed</h4>
-                  <p class="text-sm text-red-700" id="error-message">Invalid access code. Please check and try again.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex justify-center">
-              <button type="submit" id="download-btn"
-                class="px-6 py-3 bg-primary text-white rounded font-medium hover:bg-primary/90 !rounded-button whitespace-nowrap flex items-center justify-center">
-                <div class="w-5 h-5 flex items-center justify-center mr-2">
-                  <i class="ri-download-2-line"></i>
-                </div>
-                Download Encrypted File
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- FAQ Section -->
-        <div class="bg-white rounded shadow-md p-6"
-          style="background: linear-gradient(to bottom right, #ffffff, #fef9ef); border: 1px solid rgba(255, 203, 119, 0.3); box-shadow: 0 10px 30px rgba(34, 124, 157, 0.1);">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">Frequently Asked Questions</h3>
-          <div class="space-y-4">
-            <div class="border rounded !rounded-button overflow-hidden"
-              style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-              <button
-                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-                <span>What is an access code?</span>
-                <div class="w-5 h-5 flex items-center justify-center text-gray-500">
-                  <i class="ri-arrow-down-s-line faq-icon"></i>
-                </div>
-              </button>
-              <div class="faq-content hidden px-4 pb-4 pt-0">
-                <p class="text-gray-600 text-sm">The access code is a unique 6-digit number provided by the sender that
-                  allows you to download the encrypted file. This code adds an extra layer of security to ensure only
-                  the intended recipient can access the file.</p>
-              </div>
-            </div>
-            <div class="border rounded !rounded-button overflow-hidden"
-              style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-              <button
-                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-                <span>How do I decrypt the file after downloading?</span>
-                <div class="w-5 h-5 flex items-center justify-center text-gray-500">
-                  <i class="ri-arrow-down-s-line faq-icon"></i>
-                </div>
-              </button>
-              <div class="faq-content hidden px-4 pb-4 pt-0">
-                <p class="text-gray-600 text-sm">After downloading, you'll need to use your private key to decrypt the
-                  file. If you received the file through a file request, your browser has stored your private key. The
-                  file will be automatically decrypted when you open it through our system.</p>
-              </div>
-            </div>
-            <div class="border rounded !rounded-button overflow-hidden"
-              style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-              <button
-                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-                <span>What if I don't have the access code?</span>
-                <div class="w-5 h-5 flex items-center justify-center text-gray-500">
-                  <i class="ri-arrow-down-s-line faq-icon"></i>
-                </div>
-              </button>
-              <div class="faq-content hidden px-4 pb-4 pt-0">
-                <p class="text-gray-600 text-sm">If you don't have the access code, you'll need to contact the sender
-                  and ask them to provide it to you. For security reasons, we cannot bypass this requirement or recover
-                  access codes.</p>
-              </div>
-            </div>
-            <div class="border rounded !rounded-button overflow-hidden"
-              style="border-color: rgba(255, 203, 119, 0.3); background-color: rgba(255, 255, 255, 0.7);">
-              <button
-                class="faq-toggle w-full flex items-center justify-between p-4 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none">
-                <span>How long is the access code valid?</span>
-                <div class="w-5 h-5 flex items-center justify-center text-gray-500">
-                  <i class="ri-arrow-down-s-line faq-icon"></i>
-                </div>
-              </button>
-              <div class="faq-content hidden px-4 pb-4 pt-0">
-                <p class="text-gray-600 text-sm">Access codes are valid for 7 days from the time the file was uploaded.
-                  After this period, the file and access code will expire, and you'll need to request a new file
-                  transfer from the sender.</p>
-              </div>
-            </div>
-          </div>
-          <div class="mt-6 flex justify-center">
-            <a href="#" class="text-primary flex items-center hover:underline">
-              <div class="w-5 h-5 flex items-center justify-center mr-1">
-                <i class="ri-customer-service-2-line"></i>
-              </div>
-              Need more help? Contact our support team
-            </a>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="py-6"
-      style="background: linear-gradient(to right, #ffffff, #fef9ef); border-top: 1px solid rgba(255, 203, 119, 0.3);">
-      <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-          <div class="mb-4 md:mb-0">
-            <p class="text-gray-600 text-sm">© 2025 Secure File Transfer. All rights reserved.</p>
-          </div>
-          <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
-            <div class="flex space-x-6">
-              <a href="#" class="flex items-center text-gray-600 hover:text-primary">
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-file-upload-line"></i>
-                </div>
-                <span class="text-sm">Send File</span>
-              </a>
-              <a href="#" class="flex items-center text-primary">
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-file-download-line"></i>
-                </div>
-                <span class="text-sm">Download File</span>
-              </a>
-              <a href="/request_send/" class="flex items-center text-gray-600 hover:text-primary">
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-send-plane-line"></i>
-                </div>
-                <span class="text-sm">Request File</span>
-              </a>
-            </div>
-            <div class="flex space-x-6">
-              <a href="#" class="text-gray-500 hover:text-gray-700">
-                <div class="w-5 h-5 flex items-center justify-center">
-                  <i class="ri-shield-keyhole-line"></i>
-                </div>
-              </a>
-              <a href="#" class="text-gray-500 hover:text-gray-700">
-                <div class="w-5 h-5 flex items-center justify-center">
-                  <i class="ri-file-list-3-line"></i>
-                </div>
-              </a>
-              <a href="#" class="text-gray-500 hover:text-gray-700">
-                <div class="w-5 h-5 flex items-center justify-center">
-                  <i class="ri-question-line"></i>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // Access code input handling
-      const codeDigits = document.querySelectorAll('.code-digit');
-      const downloadForm = document.getElementById('download-form');
-      const downloadBtn = document.getElementById('download-btn');
-      const loadingState = document.getElementById('loading-state');
-      const downloadSuccess = document.getElementById('download-success');
-      const downloadError = document.getElementById('download-error');
-      const errorMessage = document.getElementById('error-message');
-      const progressBar = document.querySelector('.bg-primary.h-2\\.5');
-      const downloadPercentage = document.getElementById('download-percentage');
-      const faqToggles = document.querySelectorAll('.faq-toggle');
-
-      // Auto-focus next input when a digit is entered
-      codeDigits.forEach((digit, index) => {
-        digit.addEventListener('input', function (e) {
-          if (this.value.length === 1) {
-            // Move to next input
-            if (index < codeDigits.length - 1) {
-              codeDigits[index + 1].focus();
-            }
-          }
-        });
-
-        // Handle backspace
-        digit.addEventListener('keydown', function (e) {
-          if (e.key === 'Backspace' && this.value === '' && index > 0) {
-            codeDigits[index - 1].focus();
-          }
-        });
-
-        // Ensure only numbers are entered
-        digit.addEventListener('keypress', function (e) {
-          if (!/^\d$/.test(e.key)) {
-            e.preventDefault();
-          }
-        });
-
-        // Handle paste event for the entire code
-        digit.addEventListener('paste', function (e) {
-          e.preventDefault();
-          const pastedData = e.clipboardData.getData('text');
-          if (/^\d+$/.test(pastedData)) {
-            for (let i = 0; i < Math.min(pastedData.length, codeDigits.length); i++) {
-              codeDigits[i].value = pastedData[i];
-              if (i < codeDigits.length - 1) {
-                codeDigits[i + 1].focus();
-              }
-            }
-          }
-        });
-      });
-
-      // Form submission
-      downloadForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        // Get access code
-        let accessCode = '';
-        codeDigits.forEach(digit => {
-          accessCode += digit.value;
-        });
-
-        // Validate access code
-        if (accessCode.length !== 6 || !/^\d+$/.test(accessCode)) {
-          downloadError.classList.remove('hidden');
-          errorMessage.textContent = 'Please enter a valid 6-digit access code.';
-          return;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decrypt & Download File</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="/static/js/navbar.js" defer></script>
+    <script>tailwind.config = { theme: { extend: { colors: { primary: '#17c3b2', secondary: '#227c9d' }, borderRadius: { 'none': '0px', 'sm': '4px', DEFAULT: '8px', 'md': '12px', 'lg': '16px', 'xl': '20px', '2xl': '24px', '3xl': '32px', 'full': '9999px', 'button': '8px' } } } }</script>
+    <style>
+        :where([class^="ri-"])::before {
+            content: "\f3c2";
         }
 
-        // Hide any previous error
-        downloadError.classList.add('hidden');
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
 
-        // Show loading state
-        loadingState.classList.remove('hidden');
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
 
-        // Disable download button
-        downloadBtn.disabled = true;
-        downloadBtn.innerHTML = `
-      <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      Downloading...
-    `;
-
-        // Make API request to get encrypted file
-        fetch('/api/files/get_encrypted_file_api/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ accessCode: accessCode })
-        })
-          .then(response => {
-            if (!response.ok) {
-              // Handle different error responses
-              if (response.status === 404) {
-                throw new Error('Invalid access code. Please check and try again.');
-              } else if (response.status === 403) {
-                throw new Error('Access blocked. Too many failed attempts.');
-              } else if (response.status === 410) {
-                throw new Error('This file has expired and is no longer available.');
-              } else {
-                throw new Error('An error occurred. Please try again later.');
-              }
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
             }
-            return response.json();
-          })
-          .then(data => {
-            // Simulate download progress
-            let progress = 0;
-            const interval = setInterval(function () {
-              progress += 5;
-              if (progress > 100) {
-                clearInterval(interval);
-                return;
-              }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
 
-              progressBar.style.width = `${progress}%`;
-              downloadPercentage.textContent = `${progress}%`;
+        @keyframes pulseAnimation {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 0.2;
+            }
+        }
 
-              if (progress === 100) {
-                clearInterval(interval);
+        @keyframes floatAnimation {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
 
-                // Hide loading state
-                setTimeout(function () {
-                  loadingState.classList.add('hidden');
-                  downloadSuccess.classList.remove('hidden');
+        ::selection {
+            background: rgba(23, 195, 178, 0.2);
+            color: #17c3b2;
+        }
 
-                  // Create and trigger download
-                  const downloadLink = document.createElement('a');
-                  downloadLink.href = data.fileUrl;
-                  downloadLink.download = data.fileName;
-                  document.body.appendChild(downloadLink);
-                  downloadLink.click();
-                  document.body.removeChild(downloadLink);
+        ::-moz-selection {
+            background: rgba(23, 195, 178, 0.2);
+            color: #17c3b2;
+        }
 
-                  // Reset download button
-                  downloadBtn.disabled = false;
-                  downloadBtn.innerHTML = `
-              <div class="w-5 h-5 flex items-center justify-center mr-2">
-                <i class="ri-download-2-line"></i>
-              </div>
-              Download Encrypted File
-            `;
-                }, 500);
-              }
-            }, 100);
-          })
-          .catch(error => {
-            // Handle errors
-            loadingState.classList.add('hidden');
-            downloadError.classList.remove('hidden');
-            errorMessage.textContent = error.message;
+        .glass-card {
+            position: relative;
+            overflow: hidden;
+        }
 
-            // Reset download button
-            downloadBtn.disabled = false;
-            downloadBtn.innerHTML = `
-        <div class="w-5 h-5 flex items-center justify-center mr-2">
-          <i class="ri-download-2-line"></i>
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+            transform: rotate(45deg);
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .glass-card:hover::before {
+            opacity: 1;
+        }
+
+        .access-code-input {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .access-code-input input {
+            width: 3rem;
+            height: 3.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .access-code-input input:focus {
+            border-color: #17c3b2;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(23, 195, 178, 0.2);
+        }
+
+        .faq-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen" style="position: relative; overflow-x: hidden;">
+    <div class="fixed inset-0 z-0 overflow-hidden">
+        <div class="absolute inset-0"
+            style="background: linear-gradient(-45deg, rgba(23, 195, 178, 0.3), rgba(34, 124, 157, 0.3), rgba(147, 51, 234, 0.3), rgba(236, 72, 153, 0.3)); background-size: 400% 400%; animation: gradientAnimation 20s ease infinite;">
         </div>
-        Download Encrypted File
-      `;
-          });
-      });
+        <div class="absolute inset-0"
+            style="background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%); animation: pulseAnimation 8s ease-in-out infinite;">
+        </div>
+        <div class="absolute inset-0 opacity-30"
+            style="background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvc3ZnPg==');">
+        </div>
+        <div class="absolute -inset-[100%] animate-[spin_100s_linear_infinite]"
+            style="background: radial-gradient(circle at center, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);">
+        </div>
+    </div>
 
-      // FAQ accordion functionality
-      faqToggles.forEach(toggle => {
-        toggle.addEventListener('click', function () {
-          const content = this.nextElementSibling;
-          const icon = this.querySelector('.faq-icon');
+{% block content %}
+    <div class="relative z-10">
+        <div class="min-h-screen flex flex-col">
+            {% include "front_end/user_navbar.html" %}
+            
+            <!-- Main Content -->
+            <main class="flex-grow container mx-auto px-4 py-8">
+                <div class="max-w-3xl mx-auto">
+                    <!-- Page Title -->
+                    <div class="mb-12 text-center relative">
+                        <h2 class="text-4xl font-bold text-gray-800 mb-3"
+                            style="background: linear-gradient(135deg, #17c3b2, #227c9d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            Decrypt & Download File</h2>
+                        <p class="text-gray-600 mt-2 text-lg">Enter your access code to download the encrypted file</p>
+                    </div>
 
-          // Close all other FAQs
-          faqToggles.forEach(otherToggle => {
-            if (otherToggle !== toggle) {
-              otherToggle.nextElementSibling.classList.add('hidden');
-              otherToggle.querySelector('.faq-icon').classList.remove('ri-arrow-up-s-line');
-              otherToggle.querySelector('.faq-icon').classList.add('ri-arrow-down-s-line');
+                    <!-- Main Form -->
+                    <div class="rounded-xl shadow-md p-8 mb-8 glass-card"
+                        style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(254, 249, 239, 0.9)), radial-gradient(circle at top left, rgba(23, 195, 178, 0.1), transparent 50%), radial-gradient(circle at bottom right, rgba(34, 124, 157, 0.1), transparent 50%); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 20px 40px rgba(34, 124, 157, 0.12), inset 0 0 80px rgba(255, 255, 255, 0.5); backdrop-filter: blur(20px);">
+                         <form id="download-form">
+                            <!-- Access Code Input -->
+                            <div class="mb-8">
+                                <label class="block text-gray-700 font-medium mb-4 text-center">Enter 6-Digit Access Code</label>
+                                <div class="access-code-input justify-center mb-2">
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit" autofocus>
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+                                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="code-digit">
+                                </div>
+                                <p class="text-center text-sm text-gray-500">The access code was provided by the sender</p>
+                            </div>
+                        
+                            <!-- Private Key Input -->
+                            <div class="mb-8">
+                                <label for="privateKey" class="block text-gray-700 font-medium mb-2 text-center">Paste Your Private Key</label>
+                                <textarea id="privateKey"
+                                          class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary"
+                                          rows="6"
+                                          placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----" required></textarea>
+                            </div>
+                        
+                            <!-- Security Information -->
+                            <div class="p-6 rounded-xl mb-6"
+                                 style="background: linear-gradient(135deg, rgba(23, 195, 178, 0.1), rgba(34, 124, 157, 0.05)); border: 1px solid rgba(23, 195, 178, 0.2); backdrop-filter: blur(10px);">
+                                <div class="flex items-start">
+                                    <div class="w-6 h-6 flex items-center justify-center text-primary mt-0.5">
+                                        <i class="ri-shield-check-line"></i>
+                                    </div>
+                                    <div class="ml-2">
+                                        <h4 class="font-medium text-gray-800">End-to-End Encryption</h4>
+                                        <p class="text-sm text-gray-600">
+                                            This file is encrypted with your public key. Only you can decrypt it using your private key.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Loading State -->
+                            <div id="loading-state" class="hidden mb-6">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2 text-center">Downloading encrypted file... <span id="download-percentage">0%</span></p>
+                            </div>
+                        
+                            <!-- Success Message -->
+                            <div id="download-success" class="hidden mb-6 p-4 rounded-md bg-green-50 border border-green-200">
+                                <div class="flex items-start">
+                                    <div class="w-6 h-6 flex items-center justify-center text-green-500 mt-0.5">
+                                        <i class="ri-check-line"></i>
+                                    </div>
+                                    <div class="ml-2">
+                                        <h4 class="font-medium text-green-800">File Downloaded Successfully!</h4>
+                                        <p class="text-sm text-green-700">Your encrypted file has been downloaded and decrypted.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Error Message -->
+                            <div id="download-error" class="hidden mb-6 p-4 rounded-md bg-red-50 border border-red-200">
+                                <div class="flex items-start">
+                                    <div class="w-6 h-6 flex items-center justify-center text-red-500 mt-0.5">
+                                        <i class="ri-error-warning-line"></i>
+                                    </div>
+                                    <div class="ml-2">
+                                        <h4 class="font-medium text-red-800">Download Failed</h4>
+                                        <p class="text-sm text-red-700" id="error-message">Invalid access code. Please check and try again.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Submit Button -->
+                            <div class="flex justify-center">
+                                <button type="submit" id="download-btn"
+                                        class="px-8 py-3.5 bg-gradient-to-r from-primary to-[#227c9d] text-white rounded font-medium hover:opacity-90 transition-all duration-300 transform hover:scale-[1.02] !rounded-button whitespace-nowrap flex items-center justify-center shadow-lg shadow-primary/20">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                        <i class="ri-download-2-line"></i>
+                                    </div>
+                                    Decrypt & Download File
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- FAQ Section -->
+                    <div class="rounded-xl shadow-md p-8 glass-card"
+                         style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(254, 249, 239, 0.9)); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 20px 40px rgba(34, 124, 157, 0.12); backdrop-filter: blur(20px);">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <div class="w-6 h-6 flex items-center justify-center text-primary mr-2">
+                                <i class="ri-questionnaire-line"></i>
+                            </div>
+                            Frequently Asked Questions
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="faq-item group transition-all duration-300">
+                                <button
+                                    class="faq-toggle w-full flex items-center justify-between p-5 text-left font-medium text-gray-800 rounded-xl !rounded-button hover:bg-gradient-to-r hover:from-primary/5 hover:to-secondary/5 focus:outline-none transition-all duration-300"
+                                    style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(23, 195, 178, 0.15);">
+                                    <span class="flex items-center">
+                                        <div class="w-5 h-5 flex items-center justify-center text-primary mr-3 opacity-75">
+                                            <i class="ri-key-2-line"></i>
+                                        </div>
+                                        What is an access code?
+                                    </span>
+                                    <div class="w-5 h-5 flex items-center justify-center text-primary/70 transition-transform duration-300">
+                                        <i class="ri-arrow-down-s-line faq-icon"></i>
+                                    </div>
+                                </button>
+                                <div class="faq-content hidden px-5 pb-5 pt-2 text-gray-600">
+                                    <div class="pl-8 border-l-2" style="border-color: rgba(23, 195, 178, 0.2);">
+                                        The access code is a unique 6-digit number provided by the sender that allows you to download the encrypted file. This code adds an extra layer of security to ensure only the intended recipient can access the file.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="faq-item group transition-all duration-300">
+                                <button
+                                    class="faq-toggle w-full flex items-center justify-between p-5 text-left font-medium text-gray-800 rounded-xl !rounded-button hover:bg-gradient-to-r hover:from-primary/5 hover:to-secondary/5 focus:outline-none transition-all duration-300"
+                                    style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(23, 195, 178, 0.15);">
+                                    <span class="flex items-center">
+                                        <div class="w-5 h-5 flex items-center justify-center text-primary mr-3 opacity-75">
+                                            <i class="ri-lock-unlock-line"></i>
+                                        </div>
+                                        How do I decrypt the file when downloading?
+                                    </span>
+                                    <div class="w-5 h-5 flex items-center justify-center text-primary/70 transition-transform duration-300">
+                                        <i class="ri-arrow-down-s-line faq-icon"></i>
+                                    </div>
+                                </button>
+                                <div class="faq-content hidden px-5 pb-5 pt-2 text-gray-600">
+                                    <div class="pl-8 border-l-2" style="border-color: rgba(23, 195, 178, 0.2);">
+                                        When downloading, you'll need to use your private key to decrypt the file. 
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="faq-item group transition-all duration-300">
+                                <button
+                                    class="faq-toggle w-full flex items-center justify-between p-5 text-left font-medium text-gray-800 rounded-xl !rounded-button hover:bg-gradient-to-r hover:from-primary/5 hover:to-secondary/5 focus:outline-none transition-all duration-300"
+                                    style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(23, 195, 178, 0.15);">
+                                    <span class="flex items-center">
+                                        <div class="w-5 h-5 flex items-center justify-center text-primary mr-3 opacity-75">
+                                            <i class="ri-key-line"></i>
+                                        </div>
+                                        What if I don't have the access code?
+                                    </span>
+                                    <div class="w-5 h-5 flex items-center justify-center text-primary/70 transition-transform duration-300">
+                                        <i class="ri-arrow-down-s-line faq-icon"></i>
+                                    </div>
+                                </button>
+                                <div class="faq-content hidden px-5 pb-5 pt-2 text-gray-600">
+                                    <div class="pl-8 border-l-2" style="border-color: rgba(23, 195, 178, 0.2);">
+                                        If you don't have the access code, you'll need to contact the sender and ask them to provide it to you. For security reasons, we cannot bypass this requirement or recover access codes.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="faq-item group transition-all duration-300">
+                                <button
+                                    class="faq-toggle w-full flex items-center justify-between p-5 text-left font-medium text-gray-800 rounded-xl !rounded-button hover:bg-gradient-to-r hover:from-primary/5 hover:to-secondary/5 focus:outline-none transition-all duration-300"
+                                    style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(23, 195, 178, 0.15);">
+                                    <span class="flex items-center">
+                                        <div class="w-5 h-5 flex items-center justify-center text-primary mr-3 opacity-75">
+                                            <i class="ri-time-line"></i>
+                                        </div>
+                                        How long is the access code valid?
+                                    </span>
+                                    <div class="w-5 h-5 flex items-center justify-center text-primary/70 transition-transform duration-300">
+                                        <i class="ri-arrow-down-s-line faq-icon"></i>
+                                    </div>
+                                </button>
+                                <div class="faq-content hidden px-5 pb-5 pt-2 text-gray-600">
+                                    <div class="pl-8 border-l-2" style="border-color: rgba(23, 195, 178, 0.2);">
+                                        Access codes are valid for 7 days from the time the file was uploaded. After this period, the file and access code will expire, and you'll need to request a new file transfer from the sender.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 flex justify-center">
+                            <a href="#"
+                                class="group flex items-center px-6 py-3 text-primary hover:text-white bg-transparent hover:bg-primary rounded-full !rounded-button transition-all duration-300"
+                                style="border: 1px dashed rgba(23, 195, 178, 0.5);">
+                                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                    <i class="ri-customer-service-2-line"></i>
+                                </div>
+                                <span class="whitespace-nowrap">Need more help? Contact our support team</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="py-8"
+                    style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(254, 249, 239, 0.9)); border-top: 1px solid rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px);">
+                <div class="container mx-auto px-4">
+                    <div class="flex flex-col md:flex-row justify-between items-center">
+                        <div class="mb-4 md:mb-0">
+                            <p class="text-gray-600 text-sm">© 2025 Secure File Transfer. All rights reserved.</p>
+                        </div>
+                        <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
+                            <div class="flex space-x-6">
+                                <a href="#" class="flex items-center text-gray-600 hover:text-primary">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                        <i class="ri-file-upload-line"></i>
+                                    </div>
+                                    <span class="text-sm">Send File</span>
+                                </a>
+                                <a href="#" class="flex items-center text-primary">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                        <i class="ri-file-download-line"></i>
+                                    </div>
+                                    <span class="text-sm">Download File</span>
+                                </a>
+                                <a href="/request_send/" class="flex items-center text-gray-600 hover:text-primary">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                                        <i class="ri-send-plane-line"></i>
+                                    </div>
+                                    <span class="text-sm">Request File</span>
+                                </a>
+                            </div>
+                            <div class="flex space-x-6">
+                                <a href="#" class="text-gray-500 hover:text-gray-700">
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-shield-keyhole-line"></i>
+                                    </div>
+                                </a>
+                                <a href="#" class="text-gray-500 hover:text-gray-700">
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-file-list-3-line"></i>
+                                    </div>
+                                </a>
+                                <a href="#" class="text-gray-500 hover:text-gray-700">
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-question-line"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script defer>
+
+        // 1. 定义下载错误类型和消息
+        const DOWNLOAD_ERROR_MESSAGES = {
+                ACCESS_CODE_NOT_FOUND: {
+                    title: "Access Code Not Found",
+                    message: "The 6-digit access code you entered doesn't exist. Please double-check the code provided by the sender.",
+                    icon: "ri-search-line",
+                    type: "warning"
+                },
+                ACCESS_CODE_EXPIRED: {
+                    title: "Access Code Expired",
+                    message: "This access code has expired. Access codes are valid for 7 days from upload. Please contact the sender to request a new file transfer.",
+                    icon: "ri-time-line",
+                    type: "warning"
+                },
+                INVALID_PRIVATE_KEY: {
+                    title: "Incorrect Private Key",
+                    message: "The private key you provided doesn't match this file. Please ensure you're using the correct private key that corresponds to the public key used for encryption.",
+                    icon: "ri-key-line",
+                    type: "warning"
+                },
+                DECRYPTION_FAILED: {
+                    title: "Decryption Failed",
+                    message: "Unable to decrypt the file. This usually means the private key doesn't match the public key used for encryption, or the key format is incorrect.",
+                    icon: "ri-lock-unlock-line",
+                    type: "error"
+                },
+                PRIVATE_KEY_FORMAT_ERROR: {
+                    title: "Invalid Private Key Format",
+                    message: "The private key format is incorrect. Please ensure you've copied the complete RSA private key including the -----BEGIN PRIVATE KEY----- and -----END PRIVATE KEY----- lines.",
+                    icon: "ri-file-code-line",
+                    type: "warning"
+                },
+                ACCESS_BLOCKED: {
+                    title: "Access Temporarily Blocked",
+                    message: "Access has been temporarily blocked due to too many failed attempts. Please wait a few minutes before trying again.",
+                    icon: "ri-shield-cross-line",
+                    type: "error"
+                },
+                NETWORK_ERROR: {
+                    title: "Connection Error",
+                    message: "Unable to connect to the server. Please check your internet connection and try again.",
+                    icon: "ri-wifi-off-line",
+                    type: "error"
+                },
+                SERVER_ERROR: {
+                    title: "Server Error",
+                    message: "An unexpected error occurred on our servers. Please try again in a few moments.",
+                    icon: "ri-server-line",
+                    type: "error"
+                }
+            };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Element references
+            const codeDigits = document.querySelectorAll('.code-digit');
+            const downloadForm = document.getElementById('download-form');
+            const downloadBtn = document.getElementById('download-btn');
+            const loadingState = document.getElementById('loading-state');
+            const downloadSuccess = document.getElementById('download-success');
+            const downloadError = document.getElementById('download-error');
+            const errorMessage = document.getElementById('error-message');
+            const progressBar = document.querySelector('.bg-primary.h-2\\.5');
+            const downloadPercentage = document.getElementById('download-percentage');
+            const faqToggles = document.querySelectorAll('.faq-toggle');
+
+            console.log("🔐 Download page script loaded");
+            console.log("Elements found:", {
+                codeDigits: codeDigits.length,
+                downloadForm: !!downloadForm,
+                downloadBtn: !!downloadBtn
+            });
+
+            // CSS布局问题调试和修复
+
+            // 1. 详细的布局调试函数
+            function debugLayoutIssue() {
+                console.log("=== CSS LAYOUT DEBUG ===");
+                console.log("Window size:", window.innerWidth, "x", window.innerHeight);
+                
+                // 检查关键元素的布局信息
+                const criticalElements = [
+                    'download-form',
+                    'download-error', 
+                    'privateKey',
+                    'download-btn'
+                ];
+                
+                // 查找访问码容器
+                const accessCodeContainer = document.querySelector('.access-code-input');
+                if (accessCodeContainer) {
+                    criticalElements.push('access-code-input');
+                }
+                
+                criticalElements.forEach(id => {
+                    const element = document.getElementById(id) || document.querySelector(`.${id}`);
+                    if (element) {
+                        const rect = element.getBoundingClientRect();
+                        const style = window.getComputedStyle(element);
+                        
+                        console.log(`${id}:`, {
+                            position: {
+                                top: rect.top,
+                                left: rect.left,
+                                right: rect.right,
+                                bottom: rect.bottom,
+                                width: rect.width,
+                                height: rect.height
+                            },
+                            css: {
+                                position: style.position,
+                                display: style.display,
+                                visibility: style.visibility,
+                                zIndex: style.zIndex,
+                                overflow: style.overflow,
+                                flexGrow: style.flexGrow,
+                                flexShrink: style.flexShrink
+                            },
+                            viewport: {
+                                inViewport: rect.top >= 0 && rect.left >= 0 && 
+                                        rect.bottom <= window.innerHeight && 
+                                        rect.right <= window.innerWidth,
+                                visible: rect.width > 0 && rect.height > 0
+                            }
+                        });
+                    } else {
+                        console.log(`${id}: NOT FOUND`);
+                    }
+                });
+                
+                console.log("=== END DEBUG ===");
             }
-          });
 
-          // Toggle current FAQ
-          content.classList.toggle('hidden');
-          if (content.classList.contains('hidden')) {
-            icon.classList.remove('ri-arrow-up-s-line');
-            icon.classList.add('ri-arrow-down-s-line');
-          } else {
-            icon.classList.remove('ri-arrow-down-s-line');
-            icon.classList.add('ri-arrow-up-s-line');
-          }
+            // 2. 强制修复布局的函数
+            function forceFixLayout() {
+                console.log("Force fixing layout...");
+                
+                const downloadError = document.getElementById('download-error');
+                const downloadForm = document.getElementById('download-form');
+                const privateKeyInput = document.getElementById('privateKey');
+                const downloadBtn = document.getElementById('download-btn');
+                
+                // 修复错误容器的CSS属性
+                if (downloadError && !downloadError.classList.contains('hidden')) {
+                    // 防止错误容器占用过多空间
+                    downloadError.style.position = 'relative';
+                    downloadError.style.zIndex = '10';
+                    downloadError.style.width = '100%';
+                    downloadError.style.maxWidth = '100%';
+                    downloadError.style.overflow = 'visible';
+                    downloadError.style.flex = 'none';
+                    downloadError.style.flexGrow = '0';
+                    downloadError.style.flexShrink = '0';
+                }
+                
+                // 确保表单容器正确显示
+                if (downloadForm) {
+                    downloadForm.style.display = 'block';
+                    downloadForm.style.position = 'relative';
+                    downloadForm.style.zIndex = '1';
+                    downloadForm.style.width = '100%';
+                    downloadForm.style.visibility = 'visible';
+                    downloadForm.style.overflow = 'visible';
+                    
+                    // 检查表单的父容器
+                    let parent = downloadForm.parentElement;
+                    while (parent && parent !== document.body) {
+                        parent.style.display = '';
+                        parent.style.visibility = 'visible';
+                        parent.style.overflow = 'visible';
+                        parent.classList.remove('hidden');
+                        parent = parent.parentElement;
+                    }
+                }
+                
+                // 修复私钥输入框
+                if (privateKeyInput) {
+                    privateKeyInput.style.display = 'block';
+                    privateKeyInput.style.visibility = 'visible';
+                    privateKeyInput.style.position = 'relative';
+                    privateKeyInput.style.zIndex = '1';
+                    
+                    // 修复私钥输入框的容器
+                    let parent = privateKeyInput.parentElement;
+                    while (parent && parent !== downloadForm) {
+                        parent.style.display = '';
+                        parent.style.visibility = 'visible';
+                        parent.classList.remove('hidden');
+                        parent = parent.parentElement;
+                    }
+                }
+                
+                // 修复访问码输入区域
+                const accessCodeContainer = document.querySelector('.access-code-input');
+                if (accessCodeContainer) {
+                    accessCodeContainer.style.display = 'flex';
+                    accessCodeContainer.style.visibility = 'visible';
+                    
+                    // 修复访问码输入框的父容器
+                    let parent = accessCodeContainer.parentElement;
+                    while (parent && parent !== downloadForm) {
+                        parent.style.display = '';
+                        parent.style.visibility = 'visible';
+                        parent.classList.remove('hidden');
+                        parent = parent.parentElement;
+                    }
+                }
+                
+                // 修复每个访问码数字输入框
+                codeDigits.forEach(digit => {
+                    if (digit) {
+                        digit.style.display = '';
+                        digit.style.visibility = 'visible';
+                    }
+                });
+                
+                // 修复下载按钮
+                if (downloadBtn) {
+                    downloadBtn.style.display = '';
+                    downloadBtn.style.visibility = 'visible';
+                    downloadBtn.style.position = 'relative';
+                    downloadBtn.style.zIndex = '1';
+                    
+                    let parent = downloadBtn.parentElement;
+                    while (parent && parent !== downloadForm) {
+                        parent.style.display = '';
+                        parent.style.visibility = 'visible';
+                        parent.classList.remove('hidden');
+                        parent = parent.parentElement;
+                    }
+                }
+                
+                console.log("Layout fix completed");
+            }
+
+            // 3. 修复后的错误显示函数
+            function showDownloadErrorFixed(errorType, customMessage = null) {
+                const error = DOWNLOAD_ERROR_MESSAGES[errorType];
+                const errorContainer = document.getElementById('download-error');
+                const errorMessageElement = document.getElementById('error-message');
+                
+                console.log('Showing download error with layout fix:', errorType);
+                
+                if (errorContainer && errorMessageElement) {
+                    const fullMessage = customMessage || error.message;
+                    
+                    errorMessageElement.innerHTML = `
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 flex items-center justify-center ${getErrorIconColor(error.type)} mt-0.5">
+                                <i class="${error.icon}"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="font-medium ${getErrorTextColor(error.type)}">${error.title}</h4>
+                                <p class="text-sm ${getErrorDescColor(error.type)} mt-1">${fullMessage}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 设置错误容器样式，确保不影响布局
+                    errorContainer.className = `mb-6 p-4 rounded-md border ${getErrorStyles(error.type)}`;
+                    errorContainer.style.position = 'relative';
+                    errorContainer.style.zIndex = '10';
+                    errorContainer.style.width = '100%';
+                    errorContainer.style.flex = 'none';
+                    
+                    // 显示错误
+                    errorContainer.classList.remove('hidden');
+                    
+                    // 立即进行布局修复
+                    setTimeout(() => {
+                        forceFixLayout();
+                        debugLayoutIssue();
+                    }, 50);
+                    
+                    // 再次修复（有时需要延迟修复）
+                    setTimeout(() => {
+                        forceFixLayout();
+                    }, 200);
+                    
+                    // 滚动到错误位置
+                    setTimeout(() => {
+                        errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                }
+            }
+
+            // 4. 窗口大小改变时的处理
+            function handleResize() {
+                console.log("Window resized:", window.innerWidth, "x", window.innerHeight);
+                
+                setTimeout(() => {
+                    const errorVisible = !document.getElementById('download-error').classList.contains('hidden');
+                    if (errorVisible) {
+                        forceFixLayout();
+                        debugLayoutIssue();
+                    }
+                }, 100);
+            }
+
+            // 5. 添加CSS样式修复
+            function addLayoutFixCSS() {
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    /* 紧急布局修复CSS */
+                    #download-form {
+                        display: block !important;
+                        visibility: visible !important;
+                        position: relative !important;
+                        z-index: 1 !important;
+                    }
+                    
+                    #download-error {
+                        position: relative !important;
+                        z-index: 10 !important;
+                        flex: none !important;
+                        flex-grow: 0 !important;
+                        flex-shrink: 0 !important;
+                    }
+                    
+                    .access-code-input {
+                        display: flex !important;
+                        visibility: visible !important;
+                    }
+                    
+                    #privateKey {
+                        display: block !important;
+                        visibility: visible !important;
+                    }
+                    
+                    #download-btn {
+                        display: inline-flex !important;
+                        visibility: visible !important;
+                    }
+                    
+                    /* 防止父容器隐藏子元素 */
+                    .main-content-container > * {
+                        overflow: visible !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            // 6. 初始化修复
+            document.addEventListener('DOMContentLoaded', function() {
+                // 添加CSS修复
+                addLayoutFixCSS();
+                
+                // 添加窗口大小改变监听器
+                window.addEventListener('resize', handleResize);
+                
+                // 替换原来的showDownloadError函数
+                window.showDownloadError = showDownloadErrorFixed;
+                
+                // 初始布局检查
+                setTimeout(() => {
+                    debugLayoutIssue();
+                }, 1000);
+            });
+
+            // 7. 手动触发调试（在控制台中使用）
+            window.debugLayout = debugLayoutIssue;
+            window.fixLayout = forceFixLayout;
+
+            // 2. 错误样式辅助函数
+            function getErrorStyles(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'bg-red-50 border-red-200';
+                    case 'warning': 
+                        return 'bg-yellow-50 border-yellow-200';
+                    case 'error':
+                    default:
+                        return 'bg-red-50 border-red-200';
+                }
+            }
+
+            function getErrorIconColor(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'text-red-500';
+                    case 'warning':
+                        return 'text-yellow-500';
+                    case 'error':
+                    default:
+                        return 'text-red-500';
+                }
+            }
+
+            function getErrorTextColor(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'text-red-800';
+                    case 'warning':
+                        return 'text-yellow-800';
+                    case 'error':
+                    default:
+                        return 'text-red-800';
+                }
+            }
+
+            function getErrorDescColor(type) {
+                switch(type) {
+                    case 'danger':
+                        return 'text-red-700';
+                    case 'warning':
+                        return 'text-yellow-700';
+                    case 'error':
+                    default:
+                        return 'text-red-700';
+                }
+            }
+        
+            // 3. 下载错误分类函数
+            function categorizeDownloadError(response, errorData) {
+                const status = response.status;
+                const message = errorData?.error || errorData?.message || '';
+                
+                console.log('Categorizing download error:', { status, message, errorData });
+                
+                // 优先检查错误消息内容，而不是仅依赖状态码
+                if (message.includes('private key') || message.includes('Private key') || 
+                    message.includes('Decryption failed') || message.includes('decrypt')) {
+                    return 'INVALID_PRIVATE_KEY';
+                }
+
+                if (message.includes('access code') && message.includes('expired')) {
+                    return 'ACCESS_CODE_EXPIRED';
+                }
+                
+                if (message.includes('access code') && (message.includes('not found') || message.includes('Invalid'))) {
+                    return 'ACCESS_CODE_NOT_FOUND';
+                }
+
+                if (status === 404) {
+                    if (message.includes('access code') || message.includes('Invalid access code')) {
+                        return 'ACCESS_CODE_NOT_FOUND';
+                    }
+                } else if (status === 410) {
+                    // 410状态码可能是访问码过期，也可能是其他原因
+                    // 如果没有明确的过期消息，可能是解密失败
+                    return 'DECRYPTION_FAILED';
+                } else if (status === 403) {
+                    if (message.includes('blocked') || message.includes('suspicious')) {
+                        return 'ACCESS_BLOCKED';
+                    }
+                } else if (status === 400) {
+                    if (message.includes('private key') || message.includes('Private key')) {
+                        return 'INVALID_PRIVATE_KEY';
+                    }
+                } else if (status === 500) {
+                    if (message.includes('Decryption failed') || message.includes('decrypt')) {
+                        return 'DECRYPTION_FAILED';
+                    }
+                    return 'SERVER_ERROR';
+                } else if (status === 0 || status >= 502) {
+                    return 'NETWORK_ERROR';
+                }
+                
+                return 'SERVER_ERROR'; // 默认错误
+            }
+
+            // 4. 显示下载错误信息的函数
+            function showDownloadError(errorType, customMessage = null) {
+                const error = DOWNLOAD_ERROR_MESSAGES[errorType];
+                const errorContainer = document.getElementById('download-error');
+                const errorMessageElement = document.getElementById('error-message');
+                
+                console.log('Showing download error:', errorType, error);
+                
+                if (errorContainer && errorMessageElement) {
+                    const fullMessage = customMessage || error.message;
+                    
+                    errorMessageElement.innerHTML = `
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 flex items-center justify-center ${getErrorIconColor(error.type)} mt-0.5">
+                                <i class="${error.icon}"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="font-medium ${getErrorTextColor(error.type)}">${error.title}</h4>
+                                <p class="text-sm ${getErrorDescColor(error.type)} mt-1">${fullMessage}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 设置错误容器样式
+                    errorContainer.className = `mb-6 p-4 rounded-md border ${getErrorStyles(error.type)}`;
+                    
+                    // 显示错误
+                    errorContainer.classList.remove('hidden');
+                    
+                    // 确保关键元素仍然可见
+                    setTimeout(() => {
+                        ensureFormElementsVisible();
+                    }, 100);
+                    setTimeout(() => forceFixLayout(), 5);
+                    setTimeout(() => forceFixLayout(), 100);
+                    setTimeout(() => forceFixLayout(), 300);
+
+                    // 滚动到错误位置
+                    errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+        function ensureFormElementsVisible() {
+            console.log("Ensuring form elements are visible...");
+            
+            // 关键元素列表
+            const criticalElements = [
+                { element: downloadForm, name: 'downloadForm' },
+                { element: downloadBtn, name: 'downloadBtn' },
+                { element: document.getElementById('privateKey'), name: 'privateKey' },
+            ];
+            
+            // 检查访问码输入框
+            const accessCodeContainer = document.querySelector('.access-code-input');
+            if (accessCodeContainer) {
+                criticalElements.push({ element: accessCodeContainer, name: 'accessCodeContainer' });
+            }
+            
+            // 检查所有访问码数字输入框
+            codeDigits.forEach((digit, index) => {
+                criticalElements.push({ element: digit, name: `codeDigit${index}` });
+            });
+            
+            criticalElements.forEach(({ element, name }) => {
+                if (element) {
+                    // 检查元素是否可见
+                    const isVisible = element.offsetParent !== null;
+                    console.log(`${name} visible:`, isVisible);
+                    
+                    if (!isVisible) {
+                        console.warn(`${name} is hidden, attempting to restore...`);
+                        
+                        // 修复元素本身
+                        element.style.display = '';
+                        element.style.visibility = 'visible';
+                        element.style.opacity = '1';
+                        element.classList.remove('hidden');
+                        
+                        // 修复父容器链
+                        let parent = element.parentElement;
+                        let level = 1;
+                        while (parent && parent !== document.body && level <= 5) {
+                            const parentStyle = window.getComputedStyle(parent);
+                            
+                            if (parentStyle.display === 'none' || parent.classList.contains('hidden')) {
+                                console.warn(`Parent ${level} of ${name} is hidden, fixing...`);
+                                parent.style.display = '';
+                                parent.style.visibility = 'visible';
+                                parent.classList.remove('hidden');
+                            }
+                            
+                            parent = parent.parentElement;
+                            level++;
+                        }
+                    }
+                } else {
+                    console.warn(`${name} element not found`);
+                }
+            });
+            
+            console.log("Form elements visibility check completed");
+        }
+
+
+            // 5. 处理下载错误的主函数
+            function handleDownloadError(error, response = null) {
+                console.log('Handling download error:', error, response);
+                
+                // 检查网络错误
+                if (!response || error.message.includes('fetch')) {
+                    showDownloadError('NETWORK_ERROR');
+                    return;
+                }
+                
+                // 尝试解析服务器错误响应
+                if (response && typeof response.json === 'function') {
+                    response.json().then(errorData => {
+                        const errorType = categorizeDownloadError(response, errorData);
+                        showDownloadError(errorType);
+                    }).catch(() => {
+                        showDownloadError('SERVER_ERROR');
+                    });
+                } else {
+                    // 如果已经有错误数据
+                    const errorType = categorizeDownloadError(response, error);
+                    showDownloadError(errorType);
+                }
+            }
+
+            function validateFormBeforeSubmit(accessCode, privateKey) {
+                console.log('Validating form before submit:', {
+                    accessCodeLength: accessCode.length,
+                    privateKeyLength: privateKey.length
+                });
+                
+                // 验证访问码
+                if (accessCode.length !== 6 || !/^\d{6}$/.test(accessCode)) {
+                    showDownloadError('ACCESS_CODE_NOT_FOUND', 'Please enter a valid 6-digit access code.');
+                    return false;
+                }
+                
+                // 验证私钥
+                if (!privateKey) {
+                    showDownloadError('INVALID_PRIVATE_KEY', 'Please paste your private key to proceed.');
+                    return false;
+                }
+                
+                // 详细的私钥格式验证
+                if (!validatePrivateKeyFormat(privateKey)) {
+                    return false; // 错误已在validatePrivateKeyFormat中显示
+                }
+                
+                return true;
+            }
+
+            // 6. 验证私钥格式的函数
+            function validatePrivateKeyFormat(privateKey) {
+                const trimmedKey = privateKey.trim();
+                
+                console.log('Validating private key format:', {
+                length: trimmedKey.length,
+                hasBegin: trimmedKey.includes('-----BEGIN'),
+                hasEnd: trimmedKey.includes('-----END'),
+                hasPrivateKey: trimmedKey.includes('PRIVATE KEY')
+            });
+            
+            // 检查是否包含基本的私钥结构
+            const hasBeginHeader = trimmedKey.includes('-----BEGIN') && 
+                                (trimmedKey.includes('PRIVATE KEY') || trimmedKey.includes('RSA PRIVATE KEY'));
+            const hasEndFooter = trimmedKey.includes('-----END') && 
+                                (trimmedKey.includes('PRIVATE KEY') || trimmedKey.includes('RSA PRIVATE KEY'));
+            
+            // 检查是否有实际的密钥内容（不只是头尾）
+            const lines = trimmedKey.split('\n').filter(line => line.trim());
+            const hasContent = lines.length > 2; // 至少有开始行、内容行、结束行
+            
+            if (!hasBeginHeader || !hasEndFooter || !hasContent) {
+                showDownloadError('PRIVATE_KEY_FORMAT_ERROR');
+                return false;
+            }
+            
+            // 检查是否看起来像是占位符文本
+            const isPlaceholder = trimmedKey.includes('and edae') || 
+                                trimmedKey.includes('your private key here') ||
+                                trimmedKey.length < 100; // 真实私钥应该比较长
+            
+            if (isPlaceholder) {
+                showDownloadError('PRIVATE_KEY_FORMAT_ERROR', 
+                    'Please paste your actual private key, not placeholder text. The private key should be much longer and contain the actual cryptographic data.');
+                return false;
+            }
+            
+            return true;
+            }
+
+            // Auto-focus and input behavior for access code digits
+            codeDigits.forEach((digit, index) => {
+                digit.addEventListener('input', function () {
+                    if (this.value.length === 1 && index < codeDigits.length - 1) {
+                        codeDigits[index + 1].focus();
+                    }
+                });
+        
+                digit.addEventListener('keydown', function (e) {
+                    if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                        codeDigits[index - 1].focus();
+                    }
+                });
+        
+                digit.addEventListener('keypress', function (e) {
+                    if (!/^\d$/.test(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+        
+                digit.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text');
+                    if (/^\d+$/.test(pastedData)) {
+                        for (let i = 0; i < Math.min(pastedData.length, codeDigits.length); i++) {
+                            codeDigits[i].value = pastedData[i];
+                            if (i < codeDigits.length - 1) {
+                                codeDigits[i + 1].focus();
+                            }
+                        }
+                    }
+                });
+            });
+        
+            // Handle form submission
+            if (downloadForm) {
+                console.log("Adding form submit listener");
+                downloadForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    console.log("Form submitted");
+        
+                    let accessCode = '';
+                    codeDigits.forEach(digit => {
+                        accessCode += digit.value.trim();
+                    });
+        
+                    const privateKey = document.getElementById("privateKey").value.trim();
+                    
+                    console.log("Access code:", accessCode, "Private key length:", privateKey.length);
+        
+                    if (accessCode.length !== 6 || !/^\d{6}$/.test(accessCode)) {
+                        showDownloadError('ACCESS_CODE_NOT_FOUND', 'Please enter a valid 6-digit access code.');
+                        return;
+                    }
+        
+                    if (!privateKey) {
+                        showDownloadError('INVALID_PRIVATE_KEY', 'Please paste your private key to proceed.');
+                        return;
+                    }
+                    
+                    // 添加私钥格式验证
+                    if (!validatePrivateKeyFormat(privateKey)) {
+                        return; // 错误已在validatePrivateKeyFormat中显示
+                    }
+        
+                    // 隐藏之前的错误
+                    if (downloadError) {
+                        downloadError.classList.add('hidden');
+                    }
+                    
+                    // 显示加载状态
+                    if (loadingState) {
+                        loadingState.classList.remove('hidden');
+                    }
+        
+                    if (downloadBtn) {
+                        downloadBtn.disabled = true;
+                        downloadBtn.innerHTML = `
+                            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Downloading...
+                        `;
+                    }
+        
+                    console.log("Sending download request...");
+        
+                    // 发送请求获取加密文件
+                    fetch('/api/files/get_encrypted_file_api/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ accessCode, privateKey })
+                    })
+                    .then(response => {
+                        console.log("Response received:", response.status);
+                        
+                        if (!response.ok) {
+                            // 使用新的错误处理系统
+                            return response.json().then(errorData => {
+                                console.log("Error data:", errorData);
+                                const errorType = categorizeDownloadError(response, errorData);
+                                showDownloadError(errorType);
+                                throw new Error('Download failed');
+                            });
+                        }
+                        
+                        // 保存响应对象以便获取头信息
+                        const responseData = {
+                            blob: response.blob(),
+                            headers: response.headers
+                        };
+                        
+                        return Promise.all([responseData.blob, Promise.resolve(responseData.headers)]);
+                    })
+                    .then(([blob, headers]) => {
+                        console.log("Blob received, starting download...");
+                        
+                        let progress = 0;
+                        const interval = setInterval(() => {
+                            progress += 5;
+                            if (progress > 100) {
+                                clearInterval(interval);
+                                return;
+                            }
+                            if (progressBar) progressBar.style.width = `${progress}%`;
+                            if (downloadPercentage) downloadPercentage.textContent = `${progress}%`;
+
+                            if (progress === 100) {
+                                clearInterval(interval);
+                                setTimeout(() => {
+                                    if (loadingState) loadingState.classList.add('hidden');
+                                    if (downloadSuccess) downloadSuccess.classList.remove('hidden');
+
+                                    const url = window.URL.createObjectURL(blob);
+                                    const downloadLink = document.createElement('a');
+                                    downloadLink.href = url;
+                                    
+                                    // 从服务器响应头中提取文件名
+                                    let filename = 'decrypted_file'; // 默认文件名
+                                    let foundFilename = false; // 标记是否找到了文件名
+                                    
+                                    const contentDisposition = headers.get('content-disposition');
+                                    console.log('Content-Disposition header:', contentDisposition);
+                                    
+                                    if (contentDisposition) {
+                                        // 尝试匹配 filename="..." 格式
+                                        const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+                                        if (filenameMatch && filenameMatch[1]) {
+                                            filename = filenameMatch[1];
+                                            foundFilename = true;
+                                            console.log('Extracted filename from header:', filename);
+                                        } else {
+                                            // 尝试匹配 filename*=UTF-8''... 格式
+                                            const utf8FilenameMatch = contentDisposition.match(/filename\*=UTF-8''([^;]+)/);
+                                            if (utf8FilenameMatch && utf8FilenameMatch[1]) {
+                                                filename = decodeURIComponent(utf8FilenameMatch[1]);
+                                                foundFilename = true;
+                                                console.log('Extracted UTF-8 filename from header:', filename);
+                                            }
+                                        }
+                                    }
+                                    
+                                    // 从自定义头中获取文件名（备用方案）
+                                    const customFilename = headers.get('x-original-filename');
+                                    if (customFilename && !foundFilename) {
+                                        filename = customFilename;
+                                        console.log('Using custom filename header:', filename);
+                                    }
+                                    
+                                    console.log('Final filename for download:', filename);
+                                    downloadLink.download = filename;
+                                    
+                                    document.body.appendChild(downloadLink);
+                                    downloadLink.click();
+                                    document.body.removeChild(downloadLink);
+                                    
+                                    // 清理URL对象
+                                    window.URL.revokeObjectURL(url);
+
+                                    // 重置按钮
+                                    if (downloadBtn) {
+                                        downloadBtn.disabled = false;
+                                        downloadBtn.innerHTML = `
+                                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                                <i class="ri-download-2-line"></i>
+                                            </div>
+                                            Decrypt & Download File
+                                        `;
+                                    }
+                                }, 500);
+                            }
+                        }, 100);
+                    })
+                    .catch(error => {
+                        console.log("Catch block:", error.message);
+                        
+                        if (loadingState) loadingState.classList.add('hidden');
+        
+                        // 只有在没有已经处理的错误时才调用这里
+                        if (!error.message.includes('Download failed')) {
+                            handleDownloadError(error);
+                        }
+
+                        // 重置按钮
+                        if (downloadBtn) {
+                            downloadBtn.disabled = false;
+                            downloadBtn.innerHTML = `
+                                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                    <i class="ri-download-2-line"></i>
+                                </div>
+                                Decrypt & Download File
+                            `;
+                        }
+                    });
+                });
+            } else {
+                console.error("Download form not found!");
+            }
+        
+            // FAQ toggle behavior
+            faqToggles.forEach(toggle => {
+                toggle.addEventListener('click', function () {
+                    const content = this.nextElementSibling;
+                    const icon = this.querySelector('.faq-icon');
+                    const isHidden = content.classList.contains('hidden');
+        
+                    // Close all other FAQs
+                    faqToggles.forEach(otherToggle => {
+                        if (otherToggle !== toggle) {
+                            const otherContent = otherToggle.nextElementSibling;
+                            const otherIcon = otherToggle.querySelector('.faq-icon');
+                            otherContent.classList.add('hidden');
+                            if (otherIcon) {
+                                otherIcon.classList.remove('ri-arrow-up-s-line');
+                                otherIcon.classList.add('ri-arrow-down-s-line');
+                            }
+                        }
+                    });
+        
+                    // Toggle current FAQ
+                    if (isHidden) {
+                        content.classList.remove('hidden');
+                        if (icon) {
+                            icon.classList.remove('ri-arrow-down-s-line');
+                            icon.classList.add('ri-arrow-up-s-line');
+                        }
+                    } else {
+                        content.classList.add('hidden');
+                        if (icon) {
+                            icon.classList.remove('ri-arrow-up-s-line');
+                            icon.classList.add('ri-arrow-down-s-line');
+                        }
+                    }
+                });
+            });
+        
+            // Auto-open first FAQ
+            if (faqToggles.length > 0) {
+                faqToggles[0].click();
+            }
         });
-      });
+</script>
 
-      // Open first FAQ by default
-      if (faqToggles.length > 0) {
-        faqToggles[0].click();
-      }
-    });
-  </script>
+{% endblock %}
 </body>
 
 </html>

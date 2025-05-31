@@ -1,0 +1,14 @@
+[flake8]
+max-line-length = 150
+exclude =
+    .git,
+    __pycache__,
+    migrations,
+    .venv,
+    malware_scan/pdf-parser.py
+    # 你可以在这里继续添加其他要排除的文件夹或文件，用逗号分隔，每行一个
+
+per-file-ignores =
+    # 示例:
+    # */views.py:F401
+    # */migrations/*.py:E501

@@ -1,0 +1,194 @@
+<header class="sticky top-0 z-50 backdrop-blur-md bg-white/80 py-4"
+    style="box-shadow: 0 4px 12px rgba(23, 195, 178, 0.04);">
+    <div class="container mx-auto px-4 flex items-center justify-between">
+        <div class="flex items-center">
+            <a href="/" class="mr-12">
+                <h1 class="text-2xl font-['Pacifico'] text-primary">safesend.me</h1>
+            </a>
+            <nav class="hidden md:flex space-x-8">
+                <a href="/upload/"
+                    class="nav-link-hover group flex items-center text-gray-600 hover:text-primary transition-colors duration-300">
+                    <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 group-hover:scale-110 transition-transform duration-300">
+                        <i class="ri-file-upload-line"></i>
+                    </div>
+                    <span class="font-medium">Send File</span>
+                </a>
+                <a href="/download/"
+                    class="nav-link-hover group flex items-center text-gray-600 hover:text-primary transition-colors duration-300">
+                    <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 group-hover:scale-110 transition-transform duration-300">
+                        <i class="ri-file-download-line"></i>
+                    </div>
+                    <span class="font-medium">Download File</span>
+                </a>
+                <a href="/request_send/"
+                    class="nav-link-hover group flex items-center text-gray-600 hover:text-primary transition-colors duration-300">
+                    <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 group-hover:scale-110 transition-transform duration-300">
+                        <i class="ri-send-plane-line"></i>
+                    </div>
+                    <span class="font-medium">Request File</span>
+                </a>
+            </nav>
+        </div>
+        <div class="flex items-center">
+            <div class="relative mr-4">
+                <button
+                    class="group relative flex items-center w-10 h-10 bg-primary/5 rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors duration-300"
+                    id="notification-btn">
+                    <div
+                        class="w-5 h-5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+                        <i class="ri-notification-3-line"></i>
+                    </div>
+                    {% if approach_expired_count %}
+                    <span
+                        class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">1</span>
+                    {% else %}
+                    {% endif %}
+                </button>
+                <div class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2"
+                    id="notification-dropdown">
+                    <div class="p-3 border-b border-gray-200">
+                        <h3 class="font-medium text-gray-800">Notifications</h3>
+                    </div>
+                    <div class="max-h-80 overflow-y-auto">
+                        <a class="block p-3 border-b border-gray-100 hover:bg-primary/5 flex" href="#">
+                            <div
+                                class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-500 mr-3 flex-shrink-0">
+                                <div class="w-4 h-4 flex items-center justify-center">
+                                    <i class="ri-timer-line"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">
+                                    File expiring soon
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    {{ approach_expired_count }} expires in 1 days
+                                </p>
+                                <p class="text-xs text-gray-400 mt-1">Yesterday</p>
+                            </div>
+                        </a>
+                    </div>
+                    <!--
+                    <div class="p-2 border-t border-gray-200">
+                        <a class="block text-center text-primary text-sm p-1 hover:underline" href="#">View all
+                            notifications</a>
+                    </div>
+                    -->
+                </div>
+            </div>
+            <div class="relative">
+                <!--
+                <p>登录状态：{{ request.user.is_authenticated }}</p>
+                <p>用户名：{{ request.user.username }}</p>
+                -->
+                {% if request.user.is_authenticated %}
+                <!--if user is logined-->
+                <button class="group relative flex items-center" id="user-menu-btn">
+                    <div
+                        class="w-10 h-10 bg-primary/5 rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors duration-300">
+                        <div
+                            class="w-5 h-5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+                            <i class="ri-user-line"></i>
+                        </div>
+                    </div>
+                </button>
+                <div class="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 hidden"
+                    id="user-dropdown">
+                    <div class="p-3 border-b border-gray-200 flex items-center">
+                        <div
+                            class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary mr-2">
+                            <div class="w-5 h-5 flex items-center justify-center">
+                                <i class="ri-user-line"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">{{ request.user.username }}</p>
+                            <p class="text-xs text-gray-500">{{ request.user.email }}</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'account:sign_out' %}"
+                        class="flex items-center px-4 py-2 text-gray-600 hover:text-primary hover:bg-primary/5">
+                        <div class="w-5 h-5 flex items-center justify-center mr-2">
+                            <i class="ri-logout-box-r-line"></i>
+                        </div>
+                        <span>Sign Out</span>
+                    </a>
+                </div>
+                {% else %}
+                <a href="{% url 'account:login_page' %}" class="group relative flex items-center">
+                    <div
+                        class="w-10 h-10 bg-primary/5 rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors duration-300">
+                        <div
+                            class="w-5 h-5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+                            <i class="ri-user-line"></i>
+                        </div>
+                    </div>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Add the nav-link-hover style from index.html -->
+<style>
+    .nav-link-hover {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-link-hover::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: currentColor;
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.3s ease;
+    }
+
+    .nav-link-hover:hover::after {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+</style>
+
+<script>
+    // Preserve the dropdown functionality
+    document.addEventListener('DOMContentLoaded', function () {
+        const userMenuBtn = document.getElementById('user-menu-btn');
+        const userDropdown = document.getElementById('user-dropdown');
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationDropdown = document.getElementById('notification-dropdown');
+
+        if (userMenuBtn && userDropdown) {
+            userMenuBtn.addEventListener('click', function () {
+                userDropdown.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        if (notificationBtn && notificationDropdown) {
+            notificationBtn.addEventListener('click', function () {
+                notificationDropdown.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
+                    notificationDropdown.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>

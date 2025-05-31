@@ -1,30 +1,74 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
 *.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
 *.egg
+MANIFEST
 
-# Virtual environment
-venv/
-*.env  # If you use .env files for environment variables (consider security implications for sensitive data!)
-.env
-
-# Django-specific
+# Django
 *.log
-*.pot
-*.mo
-*.orig
-local_settings.py  # If you have local settings (database passwords, etc.) - NEVER commit sensitive settings!
-db.sqlite3  # If you are using SQLite and don't want to track the database file in Git (usually okay for development, but reconsider for production if needed)
-*.sqlite3-journal # SQLite journal files
-
-# Media files (if you are not versioning them and they are generated/user-uploaded)
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
 media/
+staticfiles/
 
-# Static files collected by 'collectstatic' command (if you don't version them)
-static/
+# Virtual Environment
+venv/
+env/
+ENV/
+myenv/
+.env
+.venv
+env/
+env.bak/
+venv.bak/
+myvenv/
+.python-version
+
+# JavaScript/Node
+node_modules/
+npm-debug.log
+yarn-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+.npm
+
+# Frontend build directories
+/static/build/
+/build/
+/dist/
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.settings/
+.classpath
+.factorypath
+*.sublime-workspace
+*.sublime-project
 
 # OS generated files
 .DS_Store
@@ -32,29 +76,37 @@ static/
 ._*
 .Spotlight-V100
 .Trashes
-Icon?
 ehthumbs.db
 Thumbs.db
+Icon?
 
-# Editor/IDE specific files
-*.swp
-*.swo
-*.idea/
-.vscode/
-*.sublime-project
-*.sublime-workspace
+# Migration files (optional, uncomment if you don't want to track migrations)
+# */migrations/*.py
+# !*/migrations/__init__.py
 
-# Packages and distribution
-*.egg-info
-dist/
-build/
-wheels/
-develop-eggs/
-sdist/
-*.zip
-*.tar.gz
-*.whl
+# Media files uploaded by users
+media/
+uploaded_files/
 
-# Temp files
-*.tmp
-tmp/
+# Secret key and sensitive information files
+*.env
+*.key
+credentials.json
+
+# Database backups
+*.dump
+*.sql
+*.sqlite3-backup
+
+# Cache
+__pycache__/
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# myenv specific (modify if your virtual environment name is different)
+myenv/
+lib/
+bin/
+include/
